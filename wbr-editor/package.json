@@ -1,0 +1,17 @@
+{
+    "name": "wbr-editor",
+    "version": "0.1.0",
+    "description": "Smart Workflow Visual Editor, made for editing the Smart Workflow automation format.",
+    "main": "index.js",
+    "engines": {
+        "node": ">=12"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "lzutf8": "^0.6.0",
+        "playwright": "^1.16.3",
+        "react-router-dom": "^5.3.0",
+        "socket.io": "^4.2.0"
+    }
+}

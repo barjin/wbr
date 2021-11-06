@@ -1,0 +1,89 @@
+<html>
+<body>
+<h1>Hybrid passthrough testing page</h1>
+<button id="back">&lt;</button>
+<button id="forw">&gt;</button>
+<form id="form">
+<input id="addressbar" type="text" />
+</form>
+<iframe
+    id="screen"
+    width="1280"
+    height="720">
+</iframe>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://unpkg.com/lzutf8@0.6.0/build/production/lzutf8.min.js"></script>
+<script src="/selgen.js"></script>
+<script>
+  var socket = io();
+
+  var form = document.getElementById('form');
+  var addressbar = document.getElementById('addressbar');
+
+  document.getElementById('back').addEventListener('click', () => {
+    socket.emit('control', {
+      type: 'goBack',
+      data: {}
+    })
+  });
+
+  document.getElementById('forw').addEventListener('click', () => {
+    socket.emit('control', {
+      type: 'goForward',
+      data: {}
+    })
+  });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (addressbar.value) {
+      socket.emit('control', {
+        type: 'goto',
+        data: {'url': addressbar.value}
+      });
+      addressbar.value = '';
+    }
+  });
+
+  function loadPage(data){
+    data = LZUTF8.decompress(new Uint8Array(data)); // string compression for shrinking the transferred data.
+    let screen = document.getElementById('screen');
+
+    screen.contentWindow.document.body.innerHTML = data;
+
+    if(!screen.contentWindow.document.WBRClickListener){
+      screen.contentWindow.document.WBRClickListener = true;
+      screen.contentWindow.document.body.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        let selector = SelectorGenerator.GetSelectorStructural(e.target);
+        socket.emit('control', {
+          type: 'click',
+          data: {'selector': selector}
+        });
+        console.log(SelectorGenerator.GetSelectorStructural(e.target));
+      },true);
+    }
+    console.log("Page Loaded!");
+  }
+
+  function mutate(data){
+    console.log(data);
+    const iframe = document.getElementById('screen').contentWindow.document;
+    data.forEach(mutation => {
+      if(mutation.type !== 'attributes'){
+        return;
+      }
+      element = iframe.querySelector(mutation.selector);
+      if(element){
+        element.setAttribute(mutation.attributeName, mutation.attributeValue);
+        console.log(`Setting ${element}'s' ${mutation.attributeName} to ${mutation.attributeValue}`);
+      }
+    })
+  }
+
+  socket.on('LoadPage', loadPage);
+  socket.on('Mutation', mutate);
+</script>
+</html>

@@ -1,0 +1,38 @@
+{
+  "name": "wbr",
+  "version": "0.1.0",
+  "description": "Web Browser Recorder, one-stop-shop for creating, editing and running web automations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barjin/wbr.git"
+  },
+  "keywords": [
+    "web",
+    "automation",
+    "crawling",
+    "scraping",
+    "wbr",
+    "browser",
+    "recorder"
+  ],
+  "author": "Jindřich Bär",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/barjin/wbr/issues"
+  },
+  "homepage": "https://github.com/barjin/wbr#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/react-router-dom": "^5.3.2",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "eslint": "^7.8.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-airbnb-typescript": "^14.0.1",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
