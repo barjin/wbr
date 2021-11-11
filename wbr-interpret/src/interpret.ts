@@ -1,31 +1,78 @@
 /* eslint-disable no-await-in-loop, no-restricted-syntax */
 import { chromium, Page } from 'playwright';
+import wf from './workflow';
 
-const MAX_REPEAT = 5;
+const MAX_REPEAT = 10;
 
 type Workflow = {
   where: Record<string, unknown>,
-  what: Record<string, unknown>[],
+  what: What[],
 }[];
+
+type ParamIndex = number;
+
+type What = {
+  [key:number]: ParamIndex,
+  type: string,
+  params: any[]
+};
 
 type Context = Record<string, any>;
 
-function applicable(context: Context, compare: Workflow[number]['where']) : boolean {
+function resetIterators(actions: Workflow[number]['what']): void {
+  actions.forEach((action) => action.params.forEach(
+    (param, idx) => {
+      if (Array.isArray(param)) {
+        action[idx] = 0; //eslint-disable-line
+      }
+    },
+  ));
+}
+
+function applicable(context: Context, compare: Workflow[number]) : boolean {
+  const exhausted = (actions: Workflow[number]['what']) => (
+    actions.some((action) => (
+      action.params.some(
+        (param, idx) => (
+          Array.isArray(param) && action[idx] === param.length),
+      )
+    ))
+  );
+
   const inclusive = (subset: Workflow[number]['where'], superset: Context) : boolean => (
     Object.entries(subset).every(
       ([key, value]) => (superset[key] && (superset[key] === value || (typeof value === 'object' && inclusive(<Record<string, unknown>>value, superset[key])))),
     ));
 
-  // TODO - not caring about AND logic so far - only all specified "where" rules must be
-  // valid within current context - more general rules are more likely to be applied.
-  return inclusive(compare, context);
+  /* TODO - not caring about AND/OR logic so far - only all specified "where" rules must be
+     valid within current context - more general rules are more likely to be applied. */
+
+  if (exhausted(compare.what)) {
+    resetIterators(compare.what);
+    return false;
+  }
+  return inclusive(compare.where, context);
 }
 
 async function carryOutSteps(page: Page, steps: Workflow[number]['what']) : Promise<void> {
   for (const step of steps) {
     console.log(`Launching ${step.type}`);
+    // TODO: think about the "recursive" iteration in detail.
+    // TODO: loop detection fires, even if the iterators uses different parameters
+    // First implementation - iteration over strings in array (in params - urls, logins etc.)
+    for (let i = 0; i < (<any[]>step.params).length; i += 1) {
+      // if nth parameter is an array, we remember the index
+      if (Array.isArray((<any[]>step.params)[i])) {
+        step[i] = step[i] ?? 0;
+      }
+    }
+
     // TODO : add more actions (not only page-related)
-    await (<any>page)[<string>step.type](...<any[]>step.params);
+    await (<any>page)[<string>step.type](
+      ...(<any[]>step.params).map(
+        (x, idx) => (step[idx] !== undefined ? x[(<number>step[idx])++ % x.length] : x), // eslint-disable-line
+      ),
+    );
   }
 }
 
@@ -38,9 +85,22 @@ async function getContext(page: Page, workflow: Workflow) {
     ),
     {});
 
+  const accontable = async (selector: string) : Promise<boolean> => {
+    try {
+      const proms = [
+        page.isEnabled(selector, { timeout: 2000 }),
+        page.isVisible(selector, { timeout: 2000 }),
+      ];
+
+      return await Promise.all(proms).then((bools) => bools.every((x) => x));
+    } catch {
+      return false;
+    }
+  };
+
   const presentSelectors = await Promise.all(
     Object.keys(queryableSelectors)
-      .map(async (selector) => ((await page.isVisible(selector)) ? selector : null)),
+      .map(async (selector) => ((await accontable(selector)) ? selector : null)),
   ).then((arr) => (
     arr.filter((x: string | null) => x)
       .reduce((p: Record<string, unknown>, item: any) => (
@@ -70,15 +130,14 @@ class SWInterpret {
     const ctx = await browser.newContext({ locale: 'en-GB' });
     const page = await ctx.newPage();
 
-    await page.goto('https://seznam.cz');
-
     while (true) {
       await new Promise((res) => setTimeout(res, 500));
 
       const context = await getContext(page, workflow);
-      const action = workflow.find((step) => applicable(context, step.where));
+      console.log(JSON.stringify(context));
+      const action = workflow.find((step) => applicable(context, step));
 
-      console.log(`Matched ${JSON.stringify(action)}`);
+      console.log(`Matched ${JSON.stringify(action?.where)}`);
 
       if (action) {
         repeatCount = action === lastAction ? repeatCount + 1 : 0;
@@ -90,124 +149,11 @@ class SWInterpret {
         await carryOutSteps(page, action.what);
       } else {
         console.log(`No more applicable actions for context ${JSON.stringify(context)}, terminating!`);
+        await browser.close();
         break;
       }
     }
   }
 }
 
-const cookieAccept = [
-  // Accepts cookie modals.
-  {
-    where: {
-      selectors: { 'button:text-matches("(accept|agree|souhlasím)", "i")': [] },
-    },
-    what: [
-      {
-        type: 'click',
-        params: [
-          'button:text-matches("(accept|agree|souhlasím)", "i")',
-        ],
-      },
-    ],
-  },
-];
-
-const loginer = [
-  // Attempts to fill out the login form and submit it.
-  {
-    where: {
-      selectors: {
-        'input[type=text]': [],
-        'input[type=password]': [],
-      },
-    },
-    what: [
-      {
-        type: 'fill',
-        params: [
-          'input[type=text]',
-          'test login',
-        ],
-      },
-      {
-        type: 'fill',
-        params: [
-          'input[type=password]',
-          'test password',
-        ],
-      },
-      {
-        type: 'click',
-        params: [
-          'button[class*=login]',
-        ],
-      },
-    ],
-  },
-];
-
-SWInterpret.runWorkflow([
-  ...cookieAccept,
-  ...loginer,
-  {
-    where: {
-      url: 'https://www.google.com/',
-      cookies: {
-        // empty array (object) means "any value" - if the google `NID` cookie is present,
-        // user allowed Google to store cookies - and the cookie request overlay
-        // is (most likely) not there.
-        NID: [],
-      },
-    },
-    what: [
-      {
-        type: 'fill',
-        params: [
-          '.gLFyf.gsfi',
-          'seznam.cz',
-        ],
-      },
-      {
-        type: 'click',
-        params: [
-          '.FPdoLc [value="Zkusím štěstí"]',
-        ],
-      },
-      {
-        type: 'waitForNavigation',
-        params: [],
-      },
-    ],
-  },
-  {
-    where: {
-      url: 'https://www.seznam.cz/',
-    },
-    what: [
-      {
-        type: 'click',
-        params: [
-          '.search__tab--mapy > button',
-        ],
-      },
-      {
-        type: 'fill',
-        params: [
-          '#mapy-input',
-          'Cheb',
-        ],
-      },
-      {
-        type: 'click',
-        params: [
-          '[data-dot=search-button]',
-        ],
-      },
-      {
-        type: 'waitForNavigation',
-        params: [],
-      },
-    ],
-  },
-]);
+SWInterpret.runWorkflow(wf);
