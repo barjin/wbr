@@ -1,16 +1,20 @@
 // Example Smart Workflow file
 // So far, this file is .js to allow for simple imports etc.
 
+const credentials = {
+  logins: ['loginwithoutzavinac', 'login2', 'mail@mail.mail'],
+  passwords: ['heslo1', 'heslo2', 'heslo@heslo.heslo'],
+};
 const cookieAccept = [
   {
     where: {
-      selectors: { 'button:text-matches("(accept|agree|souhlasím)", "i")': [] },
+      selectors: { 'button:text-matches("(accept|agree|souhlasím|allow)", "i")': [] },
     },
     what: [
       {
         type: 'click',
         params: [
-          'button:text-matches("(accept|agree|souhlasím)", "i")',
+          'button:text-matches("(accept|agree|souhlasím|allow)", "i")',
         ],
       },
     ],
@@ -29,14 +33,14 @@ const loginer = [
         type: 'fill',
         params: [
           'input[type=text],input[type=email], input[class*=login]',
-          ['loginwithoutzavinac', 'login2', 'invalidmail@mail.mailmail'],
+          credentials.logins,
         ],
       },
       {
         type: 'fill',
         params: [
           'input[type=password]',
-          ['heslo1', 'heslo2', 'heslo3'],
+          credentials.passwords,
         ],
       },
       {
@@ -49,7 +53,7 @@ const loginer = [
       {
         type: 'waitForTimeout',
         params: [
-          1000,
+          2000,
         ],
       },
     ],
@@ -60,12 +64,31 @@ const workflow = [
   ...loginer,
   {
     where: {
+      url: 'https://email.seznam.cz/?hp=',
     },
     what: [
       {
         type: 'goto',
         params: [
-          ['https://www.netflix.com/cz/login', 'https://console.apify.com/sign-in', 'https://instagram.com', 'https://seznam.cz'],
+          'https://email.seznam.cz/?hp#inbox',
+        ],
+      },
+      {
+        type: 'waitForLoadState',
+        params: [
+          'load',
+        ],
+      },
+    ],
+  },
+  {
+    where: {
+    },
+    what: [
+      {
+        type: 'goto',
+        params: [
+          ['https://seznam.cz', 'https://www.netflix.com/cz/login', 'https://console.apify.com/sign-in', 'https://instagram.com'],
         ],
       },
       {
