@@ -1,10 +1,9 @@
 /* eslint-disable no-await-in-loop, no-restricted-syntax */
 import { chromium, Page } from 'playwright';
-import wf from './workflow';
 
 const MAX_REPEAT = 10;
 
-type Workflow = {
+export type Workflow = {
   where: Record<string, unknown>,
   what: What[],
 }[];
@@ -121,23 +120,41 @@ async function getContext(page: Page, workflow: Workflow) {
   };
 }
 
-class SWInterpret {
-  public static async runWorkflow(workflow: Workflow) : Promise<any> {
+export default class SWInterpret {
+  public static async runWorkflow(
+    workflow: Workflow,
+    debugCallback : (type: string, data: any) => void = () => {},
+  ) : Promise<any> {
     let lastAction = null;
     let repeatCount = 0;
 
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch();
     const ctx = await browser.newContext({ locale: 'en-GB' });
     const page = await ctx.newPage();
+
+    const CDP = await ctx.newCDPSession(page);
+    await CDP.send('Page.startScreencast', { format: 'jpeg', quality: 50 });
+
+    CDP.on('Page.screencastFrame', (payload) => {
+      debugCallback('screen', payload);
+      setTimeout(async () => {
+        try {
+          await CDP.send('Page.screencastFrameAck', { sessionId: payload.sessionId });
+        } catch (e) {
+          console.log(e);
+        }
+      }, 100);
+    });
 
     while (true) {
       await new Promise((res) => setTimeout(res, 500));
 
       const context = await getContext(page, workflow);
-      console.log(JSON.stringify(context));
+      debugCallback('context', context);
       const action = workflow.find((step) => applicable(context, step));
 
       console.log(`Matched ${JSON.stringify(action?.where)}`);
+      debugCallback('action', action);
 
       if (action) {
         repeatCount = action === lastAction ? repeatCount + 1 : 0;
@@ -149,6 +166,7 @@ class SWInterpret {
         await carryOutSteps(page, action.what);
       } else {
         console.log(`No more applicable actions for context ${JSON.stringify(context)}, terminating!`);
+        await CDP.send('Page.stopScreencast');
         await browser.close();
         break;
       }
@@ -156,4 +174,5 @@ class SWInterpret {
   }
 }
 
-SWInterpret.runWorkflow(wf);
+// fs.writeFileSync('name.json', JSON.stringify(wf));
+// SWInterpret.runWorkflow(wf);

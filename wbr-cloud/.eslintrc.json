@@ -1,0 +1,29 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+	    "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+		"airbnb-base",
+		"airbnb-typescript"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": false
+        },
+        "ecmaVersion": 12,
+        "sourceType": "module",
+		"project": "./wbr-cloud/tsconfig.json"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "no-warning-comments": "warn",
+        "react/jsx-filename-extension": [0,{}]
+    }
+}

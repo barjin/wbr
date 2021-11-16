@@ -1,0 +1,38 @@
+{
+  "name": "wbr-cloud",
+  "version": "0.1.0",
+  "description": "Cloud environment for Smart Workflows Interpret, part of the WBR project",
+  "main": "cloud.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barjin/wbr.git"
+  },
+  "keywords": [
+    "web",
+    "automation",
+    "workflow",
+    "interpret",
+    "scraping"
+  ],
+  "author": "Jindřich Bär",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/barjin/wbr/issues"
+  },
+  "homepage": "https://github.com/barjin/wbr#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "playwright": "^1.16.3",
+    "socket.io": "^4.3.2",
+    "socketio": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/express-fileupload": "^1.1.7"
+  }
+}
