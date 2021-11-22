@@ -14,12 +14,10 @@ const uploadsDir = 'uploads';
 
 const performers : Performer[] = [];
 
-// enable files upload
 app.use(fileUpload({
   createParentPath: true,
 }));
 
-// add other middleware
 app.use(cors());
 app.use(express.json());
 
@@ -43,12 +41,7 @@ app.post('/workflow', async (req, res) => {
 
       workflow.mv(filePath);
 
-      // send response
       res.redirect('/');
-    //   res.send({
-    //     status: true,
-    //     message: 'OK',
-    //   });
     }
   } catch (err: any) {
     res.status(500).json({
@@ -122,9 +115,13 @@ app.get('/performer', async (req, res) => {
   }
 });
 
-app.use(express.static('public'));
+app.get('/performer/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/runner.html'));
+});
+
+app.use(express.static(path.join(__dirname, '../public')));
 // start app
-const port = process.env.PORT || 3000;
+const port = process.env.APIFY_CONTAINER_PORT || 3000;
 
 server.listen(port, () => {
   console.log('listening on localhost:3000');

@@ -4,7 +4,16 @@
   "description": "Cloud environment for Smart Workflows Interpret, part of the WBR project",
   "main": "cloud.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-win": "node .\\build\\wbr-cloud\\src\\cloud.js",
+    "start": "node ./build/wbr-cloud/src/cloud.js",
+    "clean-win": "rmdir .\\build /s/q",
+    "clean": "rm -rf ./build",
+    "compile": "tsc -p . ",
+    "copystatic-win": "xcopy .\\public\\ .\\build\\wbr-cloud\\public\\ /E/H/Y",
+    "copystatic": "cp -r ./public/ ./build/wbr-cloud/public",
+    "build-win": "npm install --production=false . & npm run compile & npm run copystatic-win",
+    "build": "npm install --production=false . & npm run compile & npm run copystatic",
+    "build-dockerable-win": "npm run build-win & xcopy .\\package.json .\\build\\ && xcopy .\\Dockerfile .\\build\\"
   },
   "repository": {
     "type": "git",
@@ -24,15 +33,15 @@
   },
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
+    "@types/express-fileupload": "^1.1.7",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
     "playwright": "^1.16.3",
-    "socket.io": "^4.3.2",
-    "socketio": "^1.0.0"
+    "socket.io": "^4.3.2"
   },
   "devDependencies": {
-    "@types/express-fileupload": "^1.1.7"
+    "typescript": "^4.5.2"
   }
 }

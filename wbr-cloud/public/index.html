@@ -1,34 +1,7 @@
 <!DOCTYPE html>
 <html>
-   <head><title>Hello world</title></head>
-   <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+   <head><title>wbr-cloud menu</title></head>
    <script>
-      function connectToRunner(){
-         const urlSearchParams = new URLSearchParams(window.location.search);
-         const params = Object.fromEntries(urlSearchParams.entries());
-         if(params.id){
-            var socket = io(`/${params.id}`);
-            socket.on('screen',(a) => drawToCanvas(a.data));
-         }
-      }
-
-      function drawToCanvas(image){
-         console.log(image);
-         const canvas = document.getElementById('screen');
-         if (canvas) {
-            const ctx = canvas.getContext('2d');
-
-            const img = new Image();
-
-            img.src = `data:image/jpg;base64,${image}`;
-            img.onload = () => {
-               URL.revokeObjectURL(img.src);
-               ctx?.clearRect(0, 0, canvas.width, canvas.height);
-               ctx?.drawImage(img, 0, 0);
-            };
-         }
-      }
-
       function spawnRunner(id){
          fetch('/performer', 
          {
@@ -64,7 +37,7 @@
                list.forEach(workflow => {
                   var row = table.insertRow(1);
 
-                  row.insertCell(0).innerHTML = workflow.state === "NEW" ? `<a href="/?id=${workflow.url.substring(1)}">${workflow.url}</a>` : workflow.url;
+                  row.insertCell(0).innerHTML = workflow.state === "NEW" ? `<a href="/performer/${workflow.url.substring(1)}">${workflow.url}</a>` : workflow.url;
                   row.insertCell(1).innerHTML = workflow.state;
                })
             });
@@ -74,13 +47,10 @@
       document.addEventListener('DOMContentLoaded', () => {
          fetchRecordings();
          fetchPerformers();
-         connectToRunner();
       });
 
    </script>
    <body>
-   <canvas id='screen' width="1280" height="720">
-   </canvas>
    <table id="workflows">
       <tr><th>Workflows</th></tr>
    </table>

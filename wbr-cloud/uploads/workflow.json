@@ -2,9 +2,7 @@
 	{
 	   "where":{
 		  "selectors":{
-			 "button:text-matches(\"(accept|agree|souhlasím|allow)\", \"i\")":[
-				
-			 ]
+			 "button:text-matches(\"(accept|agree|souhlasím|allow)\", \"i\")":[]
 		  }
 	   },
 	   "what":[
