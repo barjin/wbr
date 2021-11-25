@@ -4,7 +4,7 @@
   "description": "Smart Workflows Interpret, part of the WBR project",
   "main": "interpret.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tsc & jest"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,8 @@
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
     "playwright": "^1.16.3"
+  },
+  "devDependencies": {
+    "jest": "^27.3.1"
   }
 }

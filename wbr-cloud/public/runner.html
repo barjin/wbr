@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+   <head><title>wbr-cloud runner</title></head>
+   <script src="/socket.io/socket.io.js"></script>
+   <link rel="stylesheet" type="text/css" href="/jsonview.bundle.css">
+   <script src="/jsonview.bundle.js"></script>
+   <script>
+
+      function connectToRunner(){
+         const id = window.location.pathname.split('/').pop();
+         if(id){
+            var socket = io(`/${id}`);
+            socket.on('screen',(a) => drawToCanvas(a.data));
+            socket.on('context',(context) => {
+            const tree = JsonView.createTree(context);
+            const context_area = document.getElementById('context');
+            context_area.innerHTML = "";
+				JsonView.render(tree, context_area);
+            JsonView.expandChildren(tree);
+			});
+            socket.on('action',(action) => {
+            const tree = JsonView.createTree(action);
+            const action_area =  document.getElementById('action');
+            action_area.innerHTML = "";
+				JsonView.render(tree, action_area);
+            JsonView.expandChildren(tree);
+			});
+         }
+		 else{
+			 throw new Error("This runner's ID is invalid!");
+		 }
+      }
+
+      function drawToCanvas(image){
+         const canvas = document.getElementById('screen');
+         if (canvas) {
+            const ctx = canvas.getContext('2d');
+
+            const img = new Image();
+
+            img.src = `data:image/jpg;base64,${image}`;
+            img.onload = () => {
+               URL.revokeObjectURL(img.src);
+               ctx?.clearRect(0, 0, canvas.width, canvas.height);
+               ctx?.drawImage(img, 0, 0);
+            };
+         }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+         connectToRunner();
+      });
+
+   </script>
+   <body>
+   <table>
+   <tr>
+   <td rowspan=2>
+   <canvas id='screen' width="1280" height="720" style="background-color: #EEEEEE">
+   </td>
+   <td>
+   Current context:
+   <span id="context">
+
+   </span>
+   </td>
+   </tr>
+   <tr>
+   <td>
+   Matched action:
+   <span id="action">
+
+   </span>
+   </td>
+   </tr>
+   </table>
+   
+   </canvas>
+   </body>
+ </html>

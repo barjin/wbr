@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+   <head><title>wbr-cloud menu</title></head>
+   <script>
+      function spawnRunner(id){
+         fetch('/performer', 
+         {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id: id})
+         }).then(() => {
+            window.location.reload();
+         });
+      }
+
+      function fetchRecordings(){
+         const table = document.getElementById('workflows');
+         fetch('/workflow')
+            .then(x => x.json())
+            .then(list => {
+               list.forEach(workflow => {
+                  var row = table.insertRow(1);
+
+                  row.insertCell(0).innerHTML = workflow.name;
+                  row.insertCell(1).innerHTML = `<button onClick="spawnRunner(${workflow.idx})">Spawn runner</button>`;
+               })
+            });
+      }
+
+      function fetchPerformers(){
+         const table = document.getElementById('runners');
+         fetch('/performer')
+            .then(x => x.json())
+            .then(list => {
+               list.forEach(workflow => {
+                  var row = table.insertRow(1);
+
+                  row.insertCell(0).innerHTML = workflow.state === "NEW" ? `<a href="/performer/${workflow.url.substring(1)}">${workflow.url}</a>` : workflow.url;
+                  row.insertCell(1).innerHTML = workflow.state;
+               })
+            });
+      }
+
+
+      document.addEventListener('DOMContentLoaded', () => {
+         fetchRecordings();
+         fetchPerformers();
+      });
+
+   </script>
+   <body>
+   <table id="workflows">
+      <tr><th>Workflows</th></tr>
+   </table>
+   <form action="workflow" method="post" enctype="multipart/form-data">
+      Upload new workflow:
+      <input type="file" name="workflow" id="workflow">
+      <input type="submit" value="Upload workflow" name="submit">
+   </form>
+   <table id="runners">
+      <tr><th>Runners</th></tr>
+   </table>
+   </body>
+ </html>
