@@ -1,64 +1,50 @@
 /* eslint-disable no-await-in-loop, no-restricted-syntax */
 import { chromium, Page } from 'playwright';
+import wf from './workflow';
 
-const MAX_REPEAT = 10;
+const MAX_REPEAT = 5;
+
+type NameType = string;
+
+const operators = ['$and', '$or', '$not'] as const;
+
+type Operator = typeof operators[number];
+
+type BaseConditions = {
+  'url': string,
+  'cookies': Record<string, string>,
+  'selectors': string[],
+  '$after': NameType,
+  '$before': NameType,
+};
+
+type Where = Partial<{ [key in Operator]: Where | Where[] }>
+& Partial<BaseConditions>;
 
 export type Workflow = {
-  where: Record<string, unknown>,
+  name?: NameType
+  where: Where
   what: What[],
 }[];
 
-type ParamIndex = number;
+type MethodNames<T> = {
+  [K in keyof T]: T[K] extends Function ? K : never;
+}[keyof T];
 
 type What = {
-  [key:number]: ParamIndex,
-  type: string,
+  type: MethodNames<Page>,
   params: any[]
 };
 
-type Context = Record<string, any>;
-
-/**
- * Resets all the iterators in the given set of (exhausted) actions.\
- * \
- * *Note - the iterator syntax is experimental and is likely to be removed
- * in the following versions of the waw interpreter. Use at your own risk!*
- * @param actions Array of actions to be reset
- */
-function resetIterators(actions: Workflow[number]['what']): void {
-  actions.forEach((action) => action.params.forEach(
-    (param, idx) => {
-      if (Array.isArray(param)) {
-        action[idx] = 0; //eslint-disable-line
-      }
-    },
-  ));
-}
+type Context = Partial<BaseConditions>;
 
 /**
  * Tests if the given action is applicable with the given context.
  * @param context Current browser context.
- * @param compare Tested *where-what* pair
- * @returns True if `compare` is applicable in the given context, false otherwise
+ * @param where Tested *where* condition
+ * @returns True if `where` is applicable in the given context, false otherwise
  */
-function applicable(context: Context, compare: Workflow[number]) : boolean {
-  /**
-   * Given an array of actions tests if any of the actions' parameter iterator is exhausted.\
-   * \
-   * *Note - the iterator syntax is experimental and is likely to be removed
-   * in the following versions of the waw interpreter. Use at your own risk!*
-   * @param actions
-   * @returns
-   */
-  const exhausted = (actions: Workflow[number]['what']) => (
-    actions.some((action) => (
-      action.params.some(
-        (param, idx) => (
-          Array.isArray(param) && action[idx] === param.length),
-      )
-    ))
-  );
-
+function applicable(where: Where, context: Context) : boolean {
   /**
    * Given two objects, determines whether `subset` is a subset of `superset`.\
    * \
@@ -68,21 +54,48 @@ function applicable(context: Context, compare: Workflow[number]) : boolean {
    * @param superset Arbitrary non-cyclic JS object (browser context)
    * @returns True if `subset <= superset`, false otherwise.
    */
-  const inclusive = (subset: Workflow[number]['where'], superset: Context) : boolean => (
+  const inclusive = (subset: Record<string, unknown>, superset: Record<string, unknown>)
+  : boolean => (
     Object.entries(subset).every(
-      ([key, value]) => (superset[key] && (superset[key] === value || (typeof value === 'object' && inclusive(<Record<string, unknown>>value, superset[key])))),
-    ));
+      ([key, value]) => {
+        value = Array.isArray(value) ? value.reduce((p, x) => ({ ...p, [x]: [] }), {}) : value;
+        superset[key] = Array.isArray(superset[key])
+          ? (<string[]>superset[key]).reduce((p, x) => ({ ...p, [x]: [] }), {})
+          : superset[key];
+        return superset[key] && (superset[key] === value || (typeof value === 'object' && inclusive(<typeof subset>value, <typeof superset>superset[key])));
+      },
+    )
+  );
 
-  /* TODO - not caring about AND/OR logic so far - only all specified "where" rules must be
-     valid within current context - more general rules are more likely to be applied. */
+  return Object.entries(where).every(
+    ([key, value]) => {
+      if (operators.includes(<any>key)) {
+        // Currently tested key is an operator ($and, $or)
+        let array = Array.isArray(value) ? (value as Where[]) : undefined;
+        const base = !Array.isArray(value) ? (value as Where) : undefined;
 
-  if (exhausted(compare.what)) {
-    resetIterators(compare.what);
-    return false;
-  }
-  return inclusive(compare.where, context);
+        switch (key as keyof typeof operators) {
+          case '$and':
+            return array?.every((x) => applicable(context, x))
+              || (base && applicable(base, context)); // "and" is the implicit operation.
+          case '$or':
+            if (base) {
+              // every entry is treated as a single context.
+              array = Object.entries(base).map((a) => Object.fromEntries([a]));
+            }
+            return array?.some((x) => applicable(x, context));
+          default:
+            throw new Error('Undefined logic operator.');
+        }
+      } else {
+        // Current key is a condition (url, cookies, selectors)
+        const sub : Record<string, unknown> = {};
+        sub[key] = value;
+        return inclusive(sub, context);
+      }
+    },
+  );
 }
-
 /**
  * Given a Playwright's page object and a "declarative" list of actions, this function
  * calls all mentioned functions on the Page object.\
@@ -92,25 +105,11 @@ function applicable(context: Context, compare: Workflow[number]) : boolean {
  * @param page Playwright Page object
  * @param steps Array of actions.
  */
-async function carryOutSteps(page: Page, steps: Workflow[number]['what']) : Promise<void> {
+async function carryOutSteps(page: Page, steps: What[]) : Promise<void> {
   for (const step of steps) {
     console.log(`Launching ${step.type}`);
-    // TODO: think about the "recursive" iteration (Prolog-like) in detail.
-    // TODO: loop detection fires, even if the iterators uses different parameters
-    // First implementation - iteration over strings in array (in params - urls, logins etc.)
-    for (let i = 0; i < (<any[]>step.params).length; i += 1) {
-      // if nth parameter is an array, we remember the index
-      if (Array.isArray((<any[]>step.params)[i])) {
-        step[i] = step[i] ?? 0;
-      }
-    }
-
     // TODO : add more actions (not only page-related)
-    await (<any>page)[<string>step.type](
-      ...(<any[]>step.params).map(
-        (x, idx) => (step[idx] !== undefined ? x[(<number>step[idx])++ % x.length] : x), // eslint-disable-line
-      ),
-    );
+    await (<any>page[step.type])(...step.params);
   }
 }
 
@@ -128,12 +127,25 @@ async function getContext(page: Page, workflow: Workflow) : Promise<Workflow[num
    * List of all the selectors used in the workflow's (only WHERE clauses!)
    */
   // TODO : add recursive selector search (also in click/fill etc. events?)
+
+  function extractSelectors(where: Where | Where[]) : BaseConditions['selectors'] {
+    if (Array.isArray(where)) {
+      return where.reduce((p: BaseConditions['selectors'], x) => [...p, ...extractSelectors(x)], []);
+    }
+    let out = where.selectors ?? [];
+    for (const op of operators) {
+      if (where[op]) {
+        out = [...out, ...extractSelectors(where[op]!)];
+      }
+    }
+    return out;
+  }
+
   const queryableSelectors = workflow
-    .map((step) => step.where)
-    .reduce((p, where) => (
-      { ...p, ...(where.selectors ? <Record<string, unknown>>where.selectors : {}) }
-    ),
-    {});
+    .reduce((p: BaseConditions['selectors'], step) => [
+      ...p,
+      ...extractSelectors(step.where),
+    ], []);
 
   /**
    * Determines whether the element targetted by the selector is [actionable](https://playwright.dev/docs/actionability).
@@ -154,19 +166,16 @@ async function getContext(page: Page, workflow: Workflow) : Promise<Workflow[num
   };
 
   /**
-   * Object of selectors present in the current page - selectors are the keys,
-   * values are unused ([]).
+   * Object of selectors present in the current page.
    */
-  const presentSelectors : { [selector: string] : any } = await Promise.all(
-    Object.keys(queryableSelectors)
-      .map(async (selector) => ((await actionable(selector)) ? selector : null)),
-  ).then((arr) => (
-    arr.filter((x: string | null) => x)
-      .reduce((p: Record<string, unknown>, item: any) => (
-        { ...p, [item]: [] }
-      ),
-      {})
-  ));
+  const presentSelectors : BaseConditions['selectors'] = await Promise.all(
+    queryableSelectors.map(async (selector) => {
+      if (await actionable(selector)) {
+        return [selector];
+      }
+      return [];
+    }),
+  ).then((x) => x.flat());
 
   return {
     url: page.url(),
@@ -197,7 +206,9 @@ export default class SWInterpret {
     let repeatCount = 0;
 
     // TODO: Browser settings (fingerprinting, proxy) for defeating anti-bot measures?
-    const browser = await chromium.launch(process.env.DOCKER ? { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] } : {});
+    const browser = await chromium.launch(process.env.DOCKER ? 
+      { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] }
+      : { headless: false });
     const ctx = await browser.newContext({ locale: 'en-GB' });
     const page = await ctx.newPage();
 
@@ -220,7 +231,7 @@ export default class SWInterpret {
 
       const context = await getContext(page, workflow);
       debugCallback('context', context);
-      const action = workflow.find((step) => applicable(context, step));
+      const action = workflow.find((step) => applicable(step.where, context));
 
       console.log(`Matched ${JSON.stringify(action?.where)}`);
       debugCallback('action', action);
@@ -242,3 +253,5 @@ export default class SWInterpret {
     }
   }
 }
+
+SWInterpret.runWorkflow(<any>wf, () => {});
