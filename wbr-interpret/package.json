@@ -4,7 +4,7 @@
   "description": "Smart Workflows Interpret, part of the WBR project",
   "main": "interpret.js",
   "scripts": {
-    "test": "jest"
+    "test": "tsc & jest"
   },
   "repository": {
     "type": "git",

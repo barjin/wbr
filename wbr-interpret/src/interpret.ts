@@ -44,7 +44,7 @@ type Context = Partial<BaseConditions>;
  * @param where Tested *where* condition
  * @returns True if `where` is applicable in the given context, false otherwise
  */
-function applicable(where: Where, context: Context) : boolean {
+export function applicable(where: Where, context: Context) : boolean {
   /**
    * Given two objects, determines whether `subset` is a subset of `superset`.\
    * \
@@ -253,5 +253,3 @@ export default class SWInterpret {
     }
   }
 }
-
-SWInterpret.runWorkflow(<any>wf, () => {});
