@@ -1,11 +1,6 @@
+import fs from 'fs';
 // Example Smart Workflow file
 // So far, this file is .ts to allow for simple imports etc.
-
-const parameters = {
-  login: 'test@gmail.com',
-  password: 'secretpassword',
-  url: 'https://console.apify.com/sign-in',
-};
 
 const cookieAccept = [
   {
@@ -22,33 +17,45 @@ const cookieAccept = [
     ],
   },
 ];
-const loginer = [
+const FillTheForm = [
   {
     where: {
       selectors: [
-        'input[type=text], input[type=email], input[class*=login]',
-        'input[type=password]',
+        '[id*=from],[class*=from] input',
       ],
     },
     what: [
       {
         type: 'fill',
         params: [
-          'input[type=text],input[type=email], input[class*=login]',
-          parameters.login,
-        ],
-      },
-      {
-        type: 'fill',
-        params: [
-          'input[type=password]',
-          parameters.password,
+          '[id*=from],[class*=from] input',
+          { $param: 'From' },
         ],
       },
       {
         type: 'press',
         params: [
-          'input[type=password]',
+          '[id*=from],[class*=from] input',
+          'Tab',
+        ],
+      },
+      {
+        type: 'waitForTimeout',
+        params: [
+          2000,
+        ],
+      },
+      {
+        type: 'fill',
+        params: [
+          '[id*=from],[class*=from] input',
+          { $param: 'To' },
+        ],
+      },
+      {
+        type: 'press',
+        params: [
+          '[id*=from],[class*=from] input',
           'Enter',
         ],
       },
@@ -61,32 +68,39 @@ const loginer = [
     ],
   },
 ];
-const workflow = [
-  ...cookieAccept,
-  ...loginer,
-  {
-    where: {
-    },
-    what: [
-      {
-        type: 'goto',
-        params: [
-          parameters.url,
-        ],
-      },
-      {
-        type: 'waitForLoadState',
-        params: [
-        ],
-      },
-      {
-        type: 'waitForTimeout',
-        params: [
-          3000,
-        ],
-      },
-    ],
+const workflow = {
+  meta: {
+    params: ['Carrier', 'From', 'To'],
   },
-];
+  workflow: [
+    ...cookieAccept,
+    ...FillTheForm,
+    {
+      where: {
+      },
+      what: [
+        {
+          type: 'goto',
+          params: [
+            { $param: 'Carrier' },
+          ],
+        },
+        {
+          type: 'waitForLoadState',
+          params: [
+          ],
+        },
+        {
+          type: 'waitForTimeout',
+          params: [
+            3000,
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+fs.writeFileSync('./workflow.json', JSON.stringify(workflow));
 
 export default workflow;

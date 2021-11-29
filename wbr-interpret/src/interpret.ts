@@ -6,9 +6,11 @@ const MAX_REPEAT = 5;
 
 type NameType = string;
 
-const operators = ['$and', '$or', '$not'] as const;
+const operators = ['$and', '$or'] as const;
+const meta = ['$before', '$after'] as const;
 
 type Operator = typeof operators[number];
+type Meta = typeof meta[number];
 
 type BaseConditions = {
   'url': string,
@@ -19,7 +21,7 @@ type BaseConditions = {
 };
 
 type Where = Partial<{ [key in Operator]: Where | Where[] }>
-& Partial<BaseConditions>;
+& Partial<BaseConditions> & Partial<Record<Meta, string>>;
 
 export type Workflow = {
   name?: NameType
@@ -33,7 +35,7 @@ type MethodNames<T> = {
 
 type What = {
   type: MethodNames<Page>,
-  params: any[]
+  params?: any[] | any
 };
 
 type Context = Partial<BaseConditions>;
@@ -44,7 +46,7 @@ type Context = Partial<BaseConditions>;
  * @param where Tested *where* condition
  * @returns True if `where` is applicable in the given context, false otherwise
  */
-export function applicable(where: Where, context: Context) : boolean {
+export function applicable(where: Where, context: Context, usedActions : string[] = []) : boolean {
   /**
    * Given two objects, determines whether `subset` is a subset of `superset`.\
    * \
@@ -87,6 +89,15 @@ export function applicable(where: Where, context: Context) : boolean {
           default:
             throw new Error('Undefined logic operator.');
         }
+      } else if (meta.includes(<any>key)) {
+        switch (key as keyof typeof meta) {
+          case '$before':
+            return !usedActions.find((x : any) => x === value);
+          case '$after':
+            return !!usedActions.find((x : any) => x === value);
+          default:
+            throw new Error('Undefined meta operator.');
+        }
       } else {
         // Current key is a condition (url, cookies, selectors)
         const sub : Record<string, unknown> = {};
@@ -107,9 +118,25 @@ export function applicable(where: Where, context: Context) : boolean {
  */
 async function carryOutSteps(page: Page, steps: What[]) : Promise<void> {
   for (const step of steps) {
-    console.log(`Launching ${step.type}`);
     // TODO : add more actions (not only page-related)
-    await (<any>page[step.type])(...step.params);
+    //   26.11.2021 - solved by "dot" hack, allowing the user to use
+    //   "type" using dot notation (accessing properties)
+
+    const levels = step.type.split('.');
+    const methodName = levels[levels.length - 1];
+
+    let invokee : any = page;
+    for (const level of levels.splice(0, levels.length - 1)) {
+      invokee = invokee[level];
+    }
+    console.log(`Launching ${methodName} on ${invokee.constructor.name}`);
+    if (!step.params || Array.isArray(step.params)) {
+      await (<any>invokee[methodName])(...(step.params ?? []));
+    } else {
+      await (<any>invokee[methodName])(step.params);
+    }
+
+    await new Promise((res) => { setTimeout(res, 500); });
   }
 }
 
@@ -190,6 +217,17 @@ async function getContext(page: Page, workflow: Workflow) : Promise<Workflow[num
 }
 
 export default class SWInterpret {
+  public static getParams(
+    metaWorkflow: {
+      meta: {
+        params: string[],
+      },
+      workflow: Workflow,
+    },
+  ) : string[] {
+    return metaWorkflow.meta.params;
+  }
+
   /**
    * Spawns a browser context and runs given workflow. If specified, calls debugCallback with
    * updates about playback (messages, screencast).\
@@ -200,15 +238,41 @@ export default class SWInterpret {
    */
   public static async runWorkflow(
     workflow: Workflow,
+    params? : Record<string, string>,
     debugCallback : (type: string, data: any) => void = () => {},
   ) : Promise<any> {
+    // Initialize params in "macro"-like manner - replace the {$param : paramName}
+    // object with the defined value.
+    const initParams = (object: unknown) => {
+      if (!params) {
+        return;
+      }
+      if (!object || typeof object !== 'object') {
+        return;
+      }
+      for (const key of Object.keys(object!)) {
+        if (Object.keys((<any>object)[key]).length === 1 && (<any>object)[key].$param) {
+          if (params[(<any>object)[key].$param]) {
+            (<any>object)[key] = params[(<any>object)[key].$param];
+          } else {
+            console.warn('Unspecified argument structure found!');
+          }
+        } else {
+          initParams((<any>object)[key]);
+        }
+      }
+    };
+
+    initParams(workflow);
+
+    const usedActions : string[] = [];
     let lastAction = null;
     let repeatCount = 0;
 
     // TODO: Browser settings (fingerprinting, proxy) for defeating anti-bot measures?
-    const browser = await chromium.launch(process.env.DOCKER ? 
-      { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] }
-      : { headless: false });
+    const browser = await chromium.launch(process.env.DOCKER
+      ? { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] }
+      : { });
     const ctx = await browser.newContext({ locale: 'en-GB' });
     const page = await ctx.newPage();
 
@@ -231,7 +295,7 @@ export default class SWInterpret {
 
       const context = await getContext(page, workflow);
       debugCallback('context', context);
-      const action = workflow.find((step) => applicable(step.where, context));
+      const action = workflow.find((step) => applicable(step.where, context, usedActions));
 
       console.log(`Matched ${JSON.stringify(action?.where)}`);
       debugCallback('action', action);
@@ -239,11 +303,20 @@ export default class SWInterpret {
       if (action) {
         repeatCount = action === lastAction ? repeatCount + 1 : 0;
         if (repeatCount >= MAX_REPEAT) {
-          throw new Error(`Possible loop found, action ${action} repeated ${repeatCount} times.`);
+          debugCallback('error', { message: `Possible loop found, action ${action.name} repeated ${repeatCount} times.` });
+          await CDP.send('Page.stopScreencast');
+          await browser.close();
+          break;
+        // throw new Error(`Possible loop found, action ${action} repeated ${repeatCount} times.`);
         }
         lastAction = action;
 
-        await carryOutSteps(page, action.what);
+        try {
+          await carryOutSteps(page, action.what);
+          usedActions.push(action.name ?? 'undefined');
+        } catch (e) {
+          console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
+        }
       } else {
         console.log(`No more applicable actions for context ${JSON.stringify(context)}, terminating!`);
         await CDP.send('Page.stopScreencast');

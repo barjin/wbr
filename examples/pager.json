@@ -1,0 +1,83 @@
+{
+	"meta":{
+	   "params":[
+		  "url"
+	   ]
+	},
+	"workflow":[
+	   {
+		  "name": "closePopups",
+		  "where":{
+			"selectors":[
+				"[class*=popup] button[class*=close]"
+			]
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params": "[class*=popup] button[class*=close]"
+			 },
+			 {
+				 "type": "waitForLoadState"
+			 }
+		  ]
+	   },
+	   {
+		"name": "paginate",
+		"where":{
+		  "selectors":[
+			  "[title~=Next], [title~=Další]"
+		  ]
+
+		},
+		"what":[
+		   {
+			  "type":"click",
+			  "params": "[title~=Next], [title~=Další]"
+		   },
+		   {
+			   "type": "waitForLoadState"
+		   }
+		]
+	   },
+	   {
+		  "name": "paginateAndScreenshot",
+		  "where":{
+			"selectors":[
+				"[class*=paging][class*=next] > *"
+			]
+
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params":"[class*=paging][class*=next] > *"
+			 },
+			 {
+				 "type": "waitForLoadState"
+			 },
+			 {
+				 "type": "waitForTimeout",
+				 "params": 1000
+			 }
+		  ]
+	   },
+	   {
+		  "where":{
+		  },
+		  "what":[
+			 {
+				"type":"goto",
+				"params": { "$param": "url" }
+			 },
+			 {
+				"type":"waitForLoadState"
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params": 3000
+			 }
+		  ]
+	   }
+	]
+ }
