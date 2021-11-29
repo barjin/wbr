@@ -18,12 +18,12 @@ Syntax wise, `.waw` should always be a valid `.json` file. If you are not sure w
 
 *Note: From now on, the .waw file will be considered a valid JSON file and all the terminology (object, array) will be used in this context.*
 
-On the top level, the workflow file contains a **single array** of so-called "knowledge bits".  These knowledge-bits contain three properties with keys "name", "where", and "what". 
+On the top level, the workflow file contains an object with two properties - `"meta"` - an object with the workflow's metadata (accepted parameters etc.) and `"workflow"` - a **single array** of so-called "knowledge bits". These knowledge-bits contain three properties with keys "name", "where", and "what". 
 
 The "name" property is solely for referencing and can be omitted.
 
 Here follows a top-level view of the Workflow file:
-```JSON
+```javascript
 [
 	{
 		"name": "login",
@@ -53,7 +53,7 @@ The `where` clause is an object with various keys. As of now (22.11.2021), only 
 - selectors *(array of CSS/[Playwright](https://playwright.dev/docs/selectors/) selectors - all of the targetted elements must be present in the page to match this clause)*
 
 An example of a full where clause:
-```JSON
+```javascript
 		...
 		"name": "logout",
 		"where": {
@@ -82,12 +82,12 @@ ___
 ## Where format - (Boolean) Logic
 The last question from the block above could be addressed more formally, as some kind of formal logic is crucial for a system operating with conditions.
 For example, we could take inspiration from the [MongoDB query operators](https://docs.mongodb.com/manual/reference/operator/query/), as shown in the example below:
-```JSON
+```javascript
 		...
 		"where": {
-			"$and": [
+			"$and": {
 				"url": "https://jindrich.bar/",
-				"$or": [
+				"$or": {
 					"cookies": {
 						"uid": "123456"
 					},
@@ -95,8 +95,8 @@ For example, we could take inspiration from the [MongoDB query operators](https:
 						":text('My Profile')",
 						"button.logout"
 					]
-				]
-			]
+				}
+			}
 		},
 		...
 ```
@@ -104,23 +104,29 @@ This notation describes a condition where the URL is `"https://jindrich.bar/"` *
 
 At this moment, the boolean operators (dollar-sign keys) are allowed only on the level of the condition keys (`URL`, `cookies` etc.)
 In case we would like to express something like "there is either selector `login`  **or** selector `#form` **or** `button.signup`", the condition would look something like this:
-```JSON
+```javascript
 	...
 		"$or": [
-			"selectors": [
-				"login",
-			],
-			"selectors": [
-				"#form",
-			],
-			"selectors": [
-				"button.signup",
-			]
+			{
+				"selectors": [
+					"login",
+				],
+			},
+			{
+				"selectors": [
+					"#form",
+				],
+			},
+			{
+				"selectors": [
+					"button.signup",
+				]
+			}
 		]
 	...
 ```
 Note that this might be too wordy for some users. Would it be beneficial to introduce some "right-side" (value, not key-based) shorthands, e.g.:
-```JSON
+```javascript
 ...
 	"selectors": {
 		"$some": ["login", "#form", "button.signup"]
@@ -128,7 +134,7 @@ Note that this might be too wordy for some users. Would it be beneficial to intr
 ...
 ```
 This can be statically translated to the previous example and is arguably more readable. However, allowing for the right-side "value" operators would also enable users to recursively chain the operators:
-```JSON
+```javascript
 ...
 	"selectors": {
 		"$some": [
@@ -142,7 +148,7 @@ This can be statically translated to the previous example and is arguably more r
 This might make certain expressions difficult to understand again. Still, this might be a good tradeoff to support those for more experienced users (but will they really use those when they have the visual editor available?)
 ### Metaprogramming (state persistence)
 As mentioned earlier, the interpreter could also have some kind of internal "memory", which would allow for more specific conditions. Some of those could be e.g.
-```JSON
+```javascript
 where: {
 	"$after": "login" // login being a "name" of another knowledge bit
 }
@@ -155,22 +161,23 @@ where: {
 	"$isset": "debug" // "debug" being an user-defined flag
 }
 ```
+As of now (29.11.2021), `$before` and `$after` are supported.
+
+**[Hacker Tip]** : The `$before` condition specifically can be used to run an action only once (`"name": "self", ..., "$before" : "self"`).
+
 ## The What clause
 In the most basic version, the What clause should contain a sequence of actions, which should be carried out in case the respective Where condition is satisfied.
 
 ### What actions - The Basics
-The `what` clause is an array of "function" objects. These objects consist of the `type` field, describing a function called and `params` array, providing parameters for the specified function.
+The `what` clause is an array of "function" objects. These objects consist of the `type` field, describing a function called and `params` - an optional property, scalar or array, providing parameters for the specified function.
 ```JSON
 "what":[
 	{
 		"type":"goto",
-		"params":[
-		  "https://jindrich.bar",
-		]
+		"params": "https://jindrich.bar"
 	},
 	{
 		"type":"waitForLoadState",
-		"params":[]
 	},
 	{
 		"type":"waitForTimeout",
@@ -180,7 +187,7 @@ The `what` clause is an array of "function" objects. These objects consist of th
 	}
 ]
 ```
-As of now (23.11.2021), these actions correspond to the Playwright's [Page class methods](https://playwright.dev/docs/api/class-page/). All parameters passed must be JSON's native types, i.e. scalars, arrays or objects (no functions etc.).
+As of now (29.11.2021), these actions correspond to the Playwright's [Page class methods](https://playwright.dev/docs/api/class-page/). On top of this, users can use dot notation to access the Page's properties and call their methods (e.g. `page.keyboard.press` etc.) All parameters passed must be JSON's native types, i.e. scalars, arrays or objects (no functions etc.).
 
 This should be definitely addressed, as the *Page* methods can work only with the browser's context, but cannot run any code "server-side" - this would be useful, e.g. for bypassing Captcha challenges etc. As mentioned before, JSON can hold only scalars and collections and no executable code. 
 

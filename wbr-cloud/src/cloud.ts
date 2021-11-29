@@ -8,9 +8,12 @@ import crypto from 'crypto';
 import socket from 'socket.io';
 import http from 'http';
 import Performer from './performer';
+import SWInterpret from '../../wbr-interpret/src/interpret';
 
 const app = express();
 const uploadsDir = 'uploads';
+
+let turnOffTimer : ReturnType<typeof setTimeout>;
 
 const performers : Performer[] = [];
 
@@ -61,7 +64,13 @@ app.get('/workflow', async (req, res) => {
   }
 
   const out = fs.readdirSync(uploadsDir)
-    .map((name, idx) => ({ idx, name }));
+    .map((name, idx) => ({
+      idx,
+      name,
+      params: SWInterpret.getParams(
+        JSON.parse(fs.readFileSync(path.join(uploadsDir, name)).toString()),
+      ),
+    }));
   res.json(out);
 });
 
@@ -72,7 +81,7 @@ app.post('/performer', async (req, res) => {
 // The interpreter runs the workflow as soon as the client connects to it.
   try {
     const workflows = fs.readdirSync(uploadsDir);
-    const { id } = req.body;
+    const { id, params } = req.body;
 
     if (id === undefined || !workflows[id]) {
       throw new Error('Nonexistent workflow.');
@@ -83,7 +92,7 @@ app.post('/performer', async (req, res) => {
     const performer = new Performer(
       JSON.parse(fs.readFileSync(
         path.join(uploadsDir, workflows[id]),
-      ).toString()), <any>io.of(url),
+      ).toString()).workflow, params, <any>io.of(url),
     );
 
     console.debug(`Set up a performer on ${url}`);
@@ -125,4 +134,10 @@ const port = process.env.APIFY_CONTAINER_PORT || 3000;
 
 server.listen(port, () => {
   console.log('listening on localhost:3000');
+  setInterval(() => {
+    if (!performers.some((x) => x.state === 'OCCUPIED')) {
+      console.debug('No performers running, turning off...');
+      process.exit(0);
+    }
+  }, 5 * 60 * 1000);
 });

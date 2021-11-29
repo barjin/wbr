@@ -25,6 +25,9 @@
 				JsonView.render(tree, action_area);
             JsonView.expandChildren(tree);
 			});
+            socket.on('error',(error) => {
+               alert(error.message);
+			});
          }
 		 else{
 			 throw new Error("This runner's ID is invalid!");

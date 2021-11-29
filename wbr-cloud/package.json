@@ -9,8 +9,8 @@
     "clean-win": "rmdir .\\build /s/q",
     "clean": "rm -rf ./build",
     "compile": "tsc -p . ",
-    "copystatic-win": "xcopy .\\public\\ .\\build\\wbr-cloud\\public\\ /E/H/Y",
-    "copystatic": "cp -r ./public/ ./build/wbr-cloud/public",
+    "copystatic-win": "xcopy .\\public\\ .\\build\\wbr-cloud\\public\\ /E/H/Y && xcopy ..\\examples\\ .\\build\\wbr-cloud\\uploads\\ /E/H/Y",
+    "copystatic": "cp -r ./public/ ./build/wbr-cloud/public && cp -r ../examples ./build/wbr-cloud/uploads",
     "build-win": "npm install --production=false . & npm run compile & npm run copystatic-win",
     "build": "npm install --production=false . & npm run compile & npm run copystatic",
     "build-dockerable-win": "npm run build-win & xcopy .\\package.json .\\build\\ && xcopy .\\Dockerfile .\\build\\"

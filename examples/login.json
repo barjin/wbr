@@ -1,0 +1,109 @@
+{
+	"meta":{
+	   "params":[
+		  "url",
+		  "login",
+		  "password"
+	   ]
+	},
+	"workflow":[
+	   {
+		  "where":{
+			 "selectors":[
+				"button:text-matches(\"(accept|agree|souhlasím|allow)\", \"i\")"
+			 ]
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params":[
+				   "button:text-matches(\"(accept|agree|souhlasím|allow)\", \"i\")"
+				]
+			 }
+		  ]
+	   },
+	   {
+		"where":{
+			"selectors": [
+				":text-matches(\"(searching|loading)\",\"i\")"
+			]
+		},
+		"what": [
+			{
+				"type": "waitForTimeout",
+				"params": [
+					2000
+				]
+			}
+		]
+	   },
+	   {
+		  "name":"login",
+		  "where":{
+			 "selectors":[
+				"input[type=text], input[type=email], input[class*=login]",
+				"input[type=password]"
+			 ]
+		  },
+		  "what":[
+			 {
+				"type":"fill",
+				"params":[
+				   "input[type=text],input[type=email], input[class*=login]",
+				   {
+					  "$param":"login"
+				   }
+				]
+			 },
+			 {
+				"type":"fill",
+				"params":[
+				   "input[type=password]",
+				   {
+					  "$param":"password"
+				   }
+				]
+			 },
+			 {
+				"type":"press",
+				"params":[
+				   "input[type=password]",
+				   "Enter"
+				]
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params":[
+				   2000
+				]
+			 }
+		  ]
+	   },
+	   {
+		  "where":{
+		  },
+		  "what":[
+			 {
+				"type":"goto",
+				"params":[
+				   {
+					  "$param":"url"
+				   }
+				]
+			 },
+			 {
+				"type":"waitForLoadState",
+				"params":[
+				   
+				]
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params":[
+				   3000
+				]
+			 }
+		  ]
+	   }
+	]
+ }

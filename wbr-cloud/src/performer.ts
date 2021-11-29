@@ -11,7 +11,7 @@ export default class Performer {
 
   public state: ('NEW' | 'OCCUPIED' | 'FINISHED') = 'NEW';
 
-  constructor(workflow: Workflow, conn: Namespace) {
+  constructor(workflow: Workflow, parameters: Record<string,string>, conn: Namespace) {
     this.workflow = workflow;
     this.url = conn.name;
     this.conn = conn;
@@ -25,7 +25,7 @@ export default class Performer {
         console.log('Running interpret');
         this.state = 'OCCUPIED';
         c.emit('workflow', { message: this.workflow });
-        await Interpret.runWorkflow(this.workflow, (...args) => c.emit(...args));
+        await Interpret.runWorkflow(this.workflow, parameters, (...args) => c.emit(...args));
         this.state = 'FINISHED';
       }
     });

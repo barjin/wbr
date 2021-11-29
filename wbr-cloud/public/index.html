@@ -2,14 +2,28 @@
 <html>
    <head><title>wbr-cloud menu</title></head>
    <script>
+      let workflows = [];
+
       function spawnRunner(id){
+         let params = workflows.find(wf => wf.idx === id).params;
+         const initParams = params.reduce((prev,newName) => (
+            {...prev, [newName]: prompt(`Set value of parameter ${newName}:`)}
+         ), {});
+
+         if(!Object.values(initParams).every(x => x)){
+            return;
+         }
+
          fetch('/performer', 
          {
             method: 'POST',
             headers: {
                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({id: id})
+            body: JSON.stringify({
+               id: id,
+               params: initParams
+            })
          }).then(() => {
             window.location.reload();
          });
@@ -20,6 +34,7 @@
          fetch('/workflow')
             .then(x => x.json())
             .then(list => {
+               workflows = list;
                list.forEach(workflow => {
                   var row = table.insertRow(1);
 
@@ -59,6 +74,7 @@
       <input type="file" name="workflow" id="workflow">
       <input type="submit" value="Upload workflow" name="submit">
    </form>
+   <span>All the default workflows are available in the <a href="https://github.com/barjin/wbr/examples">GitHub repo.</a></span>
    <table id="runners">
       <tr><th>Runners</th></tr>
    </table>
