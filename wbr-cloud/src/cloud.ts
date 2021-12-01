@@ -42,6 +42,8 @@ app.post('/workflow', async (req, res) => {
         throw new Error('This file already exists.');
       }
 
+      JSON.parse(workflow.data.toString()); // Throws if workflow is not valid JSON
+
       workflow.mv(filePath);
 
       res.redirect('/');
