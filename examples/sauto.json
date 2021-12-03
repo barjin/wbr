@@ -1,0 +1,78 @@
+{
+	"meta":{
+	   "params":[]
+	},
+	"workflow":[
+	   {
+		  "name": "closePopups",
+		  "where":{
+			"selectors":[
+				"[class*=popup] button[class*=close]"
+			]
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params": "[class*=popup] button[class*=close]"
+			 },
+			 {
+				 "type": "waitForLoadState"
+			 }
+		  ]
+	   },
+	   {
+		"name": "paginateAndScrape",
+		"where":{
+			"selectors": [":text-matches(\"Další stránka\")"]
+		},
+		"what":[
+			{
+				"type": "waitForLoadState"
+			},
+			{
+				"type": "scrape"
+			},
+			{
+				"type":"click",
+				"params": ":text-matches(\"Další stránka\")"
+			},
+			{
+				"type": "waitForLoadState"
+			},
+			{
+				"type":"waitForTimeout",
+				"params": 5000
+			}
+		  ]
+	   },
+	   {
+		  "name": "base",
+		  "where":{
+		  },
+		  "what":[
+			 {
+				"type":"goto",
+				"params": "https://www.sauto.cz/"
+			 },
+			 {
+				"type":"waitForLoadState"
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params": 3000
+			 },
+			 {
+				"type":"click",
+				"params": "a :text-matches(\"Zobrazit\",\"i\")"
+			 },
+			 {
+				"type":"waitForLoadState"
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params": 7000
+			 }
+		  ]
+	   }
+	]
+ }

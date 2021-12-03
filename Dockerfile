@@ -17,8 +17,8 @@ RUN mkdir wbr-cloud
 COPY "wbr-cloud" "./wbr-cloud/"
 RUN mkdir wbr-interpret
 COPY "wbr-interpret" "./wbr-interpret"
-COPY "package.json" "."
+COPY "package.json" "./package.json"
 
-RUN npm install .
+RUN npm run build
 
-ENTRYPOINT ["node", "./wbr-cloud/src/cloud.js"]
+ENTRYPOINT ["npm", "start"]

@@ -23,44 +23,25 @@
 		  ]
 	   },
 	   {
-		"name": "paginate",
+		"name": "paginateAndScrape",
 		"where":{
 		  "selectors":[
-			  "[title~=Next], [title~=Další]"
+			  "[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"
 		  ]
 
 		},
 		"what":[
 		   {
 			  "type":"click",
-			  "params": "[title~=Next], [title~=Další]"
+			  "params": "[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"
 		   },
 		   {
 			   "type": "waitForLoadState"
+		   },
+		   {
+			   "type": "scrape"
 		   }
 		]
-	   },
-	   {
-		  "name": "paginateAndScreenshot",
-		  "where":{
-			"selectors":[
-				"[class*=paging][class*=next] > *"
-			]
-
-		  },
-		  "what":[
-			 {
-				"type":"click",
-				"params":"[class*=paging][class*=next] > *"
-			 },
-			 {
-				 "type": "waitForLoadState"
-			 },
-			 {
-				 "type": "waitForTimeout",
-				 "params": 1000
-			 }
-		  ]
 	   },
 	   {
 		  "where":{

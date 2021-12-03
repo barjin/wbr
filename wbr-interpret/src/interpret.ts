@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop, no-restricted-syntax */
-import { chromium, Page } from 'playwright';
-import wf from './workflow';
+import { chromium, Page, PageScreenshotOptions } from 'playwright';
+import Apify from 'apify';
+import path from 'path';
 
 const MAX_REPEAT = 5;
 
@@ -107,6 +108,16 @@ export function applicable(where: Where, context: Context, usedActions : string[
     },
   );
 }
+
+function* intGenerator() {
+  let i = 0;
+  while (true) {
+    i += 1;
+    yield i;
+  }
+}
+
+const idGen = intGenerator();
 /**
  * Given a Playwright's page object and a "declarative" list of actions, this function
  * calls all mentioned functions on the Page object.\
@@ -116,24 +127,51 @@ export function applicable(where: Where, context: Context, usedActions : string[
  * @param page Playwright Page object
  * @param steps Array of actions.
  */
-async function carryOutSteps(page: Page, steps: What[]) : Promise<void> {
+async function carryOutSteps(page: Page, steps: What[], datasetID?: string) : Promise<void> {
+  /**
+   * Defines overloaded (or added) methods/actions usable in the workflow.
+   * If a method overloads any existing method of the Page class, it accepts the same set
+   * of parameters *(but can suppress some!)*
+   */
+  const wawActions : Record<string, (...args: any[]) => void> = {
+    screenshot: async (params: PageScreenshotOptions) => {
+      const screenshotBuffer = await page.screenshot({
+        ...params, path: undefined, fullPage: true,
+      });
+      await Apify.setValue(`SCREENSHOT_${idGen.next().value}`, screenshotBuffer, { contentType: 'image/png' });
+    },
+    scrape: async (selector?: string) => {
+      const dataset = await Apify.openDataset(datasetID);
+      // eslint-disable-next-line
+      // @ts-ignore
+      const scrapeResults : Record<string, string>[] = <any> await page.evaluate((s) => scrape(s ?? null), selector);
+      await dataset.pushData(scrapeResults);
+    },
+  };
+
   for (const step of steps) {
-    // TODO : add more actions (not only page-related)
-    //   26.11.2021 - solved by "dot" hack, allowing the user to use
-    //   "type" using dot notation (accessing properties)
+    console.log(`Launching ${step.type}`);
 
-    const levels = step.type.split('.');
-    const methodName = levels[levels.length - 1];
-
-    let invokee : any = page;
-    for (const level of levels.splice(0, levels.length - 1)) {
-      invokee = invokee[level];
-    }
-    console.log(`Launching ${methodName} on ${invokee.constructor.name}`);
-    if (!step.params || Array.isArray(step.params)) {
-      await (<any>invokee[methodName])(...(step.params ?? []));
+    if (step.type in wawActions) {
+      if (!step.params || Array.isArray(step.params)) {
+        await wawActions[step.type](...(step.params ?? []));
+      } else {
+        await wawActions[step.type](step.params);
+      }
     } else {
-      await (<any>invokee[methodName])(step.params);
+      const levels = step.type.split('.');
+      const methodName = levels[levels.length - 1];
+
+      let invokee : any = page;
+      for (const level of levels.splice(0, levels.length - 1)) {
+        invokee = invokee[level];
+      }
+
+      if (!step.params || Array.isArray(step.params)) {
+        await (<any>invokee[methodName])(...(step.params ?? []));
+      } else {
+        await (<any>invokee[methodName])(step.params);
+      }
     }
 
     await new Promise((res) => { setTimeout(res, 500); });
@@ -272,8 +310,11 @@ export default class SWInterpret {
     // TODO: Browser settings (fingerprinting, proxy) for defeating anti-bot measures?
     const browser = await chromium.launch(process.env.DOCKER
       ? { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] }
-      : { });
+      : { headless: true });
     const ctx = await browser.newContext({ locale: 'en-GB' });
+
+    ctx.addInitScript({ path: path.join(__dirname, 'scraper.js') });
+
     const page = await ctx.newPage();
 
     const CDP = await ctx.newCDPSession(page);
@@ -289,6 +330,8 @@ export default class SWInterpret {
         }
       }, 100);
     });
+
+    const workflowID = Date.now();
 
     while (true) {
       await new Promise((res) => setTimeout(res, 500));
@@ -312,10 +355,11 @@ export default class SWInterpret {
         lastAction = action;
 
         try {
-          await carryOutSteps(page, action.what);
+          await carryOutSteps(page, action.what, String(workflowID));
           usedActions.push(action.name ?? 'undefined');
         } catch (e) {
           console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
+          console.error(e);
         }
       } else {
         console.log(`No more applicable actions for context ${JSON.stringify(context)}, terminating!`);

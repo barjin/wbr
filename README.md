@@ -6,10 +6,12 @@ ___
 
 ## Watch out! 🛑
 
-As of today (12.11.2021), this project will most certainly **not fit your web automation needs.** 
-As long as you are seeing this message here, it is under heavy development, and there is no (safe) real-world use case for it. 👷🏽‍♂️🏗\
+As of today (03.12.2021), this project will most certainly **not fit your web automation needs.** 
+- So far, only the *interpreter* is implemented, and the workflows need to be written manually (there is no way of recording them).
 \
-In case you kept reading until now and want to help us with the development, we'll be stoked :).
+Other parts of the project (namely the recorder itself) are under heavy development 👷🏽‍♂️👨🏽‍🏭🏗
+\
+In case you kept reading until now and want to help us with the development, we would be stoked :).
 
 ## Legal 
 
