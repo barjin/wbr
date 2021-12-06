@@ -13,8 +13,6 @@ import SWInterpret from '../../wbr-interpret/src/interpret';
 const app = express();
 const uploadsDir = 'uploads';
 
-let turnOffTimer : ReturnType<typeof setTimeout>;
-
 const performers : Performer[] = [];
 
 app.use(fileUpload({
@@ -66,12 +64,16 @@ app.get('/workflow', async (req, res) => {
   }
 
   const out = fs.readdirSync(uploadsDir)
-    .map((name, idx) => ({
+    .map((filename, idx) => ({
       idx,
-      name,
-      params: SWInterpret.getParams(
-        JSON.parse(fs.readFileSync(path.join(uploadsDir, name)).toString()),
-      ),
+      filename,
+      ...(() => {
+        const file = JSON.parse(fs.readFileSync(path.join(uploadsDir, filename)).toString());
+        return ({
+          cname: file.meta.name,
+          params: SWInterpret.getParams(file),
+        });
+      }),
     }));
   res.json(out);
 });
@@ -94,7 +96,7 @@ app.post('/performer', async (req, res) => {
     const performer = new Performer(
       JSON.parse(fs.readFileSync(
         path.join(uploadsDir, workflows[id]),
-      ).toString()).workflow, params, <any>io.of(url),
+      ).toString()), params, <any>io.of(url),
     );
 
     console.debug(`Set up a performer on ${url}`);
@@ -135,9 +137,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 const port = process.env.APIFY_CONTAINER_PORT || 3000;
 
 server.listen(port, () => {
-  console.log('listening on localhost:3000');
+  console.log(`listening on localhost:${port}`);
   setInterval(() => {
-    if (!performers.some((x) => x.state === 'OCCUPIED')) {
+    if (performers.every((x) => x.state !== 'OCCUPIED')) {
       console.debug('No performers running, turning off...');
       process.exit(0);
     }

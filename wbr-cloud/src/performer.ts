@@ -3,7 +3,7 @@ import { Namespace } from 'socket.io';
 import Interpret, { Workflow } from '../../wbr-interpret/src/interpret';
 
 export default class Performer {
-  private workflow : Workflow;
+  private workflow : { meta: Record<string, unknown>, workflow: Workflow };
 
   private conn: Namespace;
 
@@ -11,7 +11,7 @@ export default class Performer {
 
   public state: ('NEW' | 'OCCUPIED' | 'FINISHED') = 'NEW';
 
-  constructor(workflow: Workflow, parameters: Record<string,string>, conn: Namespace) {
+  constructor(workflow: { meta: Record<string, unknown>, workflow: Workflow }, parameters: Record<string, string>, conn: Namespace) {
     this.workflow = workflow;
     this.url = conn.name;
     this.conn = conn;
@@ -24,7 +24,6 @@ export default class Performer {
       if (this.state === 'NEW') {
         console.log('Running interpret');
         this.state = 'OCCUPIED';
-        c.emit('workflow', { message: this.workflow });
         await Interpret.runWorkflow(this.workflow, parameters, (...args) => c.emit(...args));
         this.state = 'FINISHED';
       }

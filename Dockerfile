@@ -13,6 +13,9 @@ RUN apk add --no-cache chromium
 
 WORKDIR /root
 
+RUN mkdir uploads
+COPY "./examples/." "./uploads/"
+
 RUN mkdir wbr-cloud
 COPY "wbr-cloud" "./wbr-cloud/"
 RUN mkdir wbr-interpret

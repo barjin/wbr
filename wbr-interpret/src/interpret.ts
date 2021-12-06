@@ -272,13 +272,23 @@ export default class SWInterpret {
    * \
    * Resolves after the playback is finished.
    * @param workflow Workflow to be executed.
+   * @param params Workflow specific, set of parameters for the {$param: nameofparam} fields.
    * @param debugCallback Callback function consuming the debug info.
    */
   public static async runWorkflow(
-    workflow: Workflow,
+    meta_workflow: {
+      meta: {
+        params?: string[],
+        dataset?: string,
+        name?: string,
+        desc?: string,
+      },
+      workflow: Workflow,
+    },
     params? : Record<string, string>,
     debugCallback : (type: string, data: any) => void = () => {},
   ) : Promise<any> {
+    const { workflow } = meta_workflow;
     // Initialize params in "macro"-like manner - replace the {$param : paramName}
     // object with the defined value.
     const initParams = (object: unknown) => {
@@ -331,7 +341,7 @@ export default class SWInterpret {
       }, 100);
     });
 
-    const workflowID = Date.now();
+    const datasetID = meta_workflow.meta.dataset ?? `${meta_workflow.meta.name ?? 'waw'}_${Date.now()}`;
 
     while (true) {
       await new Promise((res) => setTimeout(res, 500));
@@ -355,7 +365,7 @@ export default class SWInterpret {
         lastAction = action;
 
         try {
-          await carryOutSteps(page, action.what, String(workflowID));
+          await carryOutSteps(page, action.what, String(datasetID));
           usedActions.push(action.name ?? 'undefined');
         } catch (e) {
           console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
