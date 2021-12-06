@@ -1,7 +1,7 @@
 {
 	"meta":{
 	   "params":[],
-	   "name": "SAuto.cz scraper",
+	   "name": "SAuto scraper",
 	   "desc": "Scraper for the sauto.cz online car dealership. It shows pagination as well as the scraping capabilities."
 	},
 	"workflow":[
