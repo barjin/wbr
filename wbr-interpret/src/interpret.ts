@@ -341,7 +341,12 @@ export default class SWInterpret {
       }, 100);
     });
 
-    const datasetID = meta_workflow.meta.dataset ?? `${meta_workflow.meta.name ?? 'waw'}_${Date.now()}`;
+    const toKebabCase = (string: string) => (string
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .replace(/[\s_]+/g, '-')
+      .toLowerCase());
+
+    const datasetID = meta_workflow.meta.dataset ?? `${toKebabCase(meta_workflow.meta.name ?? 'waw')}-${Date.now()}`;
 
     while (true) {
       await new Promise((res) => setTimeout(res, 500));
