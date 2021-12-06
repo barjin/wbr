@@ -1,0 +1,184 @@
+{
+	"meta":{
+	   "params":["From", "To"],
+	   "name": "Regiojet scraper",
+	   "desc": "Scraper for the Regiojet online bus ticket reservation system. Shows parameters, pagination and limitations of the autoscraping system."
+	},
+	"workflow":[
+		{
+		  "name": "acceptCookies",
+		  "where":{
+			 "selectors":[
+				"button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
+			 ]
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params":[
+				   "button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
+				]
+			 }
+		  ]
+	   },
+	   {
+		"name": "waitForAsyncLoad",
+		"where":{
+			"selectors": [
+				":text-matches(\"(searching|loading)\",\"i\")"
+			]
+		},
+		"what": [
+			{
+				"type": "waitForTimeout",
+				"params": [
+					2000
+				]
+			}
+		]
+	   },
+	   {
+		  "name": "closePopups",
+		  "where":{
+			"selectors":[
+				"[class*=popup] button[class*=close]"
+			]
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params": "[class*=popup] button[class*=close]"
+			 },
+			 {
+				 "type": "waitForLoadState"
+			 }
+		  ]
+	   },
+	   {
+	  "name": "Scrape",
+	  "where":{
+		"$after": "Search",
+		"selectors":[
+			":text-matches(\"Další spoje\")"
+		]
+	  },
+	  "what":[
+		 {
+			 "type": "waitForLoadState"
+		 },
+		 {
+			"type":"scrape",
+			"params": ".mb-2.font-normal"
+		 },
+		 {
+			"type":"scrape",
+			"params": "p+div"
+		 },
+		 {
+			 "type": "click",
+			 "params": ":text-matches(\"Další spoje\")"
+		 },
+		 {
+			 "type": "waitForLoadState"
+		 },
+		 {
+			 "type": "waitForTimeout",
+			 "params": 2000
+		 }
+		]
+	   },
+	   {
+		"name": "Search",
+		  "where":{
+			 "selectors":[
+				"div:text(\"Odkud\")"
+			 ]
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params":[
+					"div:text(\"Odkud\")"
+				]
+			 },
+			 {
+				"type":"type",
+				"params":[
+					"input:visible",
+					{
+						"$param":"From"
+					}
+				]
+			 },
+			 {
+				"type":"keyboard.press",
+				"params":[
+				   "Tab"
+				]
+			 },
+			 {
+				"type":"keyboard.press",
+				"params":[
+				   "Tab"
+				]
+			 },
+			 {
+				"type":"keyboard.press",
+				"params":[
+				   "Tab"
+				]
+			 },
+			 {
+				"type":"keyboard.insertText",
+				"params":[
+				   {
+					  "$param":"To"
+				   }
+				]
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params":[
+				   1000
+				]
+			 },
+			 {
+				"type":"keyboard.press",
+				"params":[
+				   "Enter"
+				]
+			 },
+			 {
+				"type":"keyboard.press",
+				"params":[
+				   "Enter"
+				]
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params":[
+				   7000
+				]
+			 }
+		  ]
+	   },
+	   {
+		  "name": "base",
+		  "where":{
+		  },
+		  "what":[
+			 {
+				"type":"goto",
+				"params": "https://novy.regiojet.cz/"
+			 },
+			 {
+				"type":"waitForLoadState"
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params": 5000
+			 }
+		  ]
+	   }
+	]
+ }

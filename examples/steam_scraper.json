@@ -1,0 +1,89 @@
+{
+	"meta":{
+	   "params":[],
+	   "name": "Steam Specials Scraper",
+	   "desc": "Scraper for Steam Specials. Shows usage of customized autoscraper."
+	},
+	"workflow":[
+	   {
+		  "name": "acceptCookies",
+		  "where":{
+			 "selectors":[
+				"button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
+			 ]
+		  },
+		  "what":[
+			 {
+				"type":"click",
+				"params":[
+				   "button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
+				]
+			 }
+		  ]
+	   },
+	   {
+		"name": "waitForAsyncLoad",
+		"where":{
+			"selectors": [
+				":text-matches(\"(searching|loading)\",\"i\")"
+			]
+		},
+		"what": [
+			{
+				"type": "waitForTimeout",
+				"params": [
+					2000
+				]
+			}
+		]
+	   },
+	   {
+		"name": "Scrape",
+		  "where":{
+			 "selectors":[
+				"#TopSellers_btn_next"
+			 ]
+		  },
+		  "what":[
+			 {
+				"type": "scrape",
+				"params": "#TopSellersRows > a"
+			 },
+			 {
+				"type": "click",
+				"params":"#TopSellers_btn_next"
+			 },
+			 {
+				"type":"waitForLoadState"
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params":[
+				   1000
+				]
+			 }
+		  ]
+	   },
+	   {
+		  "name": "navigateToPage",
+		  "where":{
+			 "url": "about:blank"
+		  },
+		  "what":[
+			 {
+				"type":"goto",
+				"params":"https://store.steampowered.com/specials/#p=0&tab=TopSellers"
+			 },
+			 {
+				"type":"waitForLoadState"
+			 },
+			 {
+				"type":"waitForTimeout",
+				"params":[
+				   3000
+				]
+			 }
+		  ]
+	   }
+	]
+ }
