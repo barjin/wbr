@@ -73,7 +73,7 @@ app.get('/workflow', async (req, res) => {
           cname: file.meta.name,
           params: SWInterpret.getParams(file),
         });
-      }),
+      })(),
     }));
   res.json(out);
 });

@@ -38,7 +38,7 @@
                list.forEach(workflow => {
                   var row = table.insertRow(1);
 
-                  row.insertCell(0).innerHTML = workflow.name;
+                  row.insertCell(0).innerHTML = workflow.cname ?? workflow.filename;
                   row.insertCell(1).innerHTML = `<button onClick="spawnRunner(${workflow.idx})">Spawn runner</button>`;
                })
             });
