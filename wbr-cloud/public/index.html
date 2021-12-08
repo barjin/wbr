@@ -52,7 +52,7 @@
                list.forEach(workflow => {
                   var row = table.insertRow(1);
 
-                  row.insertCell(0).innerHTML = workflow.state === "NEW" ? `<a href="/performer/${workflow.url.substring(1)}">${workflow.url}</a>` : workflow.url;
+                  row.insertCell(0).innerHTML = workflow.state !== "FINISHED" ? `<a href="/performer/${workflow.url.substring(1)}">${workflow.url}</a>` : workflow.url;
                   row.insertCell(1).innerHTML = workflow.state;
                })
             });
