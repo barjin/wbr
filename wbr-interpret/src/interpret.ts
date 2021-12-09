@@ -190,6 +190,7 @@ export default class Interpreter {
     scroll: async (pages? : number) => {
       await page.evaluate(async (pages) => {
           for(let i = 1; i <= (pages ?? 1); i++){
+			// @ts-ignore
             window.scrollTo(0, window.scrollY + window.innerHeight);
           }
       }, pages);
@@ -243,6 +244,7 @@ export default class Interpreter {
       page = await ctx.newPage();
     }
 
+	// @ts-ignore
     if(await page.evaluate(() => !<any>window['scrape'])){
       page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
     }
