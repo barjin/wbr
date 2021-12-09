@@ -17,7 +17,7 @@
         },
         "ecmaVersion": 12,
         "sourceType": "module",
-		"project": "./wbr-interpret/tsconfig.json"
+		"project": "./tsconfig.json"
     },
     "plugins": [
         "@typescript-eslint"

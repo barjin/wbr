@@ -1,3 +1,7 @@
+/**
+ * HTTP server for the cloud SW interpreter interface.
+ * Implements RESTful API endpoints for workflow and performer management.
+*/
 import express from 'express';
 import cors from 'cors';
 import fileUpload, { UploadedFile } from 'express-fileupload';
@@ -8,7 +12,7 @@ import crypto from 'crypto';
 import socket from 'socket.io';
 import http from 'http';
 import Performer from './performer';
-import SWInterpret from '../../wbr-interpret/src/interpret';
+import Preprocessor from '../../wbr-interpret/src/preprocessor';
 
 const app = express();
 const uploadsDir = 'uploads';
@@ -22,10 +26,18 @@ app.use(fileUpload({
 app.use(cors());
 app.use(express.json());
 
-const server = http.createServer(app);
-const io = new socket.Server(server);
 /**
- * Uploads new workflow.
+ * Object of the HTTP Express server.
+ */
+const server = http.createServer(app);
+/**
+ * Object of the Socket.io server.
+ */
+const io = new socket.Server(server);
+
+/**
+ * `POST` method for the `/workflow` endpoint
+ * Uploads a new workflow as a file. Tests if the file is a valid JSON.
  */
 app.post('/workflow', async (req, res) => {
   try {
@@ -40,7 +52,9 @@ app.post('/workflow', async (req, res) => {
         throw new Error('This file already exists.');
       }
 
-      JSON.parse(workflow.data.toString()); // Throws if workflow is not valid JSON
+      // Throws if workflow is not valid JSON
+      JSON.parse(workflow.data.toString()); 
+      // TODO: better parsing (check if the file is a valid workflow?)
 
       workflow.mv(filePath);
 
@@ -55,6 +69,7 @@ app.post('/workflow', async (req, res) => {
 });
 
 /**
+* `GET` method for the `/workflow` endpoint
 * Returns a list of all the available workflows.
 */
 app.get('/workflow', async (req, res) => {
@@ -62,6 +77,8 @@ app.get('/workflow', async (req, res) => {
     res.json([]);
     return;
   }
+
+  const preprocess = new Preprocessor();
 
   const out = fs.readdirSync(uploadsDir)
     .map((filename, idx) => ({
@@ -71,7 +88,7 @@ app.get('/workflow', async (req, res) => {
         const file = JSON.parse(fs.readFileSync(path.join(uploadsDir, filename)).toString());
         return ({
           cname: file.meta.name,
-          params: SWInterpret.getParams(file),
+          params: preprocess.getParams(file),
         });
       })(),
     }));
@@ -79,6 +96,8 @@ app.get('/workflow', async (req, res) => {
 });
 
 /**
+* `POST` method for the `/performer` endpoint
+*
 * Runs the specified workflow and returns a URL for looking inside.
 */
 app.post('/performer', async (req, res) => {
@@ -96,16 +115,17 @@ app.post('/performer', async (req, res) => {
     const performer = new Performer(
       JSON.parse(fs.readFileSync(
         path.join(uploadsDir, workflows[id]),
-      ).toString()), params, <any>io.of(url),
+      ).toString()), <any>io.of(url),
     );
 
     console.debug(`Set up a performer on ${url}`);
 
     performers.push(performer);
+    performer.run(params);
 
     res.json({
       status: true,
-      message: 'Performer added.',
+      message: 'Performer started.',
       url,
     });
   } catch (err: any) {
@@ -116,8 +136,12 @@ app.post('/performer', async (req, res) => {
   }
 });
 
+/**
+ * `GET` method for the `/performer` endpoint
+ * 
+ * Returns a list of currently existing performers with their names, urls and states.
+ */
 app.get('/performer', async (req, res) => {
-// The interpreter runs the workflow as soon as the client connects to it.
   try {
     res.json(performers.map((x, idx) => ({ id: idx, url: x.url, state: x.state })));
   } catch (err: any) {
@@ -133,11 +157,22 @@ app.get('/performer/:id', (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, '../public')));
-// start app
+
+/**
+ * Port to run the web app on. 
+ * 
+ * If `APIFY_CONTAINER_PORT` environment variable is present, this port is used.
+ */
 const port = process.env.APIFY_CONTAINER_PORT || 3000;
 
+
+/**
+ * Starts the HTTP server on the given port. 
+ * Implements a simple idle timer to turn off an idle cloud interpreter.
+ */
 server.listen(port, () => {
   console.log(`listening on localhost:${port}`);
+  // TODO: implement better algorithm for the idle timer (`x` minutes after the last finish?)
   setInterval(() => {
     if (performers.every((x) => x.state !== 'OCCUPIED')) {
       console.debug('No performers running, turning off...');
