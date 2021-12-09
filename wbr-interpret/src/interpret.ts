@@ -6,6 +6,7 @@ import path from 'path';
 import { Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, metaData } from './workflow';
 import { operators, meta } from './logic'; 
 import { toKebabCase, arrayToObject, intGenerator } from './utils';
+import Preprocessor from './preprocessor';
 
 /**
  * Defines optional intepreter options (passed in constructor)
@@ -16,88 +17,6 @@ export interface InterpreterOptions {
 }
 
 const MAX_REPEAT = 5;
-
-/**
- * Class for static processing the workflow files/objects.
- */
-class Preprocessor {
-  /**
-   * Extracts parameters from the workflow's metadata.
-   * @param {WorkflowFile} workflow The given workflow
-   * @returns {String[]} List of parameters' names.
-   */
-  getParams(workflow: WorkflowFile) : (keyof ParamType)[] {
-    return workflow.meta.params!;
-  }
-    /**
-    * List all the selectors used in the given workflow (only literal "selector" field in WHERE clauses!)
-    */
-   // TODO : add recursive selector search (also in click/fill etc. events?)
-   extractSelectors(workflow: Workflow) : SelectorArray {
-
-    /**
-     * Given a Where condition, this function extracts all the existing selectors from it (recursively).
-     */
-    const selectorsFromCondition = (where: Where) : SelectorArray => {
-      // the `selectors` field is either on the top level
-      let out = where.selectors ?? [];
-
-      // or nested in the "operator" array
-      for (const op of operators) {
-        if (where[op] && Array.isArray(where[op])) {
-            (<Where[]>where[op]).forEach(step => {
-              out = [...out, ...selectorsFromCondition(step)];
-            });
-        }
-      }
-      return out;
-
-    }
-
-    // Iterate through all the steps and extract the selectors from all of them.
-    return workflow.reduce((p: SelectorArray, step) => [
-      ...p,
-      ...selectorsFromCondition(step.where),
-    ], []);
-  }
-
-  /**  
-  * Recursively crawl `object` and initializes params - replaces the `{$param : paramName}` objects
-  * with the defined value.
-  * @returns {void} Modifies the `workflow` parameters itself.
-  */
-  initParams (workflow: Workflow, params?: ParamType) : Workflow {
-    if (!params) {
-      return workflow;
-    }
-
-    const initParamsRecurse = (object: unknown) => {
-      if (!object || typeof object !== 'object') {
-        return;
-      }
-      // for every key of the object
-      for (const key of Object.keys(object!)) {
-        // if the field has only one key, which is `$param`
-        if (Object.keys((<any>object)[key]).length === 1 && (<any>object)[key].$param) {
-          // and the param name exists in the `params` object
-          if (params[(<any>object)[key].$param]) {
-            // then replace
-            (<any>object)[key] = params[(<any>object)[key].$param];
-          } else {
-            throw new SyntaxError(`Unspecified parameter found ${(<any>object)[key].$param}.`)
-          }
-        } else {
-          initParamsRecurse((<any>object)[key]);
-        }
-      }
-
-      return object;
-    }
-
-    const workflow_copy = JSON.parse(JSON.stringify(workflow)); // TODO: do better deep copy, this is hideous.
-    return <Workflow> initParamsRecurse(workflow_copy);
-  };
-}
 
 /**
  * Class for running the Smart Workflows.
@@ -268,6 +187,13 @@ export default class Interpreter {
       const scrapeResults : Record<string, string>[] = <any> await page.evaluate((s) => scrape(s ?? null), selector);
       await dataset.pushData(scrapeResults);
     },
+    scroll: async (pages? : number) => {
+      await page.evaluate(async (pages) => {
+          for(let i = 1; i <= (pages ?? 1); i++){
+            window.scrollTo(0, window.scrollY + window.innerHeight);
+          }
+      }, pages);
+    },
   };
 
   for (const step of steps) {
@@ -312,11 +238,12 @@ export default class Interpreter {
     const workflow = this.preprocess.initParams(this.workflow, params);
 
     if(!page){
+      console.debug('Creating new page!');
       const ctx = await this.browser.newContext({ locale: 'en-GB' });
       page = await ctx.newPage();
     }
 
-    if(await page.evaluate(() => !window['scrape'])){
+    if(await page.evaluate(() => !<any>window['scrape'])){
       page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
     }
 
@@ -331,13 +258,11 @@ export default class Interpreter {
       await new Promise((res) => setTimeout(res, 500));
 
       const pageState = await this.getState(page, workflow);
-      //debugCallback('context', context);
       const action = workflow.find(
         (step) => this.applicable(step.where, pageState, usedActions)
       );
 
       console.log(`Matched ${JSON.stringify(action?.where)}`);
-      //debugCallback('action', action);
 
       if (action) {
         repeatCount = action === lastAction ? repeatCount + 1 : 0;
@@ -354,9 +279,6 @@ export default class Interpreter {
           console.error(e);
         }
       } else {
-        // console.log(`No more applicable actions for context ${JSON.stringify(context)}, terminating!`);
-        // await CDP.send('Page.stopScreencast');
-        // await browser.close();
         break;
       }
     }

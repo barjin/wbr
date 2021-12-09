@@ -14,7 +14,7 @@ export function arrayToObject(array : any[]){
 export function* intGenerator() {
 	let i = 0;
 	while (true) {
-	  i += 1;
-	  yield i;
+		i += 1;
+		yield i;
 	}
-  }
+}

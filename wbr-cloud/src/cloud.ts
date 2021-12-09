@@ -12,7 +12,7 @@ import crypto from 'crypto';
 import socket from 'socket.io';
 import http from 'http';
 import Performer from './performer';
-import SWInterpret from '../../wbr-interpret/src/interpret';
+import Preprocessor from '../../wbr-interpret/src/preprocessor';
 
 const app = express();
 const uploadsDir = 'uploads';
@@ -78,6 +78,8 @@ app.get('/workflow', async (req, res) => {
     return;
   }
 
+  const preprocess = new Preprocessor();
+
   const out = fs.readdirSync(uploadsDir)
     .map((filename, idx) => ({
       idx,
@@ -86,7 +88,7 @@ app.get('/workflow', async (req, res) => {
         const file = JSON.parse(fs.readFileSync(path.join(uploadsDir, filename)).toString());
         return ({
           cname: file.meta.name,
-          params: SWInterpret.getParams(file),
+          params: preprocess.getParams(file),
         });
       })(),
     }));
@@ -119,7 +121,7 @@ app.post('/performer', async (req, res) => {
     console.debug(`Set up a performer on ${url}`);
 
     performers.push(performer);
-    performer.start(params);
+    performer.run(params);
 
     res.json({
       status: true,
