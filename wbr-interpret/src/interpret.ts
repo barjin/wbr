@@ -3,8 +3,10 @@ import { Browser, Page, PageScreenshotOptions } from 'playwright';
 import Apify from 'apify';
 import path from 'path';
 
-import { Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, metaData } from './workflow';
-import { operators, meta } from './logic'; 
+import {
+  Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, MetaData,
+} from './workflow';
+import { operators, meta } from './logic';
 import { toKebabCase, arrayToObject, intGenerator } from './utils';
 import Preprocessor from './preprocessor';
 
@@ -12,8 +14,8 @@ import Preprocessor from './preprocessor';
  * Defines optional intepreter options (passed in constructor)
  */
 export interface InterpreterOptions {
-	browser: Browser;
-	maxRepeats: number;
+  browser: Browser;
+  maxRepeats: number;
 }
 
 const MAX_REPEAT = 5;
@@ -22,14 +24,17 @@ const MAX_REPEAT = 5;
  * Class for running the Smart Workflows.
  */
 export default class Interpreter {
-  private meta: metaData;
+  private meta: MetaData;
+
   private workflow: Workflow;
+
   private browser: Browser;
+
   private preprocess: Preprocessor = new Preprocessor();
 
   private intGen = intGenerator();
 
-  constructor(workflow: WorkflowFile, browser: Browser, options?: Partial<InterpreterOptions>){
+  constructor(workflow: WorkflowFile, browser: Browser, options?: Partial<InterpreterOptions>) {
     this.meta = workflow.meta;
     this.workflow = workflow.workflow;
     this.browser = browser;
@@ -61,13 +66,13 @@ export default class Interpreter {
           page.isEnabled(selector, { timeout: 2000 }),
           page.isVisible(selector, { timeout: 2000 }),
         ];
-  
+
         return await Promise.all(proms).then((bools) => bools.every((x) => x));
       } catch {
         return false;
       }
     };
-  
+
     /**
       * Object of selectors present in the current page.
       */
@@ -79,7 +84,7 @@ export default class Interpreter {
         return [];
       }),
     ).then((x) => x.flat());
-  
+
     return {
       url: page.url(),
       cookies: (await page.context().cookies([page.url()]))
@@ -99,7 +104,6 @@ export default class Interpreter {
    * @returns True if `where` is applicable in the given context, false otherwise
    */
   private applicable(where: Where, context: PageState, usedActions : string[] = []) : boolean {
-
     /**
      * Given two arbitrary objects, determines whether `subset` is a subset of `superset`.\
      * \
@@ -116,11 +120,18 @@ export default class Interpreter {
           /**
            * Value on the current key. Arrays are compared without order (transformed into objects)
            */
-          value = Array.isArray(value) ? arrayToObject(value): value;
-          superset[key] = Array.isArray(superset[key]) ? arrayToObject(<any>superset[key]) : superset[key];
+          value = Array.isArray(value) ? arrayToObject(value) : value;
+          superset[key] = Array.isArray(superset[key])
+            ? arrayToObject(<any>superset[key])
+            : superset[key];
 
-          // Every `subset` key must exist in the `superset` and have the same value (strict equality), or subset[key] <= superset[key]
-          return superset[key] && (superset[key] === value || (typeof value === 'object' && inclusive(<typeof subset>value, <typeof superset>superset[key])));
+          // Every `subset` key must exist in the `superset` and
+          // have the same value (strict equality), or subset[key] <= superset[key]
+          return superset[key]
+          && (
+            superset[key] === value
+            || (typeof value === 'object' && inclusive(<typeof subset>value, <typeof superset>superset[key]))
+          );
         },
       )
     );
@@ -129,9 +140,10 @@ export default class Interpreter {
     return Object.entries(where).every(
       ([key, value]) => {
         if (operators.includes(<any>key)) {
-          let array = Array.isArray(value) ? 
-            value as Where[] :
-            Object.entries(value).map((a) => Object.fromEntries([a])); // every condition is treated as a single context
+          const array = Array.isArray(value)
+            ? value as Where[]
+            : Object.entries(value).map((a) => Object.fromEntries([a]));
+            // every condition is treated as a single context
 
           switch (key as keyof typeof operators) {
             case '$and':
@@ -152,7 +164,7 @@ export default class Interpreter {
           }
         } else {
           // Current key is a base condition (url, cookies, selectors)
-          return inclusive({[key]: value}, context);
+          return inclusive({ [key]: value }, context);
         }
       },
     );
@@ -173,83 +185,85 @@ export default class Interpreter {
    * If a method overloads any existing method of the Page class, it accepts the same set
    * of parameters *(but can suppress some!)*
    */
-  const wawActions : Record<string, (...args: any[]) => void> = {
-    screenshot: async (params: PageScreenshotOptions) => {
-      const screenshotBuffer = await page.screenshot({
-        ...params, path: undefined, fullPage: true,
-      });
-      await Apify.setValue(`SCREENSHOT_${this.intGen.next().value}`, screenshotBuffer, { contentType: 'image/png' });
-    },
-    scrape: async (selector?: string) => {
-      const dataset = await Apify.openDataset(datasetID);
-      // eslint-disable-next-line
-      // @ts-ignore
-      const scrapeResults : Record<string, string>[] = <any> await page.evaluate((s) => scrape(s ?? null), selector);
-      await dataset.pushData(scrapeResults);
-    },
-    scroll: async (pages? : number) => {
-      await page.evaluate(async (pages) => {
-          for(let i = 1; i <= (pages ?? 1); i++){
-			// @ts-ignore
+    const wawActions : Record<string, (...args: any[]) => void> = {
+      screenshot: async (params: PageScreenshotOptions) => {
+        const screenshotBuffer = await page.screenshot({
+          ...params, path: undefined, fullPage: true,
+        });
+        await Apify.setValue(`SCREENSHOT_${this.intGen.next().value}`, screenshotBuffer, { contentType: 'image/png' });
+      },
+      scrape: async (selector?: string) => {
+        const dataset = await Apify.openDataset(datasetID);
+        // eslint-disable-next-line
+        // @ts-ignore
+        const scrapeResults : Record<string, string>[] = <any> await page.evaluate((s) => scrape(s ?? null), selector);
+        await dataset.pushData(scrapeResults);
+      },
+      scroll: async (pages? : number) => {
+        await page.evaluate(async (pages) => {
+          for (let i = 1; i <= (pages ?? 1); i++) {
+            // @ts-ignore
             window.scrollTo(0, window.scrollY + window.innerHeight);
           }
-      }, pages);
-    },
-  };
+        }, pages);
+      },
+    };
 
-  for (const step of steps) {
-    console.log(`Launching ${step.type}`);
+    for (const step of steps) {
+      console.log(`Launching ${step.type}`);
 
-    if (step.type in wawActions) {
-      const params = !step.params || Array.isArray(step.params) ? step.params : [step.params];
-      await wawActions[step.type](...(params ?? []));
-    } else {
-      // Implements the dot notation for the "method name" in the workflow
-      const levels = step.type.split('.');
-      const methodName = levels[levels.length - 1];
-
-      let invokee : any = page;
-      for (const level of levels.splice(0, levels.length - 1)) {
-        invokee = invokee[level];
-      }
-
-      if (!step.params || Array.isArray(step.params)) {
-        await (<any>invokee[methodName])(...(step.params ?? []));
+      if (step.type in wawActions) {
+        const params = !step.params || Array.isArray(step.params) ? step.params : [step.params];
+        await wawActions[step.type](...(params ?? []));
       } else {
-        await (<any>invokee[methodName])(step.params);
-      }
-    }
+      // Implements the dot notation for the "method name" in the workflow
+        const levels = step.type.split('.');
+        const methodName = levels[levels.length - 1];
 
-    await new Promise((res) => { setTimeout(res, 500); });
+        let invokee : any = page;
+        for (const level of levels.splice(0, levels.length - 1)) {
+          invokee = invokee[level];
+        }
+
+        if (!step.params || Array.isArray(step.params)) {
+          await (<any>invokee[methodName])(...(step.params ?? []));
+        } else {
+          await (<any>invokee[methodName])(step.params);
+        }
+      }
+
+      await new Promise((res) => { setTimeout(res, 500); });
+    }
   }
-}
 
   /**
    * Spawns a browser context and runs given workflow. If specified, calls debugCallback with
    * updates about playback (messages, screencast).\
    * \
    * Resolves after the playback is finished.
-   * @param {ParamType} params Workflow specific, set of parameters for the `{$param: nameofparam}` fields.
-   * @param {Page} [page] Page to run the workflow on. If not set, the interpreter uses the browser given and creates a context to work with.
+   * @param {ParamType} params Workflow specific, set of parameters
+   *  for the `{$param: nameofparam}` fields.
+   * @param {Page} [page] Page to run the workflow on. If not set,
+   *  the interpreter uses the browser given and creates a context to work with.
    */
   public async run(params? : ParamType, page?: Page) : Promise<void> {
-    /** 
+    /**
      * `this.workflow` with the parameters initialized.
      */
     const workflow = this.preprocess.initParams(this.workflow, params);
 
-    if(!page){
+    if (!page) {
       console.debug('Creating new page!');
       const ctx = await this.browser.newContext({ locale: 'en-GB' });
       page = await ctx.newPage();
     }
 
-	// @ts-ignore
-    if(await page.evaluate(() => !<any>window['scrape'])){
+    // @ts-ignore
+    if (await page.evaluate(() => !<any>window.scrape)) {
       page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
     }
 
-    const {dataset, name} = this.meta;
+    const { dataset, name } = this.meta;
     const datasetID = dataset ?? `${toKebabCase(name ?? 'waw')}-${Date.now()}`;
 
     const usedActions : string[] = [];
@@ -257,11 +271,11 @@ export default class Interpreter {
     let repeatCount = 0;
 
     while (true) {
-      await new Promise((res) => setTimeout(res, 500));
+      await new Promise((res) => { setTimeout(res, 500); });
 
       const pageState = await this.getState(page, workflow);
       const action = workflow.find(
-        (step) => this.applicable(step.where, pageState, usedActions)
+        (step) => this.applicable(step.where, pageState, usedActions),
       );
 
       console.log(`Matched ${JSON.stringify(action?.where)}`);

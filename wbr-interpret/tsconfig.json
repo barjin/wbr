@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "importsNotUsedAsValues": "remove",
     "strict": true,
-    "sourceMap": true,
+    "declaration": true,
     "allowJs": true
   },
   "exclude": ["node_modules"],
