@@ -1,8 +1,8 @@
-import { Page, Browser } from 'playwright';
+import { Page } from 'playwright';
 import { operators, meta } from './logic';
 
-type Operator = typeof operators[number];
-type Meta = typeof meta[number];
+export type Operator = typeof operators[number];
+export type Meta = typeof meta[number];
 
 type SelectorArray = string[];
 

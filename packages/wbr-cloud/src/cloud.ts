@@ -11,8 +11,8 @@ import path from 'path';
 import crypto from 'crypto';
 import socket from 'socket.io';
 import http from 'http';
+import { Preprocessor } from '@wbr/wbr-interpret';
 import Performer from './performer';
-import Preprocessor from '../../wbr-interpret/src/preprocessor';
 
 const app = express();
 const uploadsDir = 'uploads';
@@ -53,7 +53,7 @@ app.post('/workflow', async (req, res) => {
       }
 
       // Throws if workflow is not valid JSON
-      JSON.parse(workflow.data.toString()); 
+      JSON.parse(workflow.data.toString());
       // TODO: better parsing (check if the file is a valid workflow?)
 
       workflow.mv(filePath);
@@ -112,11 +112,9 @@ app.post('/performer', async (req, res) => {
     // If the specified workflow exists, we set up the performer and assign an URL to it.
     const url = crypto.randomBytes(8).toString('hex');
 
-    const performer = new Performer(
-      JSON.parse(fs.readFileSync(
-        path.join(uploadsDir, workflows[id]),
-      ).toString()), <any>io.of(url),
-    );
+    const performer = new Performer(JSON.parse(fs.readFileSync(
+      path.join(uploadsDir, workflows[id]),
+    ).toString()), <any>io.of(url));
 
     console.debug(`Set up a performer on ${url}`);
 
@@ -138,7 +136,7 @@ app.post('/performer', async (req, res) => {
 
 /**
  * `GET` method for the `/performer` endpoint
- * 
+ *
  * Returns a list of currently existing performers with their names, urls and states.
  */
 app.get('/performer', async (req, res) => {
@@ -159,15 +157,14 @@ app.get('/performer/:id', (req, res) => {
 app.use(express.static(path.join(__dirname, '../public')));
 
 /**
- * Port to run the web app on. 
- * 
- * If `APIFY_CONTAINER_PORT` environment variable is present, this port is used.
+ * Port to run the web app on.
+ *
+ * If `APIFY_CONTAINER_PORT` environment variable is present, it is used instead.
  */
 const port = process.env.APIFY_CONTAINER_PORT || 3000;
 
-
 /**
- * Starts the HTTP server on the given port. 
+ * Starts the HTTP server on the given port.
  * Implements a simple idle timer to turn off an idle cloud interpreter.
  */
 server.listen(port, () => {

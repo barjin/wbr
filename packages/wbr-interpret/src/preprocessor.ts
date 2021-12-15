@@ -59,9 +59,9 @@ export default class Preprocessor {
       return workflow;
     }
 
-    const initParamsRecurse = (object: unknown) => {
+    const initParamsRecurse = (object: unknown) : unknown => {
       if (!object || typeof object !== 'object') {
-        return;
+        return object;
       }
       // for every key of the object
       Object.keys(object!).forEach((key) => {

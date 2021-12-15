@@ -1,20 +1,12 @@
 {
-  "name": "wbr-cloud",
+  "name": "wbr",
+  "workspaces": [
+    "wbr-interpret",
+    "wbr-cloud",
+    "wbr-common"
+  ],
   "version": "0.1.0",
-  "description": "Cloud environment for the Smart Workflows Interpret, part of the WBR project",
-  "main": "cloud.js",
-  "scripts": {
-    "start-win": "node ..\\wbr-cloud\\build\\wbr-cloud\\src\\cloud.js",
-    "start": "node ./wbr-cloud/build/wbr-cloud/src/cloud.js",
-    "clean-win": "rmdir .\\build /s/q",
-    "clean": "rm -rf ./build",
-    "compile": "cd wbr-cloud/ && tsc -p . ",
-    "copystatic-win": "cd wbr-cloud\\ && xcopy .\\public\\ .\\build\\wbr-cloud\\public\\ /E/H/Y && xcopy ..\\wbr-interpret\\src\\*.js .\\build\\wbr-interpret\\src\\ /E/H/Y",
-    "copystatic": "cd wbr-cloud/ && mkdir -p ./build/wbr-cloud/ && cp -r ./public/ ./build/wbr-cloud && mkdir -p ./build/wbr-interpret/ && cp -r ../wbr-interpret/src/*.js ./build/wbr-interpret/src",
-    "build-win": "npm install --production=false . & npm run compile & npm run copystatic-win",
-    "build": "npm install --production=false . && npm run compile && npm run copystatic",
-    "build-dockerable-win": "npm run build-win & xcopy .\\package.json .\\build\\ && xcopy .\\Dockerfile .\\build\\"
-  },
+  "description": "The WBR project, one stop shop for creating, debugging and running web automations with ease.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/barjin/wbr.git"
@@ -33,22 +25,20 @@
   },
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
-    "@types/express-fileupload": "^1.1.7",
-    "apify": "^2.1.0",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "eslint-config-airbnb-typescript": "^16.1.0",
-    "express": "^4.17.1",
-    "express-fileupload": "^1.2.1",
-    "playwright": "^1.16.3",
-    "socket.io": "^4.3.2"
+    "@wbr/wbr-cloud": "file:packages/wbr-cloud",
+    "@wbr/wbr-interpret": "file:packages/wbr-interpret"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@wbr/eslint-config": "file:./packages/eslint-config",
+    "@wbr/wbr-common": "file:./packages/wbr-common",
     "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^16.1.0",
     "eslint-plugin-import": "^2.25.3",
+    "jest": "^27.3.1",
+    "lerna": "^4.0.0",
     "typescript": "^4.5.2"
   }
 }

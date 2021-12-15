@@ -4,14 +4,19 @@ function area(element) {
 
 function getBiggestElement(selector) {
   const elements = Array.from(document.querySelectorAll(selector));
-  const biggest = elements.reduce((max, elem) => (area(elem) > area(max) ? elem : max), { offsetHeight: 0, offsetWidth: 0 });
+  const biggest = elements.reduce(
+    (max, elem) => (
+      area(elem) > area(max) ? elem : max),
+    { offsetHeight: 0, offsetWidth: 0 },
+  );
   return biggest;
 }
 
 /**
  * Generates structural selector (describing element by its DOM tree location).
  *
- * **The generated selector is not guaranteed to be unique! (In fact, this is the desired behaviour.)**
+ * **The generated selector is not guaranteed to be unique!** (In fact, this is
+ *    the desired behaviour in here.)
  * @param {HTMLElement} element Element being described.
  * @returns {string} CSS-compliant selector describing the element's location in the DOM tree.
  */
@@ -34,7 +39,8 @@ function GetSelectorStructural(element) {
 
 /**
  * Returns an array of grid-aligned {x,y} points.
- * @param {number} [granularity=0.005] sets the number of generated points (the higher the granularity, the more points).
+ * @param {number} [granularity=0.005] sets the number of generated points
+ *  (the higher the granularity, the more points).
  * @returns {Grid} Array of {x, y} objects.
  */
 function getGrid(startX = 0, startY = 0, granularity = 0.005) {
@@ -54,7 +60,8 @@ const different = (x, i, a) => a.findIndex((e) => e === x) === i;
 
 /**
  * Heuristic method to find collections of "interesting" items on the page.
- * @returns {Array<HTMLElement>} A collection of interesting DOM nodes (online store products, plane tickets, list items... and many more?)
+ * @returns {Array<HTMLElement>} A collection of interesting DOM nodes
+ *  (online store products, plane tickets, list items... and many more?)
  */
 function scrapableHeuristics(maxCountPerPage = 50, minArea = 20000, scrolls = 3, metricType = 'size_deviation') {
   const restoreScroll = (() => {
@@ -66,7 +73,7 @@ function scrapableHeuristics(maxCountPerPage = 50, minArea = 20000, scrolls = 3,
 
   let maxSelector = { selector: 'body', metric: 0 };
 
-  for (let scroll = 0; scroll < scrolls; scroll++) {
+  for (let scroll = 0; scroll < scrolls; scroll += 1) {
     window.scrollTo(0, scroll * window.innerHeight);
 
     const grid = getGrid();
@@ -77,7 +84,8 @@ function scrapableHeuristics(maxCountPerPage = 50, minArea = 20000, scrolls = 3,
 
       const elements = Array.from(document.querySelectorAll(selector)).filter((element) => area(element) > minArea);
 
-      // If the current selector targets less than three elements, we consider it not interesting (would be a very underwhelming scraper)
+      // If the current selector targets less than three elements,
+      // we consider it not interesting (would be a very underwhelming scraper)
       if (elements.length < 3) {
         continue;
       }
@@ -122,37 +130,41 @@ function scrape(selector = null) {
    * **crudeRecords** contains uncurated rundowns of "scrapable" elements
    * @type {Array<Object>}
    */
-  const crudeRecords = (selector ? Array.from(document.querySelectorAll(selector)) : scrapableHeuristics())
+  const crudeRecords = (selector
+    ? Array.from(document.querySelectorAll(selector))
+    : scrapableHeuristics())
     .map((record) => ({
       ...Array.from(record.querySelectorAll('img'))
-        .reduce(
-          (p, x, i) => {
-            if (x.srcset) {
-              const urls = x.srcset.split(', ');
-              var url = urls[urls.length - 1].split(' ')[0];
-            }
+        .reduce((p, x, i) => {
+          let url = null;
+          if (x.srcset) {
+            const urls = x.srcset.split(', ');
+            [url] = urls[urls.length - 1].split(' ');
+          }
 
-            /**
+          /**
              * Contains the largest elements from `srcset` - if `srcset` is not present, contains
              * URL from the `src` attribute
              *
              * If the `src` attribute contains a data url, imgUrl contains `undefined`.
              */
-            const imgUrl = x.srcset ? url : (x.src.indexOf('data:') != -1 ? undefined : x.src);
+          let imgUrl;
+          if (x.srcset) {
+            imgUrl = url;
+          } else if (x.src.indexOf('data:') === -1) {
+            imgUrl = x.src;
+          }
 
-            return ({
-              ...p,
-              ...(imgUrl ? { [`img_${i}`]: imgUrl } : {}),
-            });
-          }, {},
-        ),
-      ...record.innerText.split('\n')
-        .reduce(
-          (p, x, i) => ({
+          return ({
             ...p,
-            [`record_${String(i).padStart(4, '0')}`]: x.trim(),
-          }), {},
-        ),
+            ...(imgUrl ? { [`img_${i}`]: imgUrl } : {}),
+          });
+        }, {}),
+      ...record.innerText.split('\n')
+        .reduce((p, x, i) => ({
+          ...p,
+          [`record_${String(i).padStart(4, '0')}`]: x.trim(),
+        }), {}),
     }));
 
   return crudeRecords;

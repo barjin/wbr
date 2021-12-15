@@ -14,7 +14,6 @@ import Preprocessor from './preprocessor';
  * Defines optional intepreter options (passed in constructor)
  */
 export interface InterpreterOptions {
-  browser: Browser;
   maxRepeats: number;
 }
 
@@ -118,7 +117,7 @@ export default class Interpreter {
       Object.entries(subset).every(
         ([key, value]) => {
           /**
-           * Value on the current key. Arrays are compared without order (transformed into objects)
+           * Arrays are compared without order (are transformed into objects before comparison).
            */
           value = Array.isArray(value) ? arrayToObject(value) : value;
           superset[key] = Array.isArray(superset[key])
@@ -183,7 +182,10 @@ export default class Interpreter {
   /**
    * Defines overloaded (or added) methods/actions usable in the workflow.
    * If a method overloads any existing method of the Page class, it accepts the same set
-   * of parameters *(but can suppress some!)*
+   * of parameters *(but can suppress some!)*\
+   * \
+   * Also, following piece of code defines functions to be run in the browser's context.
+   * Beware of false linter errors - here, we know better!
    */
     const wawActions : Record<string, (...args: any[]) => void> = {
       screenshot: async (params: PageScreenshotOptions) => {
@@ -200,8 +202,8 @@ export default class Interpreter {
         await dataset.pushData(scrapeResults);
       },
       scroll: async (pages? : number) => {
-        await page.evaluate(async (pages) => {
-          for (let i = 1; i <= (pages ?? 1); i++) {
+        await page.evaluate(async (pagesInternal) => {
+          for (let i = 1; i <= (pagesInternal ?? 1); i += 1) {
             // @ts-ignore
             window.scrollTo(0, window.scrollY + window.innerHeight);
           }
@@ -246,11 +248,13 @@ export default class Interpreter {
    * @param {Page} [page] Page to run the workflow on. If not set,
    *  the interpreter uses the browser given and creates a context to work with.
    */
-  public async run(params? : ParamType, page?: Page) : Promise<void> {
+  public async run(params? : ParamType, initPage?: Page) : Promise<void> {
     /**
      * `this.workflow` with the parameters initialized.
      */
     const workflow = this.preprocess.initParams(this.workflow, params);
+
+    let page = initPage;
 
     if (!page) {
       console.debug('Creating new page!');

@@ -1,0 +1,26 @@
+{
+  "name": "@wbr/eslint-config",
+  "version": "0.0.0",
+  "description": "Project-wide eslint config",
+  "author": "barjin <jindrich.bar@gmail.com>",
+  "homepage": "https://github.com/barjin/wbr/tree/main/packages/eslint-config#readme",
+  "license": "ISC",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barjin/wbr.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/barjin/wbr/issues"
+  }
+}

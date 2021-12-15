@@ -1,11 +1,10 @@
 // Cloud interpreter communication layer
 import { chromium, BrowserContext, Page } from 'playwright';
 import { Namespace, Socket } from 'socket.io';
-import Interpret from '../../wbr-interpret/src/interpret';
-import { WorkflowFile } from '../../wbr-interpret/src/workflow';
+import Interpret, { WorkflowFile } from '@wbr/wbr-interpret';
 
 export default class Performer {
-  private workflow: WorkflowFile
+  private workflow: WorkflowFile;
 
   private clients: Socket[] = [];
 
@@ -32,7 +31,7 @@ export default class Performer {
     });
   };
 
-  async registerScreencast(ctx : BrowserContext, page: Page){
+  async registerScreencast(ctx : BrowserContext, page: Page) {
     const CDP = await ctx.newCDPSession(page);
     await CDP.send('Page.startScreencast', { format: 'jpeg', quality: 50 });
 
@@ -51,22 +50,24 @@ export default class Performer {
   }
 
   async run(parameters: Record<string, string>) : Promise<void> {
-    console.log('Running interpret');
+    console.log('Running the interpret...');
     this.state = 'OCCUPIED';
 
-    const browser = await chromium.launch();
+    const browser = await chromium.launch(process.env.DOCKER
+      ? { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] }
+      : { });
 
     const ctx = await browser.newContext({ locale: 'en-GB' });
     const page = await ctx.newPage();
 
-    const stopScreencast = await this.registerScreencast(ctx,page);
+    const stopScreencast = await this.registerScreencast(ctx, page);
 
     const interpreter = new Interpret(this.workflow, browser);
 
     await interpreter.run(parameters, page);
 
-    this.state = "FINISHED";
-    
+    this.state = 'FINISHED';
+
     await stopScreencast();
     await browser.close();
   }

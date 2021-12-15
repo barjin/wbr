@@ -1,19 +1,17 @@
 {
-  "name": "wbr-cloud",
+  "name": "@wbr/wbr-cloud",
   "version": "0.1.0",
   "description": "Cloud environment for Smart Workflows Interpret, part of the WBR project",
   "main": "cloud.js",
   "scripts": {
-    "start-win": "node .\\build\\wbr-cloud\\src\\cloud.js",
-    "start": "node ./build/wbr-cloud/src/cloud.js",
+    "start": "node ./build/cloud.js",
     "clean-win": "rmdir .\\build /s/q",
     "clean": "rm -rf ./build",
-    "compile": "tsc -p . ",
-    "copystatic-win": "xcopy .\\public\\ .\\build\\wbr-cloud\\public\\ /E/H/Y && xcopy ..\\wbr-interpret\\src\\scraper.js .\\build\\wbr-interpret\\src\\ /E/H/Y",
+    "compile": "tsc",
+    "copystatic-win": "xcopy .\\public\\ .\\build\\public\\ /E/H/Y",
     "copystatic": "mkdir -p ./build/wbr-cloud/ && cp -r ./public/ ./build/wbr-cloud && mkdir -p ./build/wbr-interpret/ && cp -r ../wbr-interpret/src/*.js ./build/wbr-interpret/src",
-    "build-win": "npm install --production=false . & npm run compile & npm run copystatic-win",
-    "build": "npm install --production=false . && npm run compile && npm run copystatic && cp ./package.json ./build ",
-    "build-dockerable-win": "npm run build-win & xcopy .\\package.json .\\build\\ && xcopy .\\Dockerfile .\\build\\"
+    "build-win": "npm run compile & npm run copystatic-win",
+    "build-cloud": "npm run compile && npm run copystatic && cp ./package.json ./build "
   },
   "repository": {
     "type": "git",
@@ -34,6 +32,7 @@
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
     "@types/express-fileupload": "^1.1.7",
+    "@wbr/wbr-interpret": "file:../wbr-interpret",
     "apify": "^2.1.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -41,8 +40,5 @@
     "express-fileupload": "^1.2.1",
     "playwright": "^1.16.3",
     "socket.io": "^4.3.2"
-  },
-  "devDependencies": {
-    "typescript": "^4.5.2"
   }
 }

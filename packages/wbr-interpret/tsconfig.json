@@ -1,0 +1,9 @@
+{
+  "extends": "@wbr/wbr-common/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./build/",
+    "declaration": true,
+    "allowJs": true
+  },
+  "include": ["src"]
+}

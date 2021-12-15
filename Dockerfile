@@ -16,12 +16,17 @@ WORKDIR /root
 RUN mkdir uploads
 COPY "./examples/." "./uploads/"
 
-RUN mkdir wbr-cloud
-COPY "wbr-cloud" "./wbr-cloud/"
-RUN mkdir wbr-interpret
-COPY "wbr-interpret" "./wbr-interpret"
+RUN mkdir packages
+COPY "packages" "./packages"
+
+COPY "lerna.json" "./lerna.json"
 COPY "package.json" "./package.json"
 
-RUN npm run build
+RUN npm install -g lerna
+RUN npx lerna bootstrap --hoist
+RUN npx lerna run build-interpret
+RUN npx lerna run build-cloud
+
+WORKDIR /root/packages/wbr-cloud/
 
 ENTRYPOINT ["npm", "start"]
