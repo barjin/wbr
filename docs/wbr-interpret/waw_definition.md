@@ -1,4 +1,3 @@
-
 # WAW (Web Automation Workflow) format definition
 
 The following document is considered the official definition of the Web Automation Workflow (waw) format.
@@ -147,7 +146,7 @@ This can be statically translated to the previous example and is arguably more r
 ```
 This might make certain expressions difficult to understand again. Still, this might be a good tradeoff to support those for more experienced users (but will they really use those when they have the visual editor available?)
 ### Metaprogramming (state persistence)
-As mentioned earlier, the interpreter could also have some kind of internal "memory", which would allow for more specific conditions. Some of those could be e.g.
+As mentioned earlier, the interpreter could also have some kind of an internal "memory", which would allow for more specific conditions. Some of those could be e.g.
 ```javascript
 where: {
 	"$after": "login" // login being a "name" of another knowledge bit

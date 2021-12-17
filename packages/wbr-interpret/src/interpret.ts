@@ -1,20 +1,21 @@
 /* eslint-disable no-await-in-loop, no-restricted-syntax */
-import { Browser, Page, PageScreenshotOptions } from 'playwright';
-import Apify from 'apify';
+import { Page, PageScreenshotOptions } from 'playwright';
 import path from 'path';
 
 import {
   Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, MetaData,
 } from './workflow';
 import { operators, meta } from './logic';
-import { toKebabCase, arrayToObject, intGenerator } from './utils';
+import { arrayToObject } from './utils';
 import Preprocessor from './preprocessor';
 
 /**
  * Defines optional intepreter options (passed in constructor)
  */
-export interface InterpreterOptions {
+interface InterpreterOptions {
   maxRepeats: number;
+  serializableCallback: (output: any) => (void | Promise<void>);
+  binaryCallback: (output: any, mimeType: string) => (void | Promise<void>);
 }
 
 const MAX_REPEAT = 5;
@@ -27,16 +28,19 @@ export default class Interpreter {
 
   private workflow: Workflow;
 
-  private browser: Browser;
+  private options: InterpreterOptions;
 
   private preprocess: Preprocessor = new Preprocessor();
 
-  private intGen = intGenerator();
-
-  constructor(workflow: WorkflowFile, browser: Browser, options?: Partial<InterpreterOptions>) {
+  constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
     this.meta = workflow.meta;
     this.workflow = workflow.workflow;
-    this.browser = browser;
+    this.options = {
+      maxRepeats: 5,
+      serializableCallback: (data) => { console.log(JSON.stringify(data)); },
+      binaryCallback: () => { console.log('Received binary data, thrashing them.'); },
+      ...options,
+    };
   }
 
   /**
@@ -178,7 +182,7 @@ export default class Interpreter {
  * @param page Playwright Page object
  * @param steps Array of actions.
  */
-  private async carryOutSteps(page: Page, steps: What[], datasetID?: string) : Promise<void> {
+  private async carryOutSteps(page: Page, steps: What[]) : Promise<void> {
   /**
    * Defines overloaded (or added) methods/actions usable in the workflow.
    * If a method overloads any existing method of the Page class, it accepts the same set
@@ -192,14 +196,13 @@ export default class Interpreter {
         const screenshotBuffer = await page.screenshot({
           ...params, path: undefined, fullPage: true,
         });
-        await Apify.setValue(`SCREENSHOT_${this.intGen.next().value}`, screenshotBuffer, { contentType: 'image/png' });
+        await this.options.binaryCallback(screenshotBuffer, 'image/png');
       },
       scrape: async (selector?: string) => {
-        const dataset = await Apify.openDataset(datasetID);
         // eslint-disable-next-line
         // @ts-ignore
         const scrapeResults : Record<string, string>[] = <any> await page.evaluate((s) => scrape(s ?? null), selector);
-        await dataset.pushData(scrapeResults);
+        await this.options.serializableCallback(scrapeResults);
       },
       scroll: async (pages? : number) => {
         await page.evaluate(async (pagesInternal) => {
@@ -243,32 +246,21 @@ export default class Interpreter {
    * updates about playback (messages, screencast).\
    * \
    * Resolves after the playback is finished.
-   * @param {ParamType} params Workflow specific, set of parameters
-   *  for the `{$param: nameofparam}` fields.
    * @param {Page} [page] Page to run the workflow on. If not set,
    *  the interpreter uses the browser given and creates a context to work with.
+   * @param {ParamType} params Workflow specific, set of parameters
+   *  for the `{$param: nameofparam}` fields.
    */
-  public async run(params? : ParamType, initPage?: Page) : Promise<void> {
+  public async run(page: Page, params? : ParamType) : Promise<void> {
     /**
      * `this.workflow` with the parameters initialized.
      */
     const workflow = this.preprocess.initParams(this.workflow, params);
 
-    let page = initPage;
-
-    if (!page) {
-      console.debug('Creating new page!');
-      const ctx = await this.browser.newContext({ locale: 'en-GB' });
-      page = await ctx.newPage();
-    }
-
     // @ts-ignore
     if (await page.evaluate(() => !<any>window.scrape)) {
       page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
     }
-
-    const { dataset, name } = this.meta;
-    const datasetID = dataset ?? `${toKebabCase(name ?? 'waw')}-${Date.now()}`;
 
     const usedActions : string[] = [];
     let lastAction = null;
@@ -292,7 +284,7 @@ export default class Interpreter {
         lastAction = action;
 
         try {
-          await this.carryOutSteps(page, action.what, String(datasetID));
+          await this.carryOutSteps(page, action.what);
           usedActions.push(action.name ?? 'undefined');
         } catch (e) {
           console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);

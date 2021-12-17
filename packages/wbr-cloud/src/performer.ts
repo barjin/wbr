@@ -2,6 +2,7 @@
 import { chromium, BrowserContext, Page } from 'playwright';
 import { Namespace, Socket } from 'socket.io';
 import Interpret, { WorkflowFile } from '@wbr/wbr-interpret';
+import Apify from 'apify';
 
 export default class Performer {
   private workflow: WorkflowFile;
@@ -53,6 +54,15 @@ export default class Performer {
     console.log('Running the interpret...');
     this.state = 'OCCUPIED';
 
+    const { name } = this.workflow.meta;
+    const dataset = await Apify.openDataset(`${name ?? 'waw'}-${Date.now()}`);
+    const kvs = await Apify.openKeyValueStore(`${name ?? 'waw'}-${Date.now()}`);
+
+    const interpreter = new Interpret(this.workflow, {
+      serializableCallback: (row) => dataset.pushData(row),
+      binaryCallback: (data, mimeType) => kvs.setValue(`${Date.now()}`, data, { contentType: mimeType }),
+    });
+
     const browser = await chromium.launch(process.env.DOCKER
       ? { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] }
       : { });
@@ -62,12 +72,9 @@ export default class Performer {
 
     const stopScreencast = await this.registerScreencast(ctx, page);
 
-    const interpreter = new Interpret(this.workflow, browser);
-
-    await interpreter.run(parameters, page);
+    await interpreter.run(page, parameters);
 
     this.state = 'FINISHED';
-
     await stopScreencast();
     await browser.close();
   }

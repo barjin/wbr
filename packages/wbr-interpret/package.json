@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
-    "apify": "^2.1.0",
     "playwright": "^1.16.3"
   }
 }
