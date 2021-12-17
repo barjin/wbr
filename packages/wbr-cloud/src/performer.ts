@@ -54,9 +54,8 @@ export default class Performer {
     console.log('Running the interpret...');
     this.state = 'OCCUPIED';
 
-    const { name } = this.workflow.meta;
-    const dataset = await Apify.openDataset(`${name ?? 'waw'}-${Date.now()}`);
-    const kvs = await Apify.openKeyValueStore(`${name ?? 'waw'}-${Date.now()}`);
+    const dataset = await Apify.openDataset(`waw-${Date.now()}`);
+    const kvs = await Apify.openKeyValueStore(`waw-${Date.now()}`);
 
     const interpreter = new Interpret(this.workflow, {
       serializableCallback: (row) => dataset.pushData(row),
