@@ -1,8 +1,30 @@
-# PWWW Dockerfile
+# WBR-cloud Dockerfile
 
-FROM node:16-alpine
+###################
+#     BUILDER     #
+###################
 
-# the EXPOSE directive is just a documentation of the actors used ports. On the Apify platform, it utilizes APIFY_CONTAINER_PORT for the Liveview functionality.
+FROM node:16-alpine as build-stage
+
+WORKDIR /root
+
+RUN mkdir packages
+COPY "packages" "./packages"
+
+COPY "lerna.json" "./lerna.json"
+COPY "package.json" "./package.json"
+
+RUN npm install -g lerna
+RUN npx lerna bootstrap --hoist 
+RUN npx lerna run build-interpret
+RUN npx lerna run build-cloud
+
+###################
+#      FINAL      #
+###################
+
+FROM node:16-alpine as result
+
 EXPOSE 3000/tcp
 
 ENV DOCKER 1
@@ -13,20 +35,14 @@ RUN apk add --no-cache chromium
 
 WORKDIR /root
 
-RUN mkdir uploads
-COPY "./examples/." "./uploads/"
+COPY --from=build-stage /root/packages/wbr-cloud /root/wbr-cloud
+COPY --from=build-stage /root/packages/wbr-interpret /root/wbr-interpret
 
-RUN mkdir packages
-COPY "packages" "./packages"
+RUN mkdir /root/wbr-cloud/uploads
+COPY "./examples/." "/root/wbr-cloud/uploads"
 
-COPY "lerna.json" "./lerna.json"
-COPY "package.json" "./package.json"
+WORKDIR /root/wbr-cloud/
 
-RUN npm install -g lerna
-RUN npx lerna bootstrap --hoist
-RUN npx lerna run build-interpret
-RUN npx lerna run build-cloud
-
-WORKDIR /root/packages/wbr-cloud/
+RUN npm install .
 
 ENTRYPOINT ["npm", "start"]
