@@ -1,8 +1,8 @@
 'use strict';
-const process = require('process');
 const Interpret = require('@wbr-project/wbr-interpret').default;
+const Apify = require('apify');
 
-console.log(process.env.INPUT);
-
-const inter = new Interpret({},{});
-inter.run();
+Apify.main(async () => {
+    const input = await Apify.getInput();
+    console.log(input);
+});
