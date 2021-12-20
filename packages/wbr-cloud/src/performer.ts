@@ -1,7 +1,7 @@
 // Cloud interpreter communication layer
 import { chromium, BrowserContext, Page } from 'playwright';
 import { Namespace, Socket } from 'socket.io';
-import Interpret, { WorkflowFile } from '@wbr/wbr-interpret';
+import Interpret, { WorkflowFile } from '@wbr-project/wbr-interpret';
 import Apify from 'apify';
 
 export default class Performer {

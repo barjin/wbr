@@ -1,15 +1,12 @@
-# The WBR project - Documentation
-
-Web Browser Recorder, a one-stop shop for running and managing automated tasks on the web. \
-\
-A spiritual successor of [PWWW (Playwright on Web)](https://github.com/barjin/pw-web).
+# wbr-interpret
+Blazing fast interpreter for the **Smart Workflows** automation format, part of the WBR project.
 
 ## Installation and usage
 
 To install the `wbr-interpret` npm package, navigate to your project's directory and run
 
 ```bash
-npm i -s wbr-interpret --registry=https://wbr-registry.herokuapp.com
+npm i -s @wbr/wbr-interpret
 ```
 
 This installs the package into the `node_modules` folder of your project. The package also includes [Typescript](https://www.typescriptlang.org/) typings by default to facilitate its usage.
@@ -52,4 +49,4 @@ import  Interpret  from 'wbr-interpret';
 This example runs the defined `workflow` and exits.
 
 ## Writing your Workflows
-To create your own workflow automation, you don't have to be a seasoned programmer (nor a programmer at all!) See [The WAW format definition](./wbr-interpret/waw_definition.md) for a detailed explanation of the format.
+To create your own workflow automation, you don't have to be a seasoned programmer (nor a programmer at all!) See [the docs](https://github.com/barjin/wbr/blob/main/docs/wbr-interpret/waw_definition.md) for a detailed explanation of the format.

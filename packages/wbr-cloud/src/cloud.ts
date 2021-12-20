@@ -11,7 +11,7 @@ import path from 'path';
 import crypto from 'crypto';
 import socket from 'socket.io';
 import http from 'http';
-import { Preprocessor } from '@wbr/wbr-interpret';
+import { Preprocessor } from '@wbr-project/wbr-interpret';
 import Performer from './performer';
 
 const app = express();

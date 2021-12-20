@@ -1,0 +1,33 @@
+{
+  "name": "wbr-actor",
+  "version": "0.0.0",
+  "description": "Wrapper code for the wbr-interpret package to allow for seamless integration with the Apify platform.",
+  "keywords": [
+    "apify",
+    "wbr",
+    "automation",
+    "API",
+    "waw",
+    "workflow"
+  ],
+  "author": "barjin <jindrich.bar@gmail.com>",
+  "homepage": "https://github.com/barjin/wbr/tree/main/packages/wbr-actor#readme",
+  "license": "MIT",
+  "main": "wbr-actor.js",
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barjin/wbr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/barjin/wbr/issues"
+  },
+  "scripts": {
+    "start": "node wbr-actor.js"
+  },
+  "dependencies": {
+    "@wbr-project/wbr-interpret": "*"
+  }
+}

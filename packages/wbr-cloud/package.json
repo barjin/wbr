@@ -32,7 +32,7 @@
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
     "@types/express-fileupload": "^1.1.7",
-    "@wbr/wbr-interpret": "file:../wbr-interpret",
+    "@wbr-project/wbr-interpret": "*",
     "apify": "^2.1.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",

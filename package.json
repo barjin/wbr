@@ -3,7 +3,8 @@
   "workspaces": [
     "wbr-interpret",
     "wbr-cloud",
-    "wbr-common"
+    "wbr-common",
+    "wbr-actor"
   ],
   "version": "0.1.0",
   "description": "The WBR project, one stop shop for creating, debugging and running web automations with ease.",
