@@ -7,8 +7,7 @@
 	  "workflow": {
 		"title": "Workflow",
 		"type": "object",
-		"description": "\"The workflow to be executed. Has to be a valid json and a valid waw workflow.",
-		"default": "The workflow to be executed. Has to be a valid json and a valid waw workflow.",
+		"description": "The workflow to be executed. Has to be a valid json and a valid waw workflow.",
 		"editor": "json",
 		"prefill": "\"{\\n \\\"meta\\\": {\\n  \\\"name\\\": \\\"Default workflow\\\",\\n  \\\"desc\\\": \\\"The default waw workflow to showcase the input fields. When executed, it exits immediately.\\\"\\n },\\n \\\"workflow\\\": [\\n ]\\n}\""
 	  },
