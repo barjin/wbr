@@ -1,17 +1,14 @@
 {
-  "name": "@wbr/wbr-cloud",
+  "name": "@wbr-project/wbr-cloud",
   "version": "0.1.0",
   "description": "Cloud environment for Smart Workflows Interpret, part of the WBR project",
   "main": "cloud.js",
   "scripts": {
     "start": "node ./build/cloud.js",
-    "clean-win": "rmdir .\\build /s/q",
     "clean": "rm -rf ./build",
     "compile": "tsc",
-    "copystatic-win": "xcopy .\\public\\ .\\build\\public\\ /E/H/Y",
-    "copystatic": "mkdir -p ./build/wbr-cloud/ && cp -r ./public/ ./build/wbr-cloud && mkdir -p ./build/wbr-interpret/ && cp -r ../wbr-interpret/src/*.js ./build/wbr-interpret/src",
-    "build-win": "npm run compile & npm run copystatic-win",
-    "build-cloud": "npm run compile && npm run copystatic && cp ./package.json ./build "
+    "copystatic": "mkdir -p ./build/wbr-cloud/ && cp -r ./public/ ./build/wbr-cloud",
+    "build": "npm run compile && npm run copystatic && cp ./package.json ./build "
   },
   "repository": {
     "type": "git",

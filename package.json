@@ -26,8 +26,8 @@
   },
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
-    "@wbr/wbr-cloud": "file:packages/wbr-cloud",
-    "@wbr/wbr-interpret": "file:packages/wbr-interpret"
+    "@wbr-project/wbr-cloud": "file:packages/wbr-cloud",
+    "@wbr-project/wbr-interpret": "file:packages/wbr-interpret"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.0.0",
