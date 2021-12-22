@@ -3,7 +3,7 @@ import { Page, PageScreenshotOptions } from 'playwright';
 import path from 'path';
 
 import {
-  Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, MetaData,
+  Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, MetaData, CustomFunctions,
 } from './workflow';
 import { operators, meta } from './logic';
 import { arrayToObject } from './utils';
@@ -191,7 +191,7 @@ export default class Interpreter {
    * Also, following piece of code defines functions to be run in the browser's context.
    * Beware of false linter errors - here, we know better!
    */
-    const wawActions : Record<string, (...args: any[]) => void> = {
+    const wawActions : Record<CustomFunctions, (...args: any[]) => void> = {
       screenshot: async (params: PageScreenshotOptions) => {
         const screenshotBuffer = await page.screenshot({
           ...params, path: undefined, fullPage: true,
@@ -204,6 +204,23 @@ export default class Interpreter {
         const scrapeResults : Record<string, string>[] = <any> await page.evaluate((s) => scrape(s ?? null), selector);
         await this.options.serializableCallback(scrapeResults);
       },
+      scrapeSchema: async (schema: Record<string, string>) => {
+        const values = await Promise.all(
+          Object.values(schema).map(
+            (selector) => {
+              const locator = page.locator(selector);
+              return locator.allInnerTexts();
+            },
+          ),
+        );
+
+        const nRows = Math.max(...values.map((x) => x.length));
+
+        for (let j = 0; j < nRows; j += 1) {
+          const out = Object.fromEntries(Object.keys(schema).map((key, i) => [key, values[i][j]]));
+          await this.options.serializableCallback(out);
+        }
+      },
       scroll: async (pages? : number) => {
         await page.evaluate(async (pagesInternal) => {
           for (let i = 1; i <= (pagesInternal ?? 1); i += 1) {
@@ -211,6 +228,13 @@ export default class Interpreter {
             window.scrollTo(0, window.scrollY + window.innerHeight);
           }
         }, pages);
+      },
+      script: async (code : string) => {
+        const AsyncFunction : FunctionConstructor = Object.getPrototypeOf(
+          async () => {},
+        ).constructor;
+        const x = new AsyncFunction('page', code);
+        await x(page);
       },
     };
 
@@ -246,8 +270,7 @@ export default class Interpreter {
    * updates about playback (messages, screencast).\
    * \
    * Resolves after the playback is finished.
-   * @param {Page} [page] Page to run the workflow on. If not set,
-   *  the interpreter uses the browser given and creates a context to work with.
+   * @param {Page} [page] Page to run the workflow on.
    * @param {ParamType} params Workflow specific, set of parameters
    *  for the `{$param: nameofparam}` fields.
    */
@@ -256,43 +279,68 @@ export default class Interpreter {
      * `this.workflow` with the parameters initialized.
      */
     const workflow = this.preprocess.initParams(this.workflow, params);
+    const pages : Page[] = [];
+    const runs : Promise<void>[] = [];
 
     // @ts-ignore
     if (await page.evaluate(() => !<any>window.scrape)) {
       page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
     }
 
-    const usedActions : string[] = [];
-    let lastAction = null;
-    let repeatCount = 0;
+    const runLoop = async (p : Page) => {
+      const usedActions : string[] = [];
+      let lastAction = null;
+      let repeatCount = 0;
 
-    while (true) {
-      await new Promise((res) => { setTimeout(res, 500); });
-
-      const pageState = await this.getState(page, workflow);
-      const action = workflow.find(
-        (step) => this.applicable(step.where, pageState, usedActions),
-      );
-
-      console.log(`Matched ${JSON.stringify(action?.where)}`);
-
-      if (action) {
-        repeatCount = action === lastAction ? repeatCount + 1 : 0;
-        if (repeatCount >= MAX_REPEAT) {
-          break;
+      while (true) {
+        if (p.isClosed()) {
+          return;
         }
-        lastAction = action;
 
-        try {
-          await this.carryOutSteps(page, action.what);
-          usedActions.push(action.name ?? 'undefined');
-        } catch (e) {
-          console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
-          console.error(e);
+        await p.waitForLoadState('networkidle');
+
+        const pageState = await this.getState(p, workflow);
+        const action = workflow.find(
+          (step) => this.applicable(step.where, pageState, usedActions),
+        );
+
+        console.log(`Matched ${JSON.stringify(action?.where)}`);
+
+        if (action) {
+          repeatCount = action === lastAction ? repeatCount + 1 : 0;
+          if (repeatCount >= MAX_REPEAT) {
+            await p.close();
+            return;
+          }
+          lastAction = action;
+
+          try {
+            await this.carryOutSteps(p, action.what);
+            usedActions.push(action.name ?? 'undefined');
+          } catch (e) {
+            console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
+            console.error(e);
+          }
+        } else {
+          // CANNOT CLOSE, IT IS NOT MY PAGE!!!
+          await p.close();
+          return;
         }
-      } else {
-        break;
       }
+    };
+
+    pages.push(page);
+    runs.push(runLoop(page));
+
+    page.context().on('page', (p) => {
+      pages.push(p);
+      runs.push(runLoop(p));
+    });
+
+    // While there are still some open pages, wait for current runs to finish.
+    while (pages.map((p) => !p.isClosed()).some((x) => x)) {
+      await Promise.all(runs);
     }
+    console.debug('Workflow done, bye!');
   }
 }

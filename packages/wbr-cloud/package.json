@@ -35,7 +35,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
-    "playwright": "^1.16.3",
+    "playwright": "*",
     "socket.io": "^4.3.2"
   }
 }

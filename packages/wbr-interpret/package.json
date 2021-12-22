@@ -29,6 +29,6 @@
   },
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
-    "playwright": "^1.16.3"
+    "playwright": "*"
   }
 }
