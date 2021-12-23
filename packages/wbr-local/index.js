@@ -204,7 +204,7 @@ const steam_workflow = {
 
 (
 	async () => {
-		const interpret = new Interpret(steam_workflow, {serializableCallback: console.log});
+		const interpret = new Interpret(sauto_workflow, {serializableCallback: console.log});
 		
 		const browser = await chromium.launch({headless: false});
 		const ctx = await browser.newContext();

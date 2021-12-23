@@ -6,7 +6,7 @@ import {
   Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, MetaData, CustomFunctions,
 } from './workflow';
 import { operators, meta } from './logic';
-import { arrayToObject } from './utils';
+import { arrayToObject, ReadablePromise } from './utils';
 import Preprocessor from './preprocessor';
 
 /**
@@ -279,7 +279,7 @@ export default class Interpreter {
      * `this.workflow` with the parameters initialized.
      */
     const workflow = this.preprocess.initParams(this.workflow, params);
-    const pages : Page[] = [];
+
     const runs : Promise<void>[] = [];
 
     // @ts-ignore
@@ -306,10 +306,9 @@ export default class Interpreter {
 
         console.log(`Matched ${JSON.stringify(action?.where)}`);
 
-        if (action) {
+        if (action) { // action is matched
           repeatCount = action === lastAction ? repeatCount + 1 : 0;
           if (repeatCount >= MAX_REPEAT) {
-            await p.close();
             return;
           }
           lastAction = action;
@@ -322,25 +321,24 @@ export default class Interpreter {
             console.error(e);
           }
         } else {
-          // CANNOT CLOSE, IT IS NOT MY PAGE!!!
-          await p.close();
           return;
         }
       }
     };
 
-    pages.push(page);
-    runs.push(runLoop(page));
+    let finishedRuns = 0;
+
+    runs.push(runLoop(page).then(() => { finishedRuns += 1; }));
 
     page.context().on('page', (p) => {
-      pages.push(p);
-      runs.push(runLoop(p));
+      runs.push(runLoop(p).then(() => { finishedRuns += 1; }));
     });
 
     // While there are still some open pages, wait for current runs to finish.
-    while (pages.map((p) => !p.isClosed()).some((x) => x)) {
+    while (runs.length != finishedRuns) {
       await Promise.all(runs);
     }
+
     console.debug('Workflow done, bye!');
   }
 }

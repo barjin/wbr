@@ -4,3 +4,5 @@
 export function arrayToObject(array : any[]) {
   return array.reduce((p, x) => ({ ...p, [x]: [] }), {});
 }
+
+export type ReadablePromise = { done: boolean, promise: Promise<any> };
