@@ -3,10 +3,12 @@ import { Page, PageScreenshotOptions } from 'playwright';
 import path from 'path';
 
 import {
-  Where, What, PageState, Workflow, WorkflowFile, ParamType, SelectorArray, MetaData, CustomFunctions,
+  Where, What, PageState, Workflow, WorkflowFile,
+  ParamType, SelectorArray, MetaData, CustomFunctions,
 } from './workflow';
+
 import { operators, meta } from './logic';
-import { arrayToObject, ReadablePromise } from './utils';
+import { arrayToObject } from './utils';
 import Preprocessor from './preprocessor';
 
 /**
@@ -194,7 +196,7 @@ export default class Interpreter {
     const wawActions : Record<CustomFunctions, (...args: any[]) => void> = {
       screenshot: async (params: PageScreenshotOptions) => {
         const screenshotBuffer = await page.screenshot({
-          ...params, path: undefined, fullPage: true,
+          ...params, path: undefined,
         });
         await this.options.binaryCallback(screenshotBuffer, 'image/png');
       },
@@ -227,7 +229,7 @@ export default class Interpreter {
             // @ts-ignore
             window.scrollTo(0, window.scrollY + window.innerHeight);
           }
-        }, pages);
+        }, pages ?? 1);
       },
       script: async (code : string) => {
         const AsyncFunction : FunctionConstructor = Object.getPrototypeOf(
@@ -335,7 +337,7 @@ export default class Interpreter {
     });
 
     // While there are still some open pages, wait for current runs to finish.
-    while (runs.length != finishedRuns) {
+    while (runs.length !== finishedRuns) {
       await Promise.all(runs);
     }
 

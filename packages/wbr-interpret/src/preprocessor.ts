@@ -29,6 +29,9 @@ export default class Preprocessor {
     const selectorsFromCondition = (where: Where) : SelectorArray => {
       // the `selectors` field is either on the top level
       let out = where.selectors ?? [];
+      if (!Array.isArray(out)) {
+        out = [out];
+      }
 
       // or nested in the "operator" array
       operators.forEach((op) => {

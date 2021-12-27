@@ -9,7 +9,7 @@ export type SelectorArray = string[];
 type BaseConditions = {
   'url': string,
   'cookies': Record<string, string>,
-  'selectors': SelectorArray,
+  'selectors': SelectorArray | string,
 } & Record<Meta, string>;
 
 export type Where =

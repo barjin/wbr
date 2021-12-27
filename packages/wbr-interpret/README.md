@@ -6,7 +6,7 @@ Blazing fast interpreter for the **Smart Workflows** automation format, part of 
 To install the `wbr-interpret` npm package, navigate to your project's directory and run
 
 ```bash
-npm i -s @wbr/wbr-interpret
+npm i -s @wbr-project/wbr-interpret
 ```
 
 This installs the package into the `node_modules` folder of your project. The package also includes [Typescript](https://www.typescriptlang.org/) typings by default to facilitate its usage.
