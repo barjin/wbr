@@ -1,36 +1,38 @@
 const Interpret = require('@wbr-project/wbr-interpret').default;
 const {chromium} = require('playwright');
 
-const sauto_workflow = {
+const nehnutelnosti_sk = {
 	"meta":{
 	   "params":[],
-	   "name": "SAuto scraper",
-	   "desc": "Scraper for the sauto.cz online car dealership. It shows pagination as well as the scraping capabilities."
+	   "name": "Nehnutelnosti.sk scraper (tech demo)",
+	   "desc": "Scraper for the nehnutelnosti.sk, Slovak real estate online marketplace."
 	},
 	"workflow":[
 	   {
 		  "name": "closePopups",
 		  "where":{
 			"selectors":[
-				"[class*=popup] button[class*=close]"
+				"[title=\"SP Consent Message\"]"
 			]
 		  },
 		  "what":[
 			 {
-				"type":"click",
-				"params": "[class*=popup] button[class*=close]"
+				"type":"script",
+				"params": "\
+				const frame = page.frameLocator(\"[title='SP Consent Message']\");\
+				await frame.locator(\"[title='Prijať všetko']\").click();\
+				"
 			 },
 			 {
 				 "type": "waitForLoadState"
-			 },
-			 {}
+			 }
 		  ]
 	   },
 	   {
 		  "name": "scrapeInfoPage",
 		  "where":{
 			"selectors":[
-				".c-a-basic-info"
+				".price--main.paramNo0"
 			]
 		  },
 		  "what":[
@@ -40,10 +42,22 @@ const sauto_workflow = {
 			 {
 				 "type": "scrapeSchema",
 				 "params": {
-					 "name": ".c-item-title",
-					 "price": ".c-a-basic-info__price",
-					 "vin": ".c-vin-info__vin",
-					 "desc": ".c-car-properties__text"
+					 "id": ".parameter--info :text(\"ID inzerátu\") strong",
+					 "title": "h1",
+					 "date": ".date",
+					 "price": ".price--main.paramNo0",
+					 "offerType": ".parameter--info :text(\"Typ\") strong",
+					 "type": ".parameter--info :text(\"Druh\") strong",
+					 "condition": ".parameter--info :text(\"Stav\") strong",
+					 "roomNo": ".additional-features--item :text(\"izieb\") strong:visible",
+					 "floorNo": ".additional-features--item :text(\"podlaží\") strong:visible",
+					 "utilityArea": ".parameter--info :text(\"Úžit. plocha\") strong",
+					 "builtArea": ".parameter--info :text(\"Zast. plocha\") strong",
+					 "landArea": ".parameter--info :text(\"Plocha pozemku\") strong",
+					 "location": ".top--info-location",
+					 "desc": ".text-inner",
+					 "broker": ".broker-name",
+					 "brokerAddress": ".info--address",
 				 }
 			 },
 			 {
@@ -54,7 +68,7 @@ const sauto_workflow = {
 	   {
 		"name": "openDetailsInNewTabs",
 		"where":{
-			"selectors": [":text-matches(\"Další stránka\")"]
+			"selectors": ["li + li .component-pagination__arrow-color"]
 		},
 		"what":[
 			{
@@ -66,23 +80,46 @@ const sauto_workflow = {
 				const links = await page.evaluate(() => \
 				{\
 					return Array.from(\
-						document.querySelectorAll('a.c-item__link.sds-surface--clickable')\
+						document.querySelectorAll('a.advertisement-item--content__title')\
 					).map(a => a.href);\
 				});\
 				\
 				for(let link of links){\
 					await new Promise(res => setTimeout(res, 100));\
-					await page.context().newPage().then(page => page.goto(link))\
+					const new_page = await page.context().newPage();\
+					await new_page.goto(link);\
 				}\
 				"
 			},
 			{
 				"type":"click",
-				"params": ":text-matches(\"Další stránka\")"
+				"params": "li + li .component-pagination__arrow-color"
 			},
 			{
 				"type":"waitForTimeout",
-				"params": "3000"
+				"params": 2000
+			},
+		  ]
+	   },
+	   {
+		"name": "scrape_basic",
+		"where":{
+			"selectors": ["li + li .component-pagination__arrow-color"]
+		},
+		"what":[
+			{
+				"type": "waitForLoadState"
+			},
+			{
+				"type": "scrape"
+			},
+			{
+				"type":"click",
+				"params": "li + li .component-pagination__arrow-color"
+			},
+			{
+				"type":"waitForTimeout",
+				"params": 2000
 			},
 		  ]
 	   },
@@ -93,124 +130,181 @@ const sauto_workflow = {
 		  "what":[
 			 {
 				"type":"goto",
-				"params": "https://www.sauto.cz/inzerce/osobni"
+				"params": {"$param": "url"}
 			 },
 			 {
 				"type":"waitForLoadState"
 			 },
 			 {
 				"type":"waitForTimeout",
-				"params": 3000
+				"params": 1000
 			 }
 		  ]
 	   }
 	]
 };
 
-const steam_workflow = {
+const SouthCarolinaProbate = {
 	"meta":{
-	   "params":[],
-	   "name": "Steam Specials Scraper",
-	   "desc": "Scraper for Steam Specials. Shows usage of customized autoscraper."
+	   "params":["county", "firstName", "lastName"],
+	   "name": "Southcarolinaprobate.net scraper",
+	   "desc": "Scraper for southcarolinaprobate.net, South Carolinian government page."
 	},
 	"workflow":[
 	   {
-		  "name": "acceptCookies",
+		  "name": "scrapeInfoPage",
 		  "where":{
-			 "selectors":[
-				"button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
-			 ]
-		  },
-		  "what":[
-			 {
-				"type":"click",
-				"params":[
-				   "button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
-				]
-			 }
-		  ]
-	   },
-	   {
-		"name": "waitForAsyncLoad",
-		"where":{
-			"selectors": [
-				":text-matches(\"(searching|loading)\",\"i\")"
+			"selectors":[
+				".price--main.paramNo0"
 			]
-		},
-		"what": [
-			{
-				"type": "waitForTimeout",
-				"params": [
-					2000
-				]
-			}
-		]
-	   },
-	   {
-		"name": "Scrape",
-		  "where":{
-			 "selectors":[
-				"#TopSellers_btn_next"
-			 ]
 		  },
 		  "what":[
-			 {
-				"type": "scrapeSchema",
-				"params": {
-					"name": ".peeking_carousel .tab_item_name:visible",
-					"percentage": ".peeking_carousel .discount_pct:visible",
-					"original": ".peeking_carousel .discount_original_price:visible",
-					"discount": ".peeking_carousel .discount_final_price:visible",
-				}
-			 },
-			 {
-				"type": "click",
-				"params":"#TopSellers_btn_next"
-			 },
 			 {
 				"type":"waitForLoadState"
 			 },
 			 {
-				"type":"waitForTimeout",
-				"params":[
-				   1000
-				]
+				 "type": "scrapeSchema",
+				 "params": {
+					 "id": ".parameter--info :text(\"ID inzerátu\") strong",
+					 "title": "h1",
+					 "date": ".date",
+					 "price": ".price--main.paramNo0",
+					 "offerType": ".parameter--info :text(\"Typ\") strong",
+					 "type": ".parameter--info :text(\"Druh\") strong",
+					 "condition": ".parameter--info :text(\"Stav\") strong",
+					 "roomNo": ".additional-features--item :text(\"izieb\") strong:visible",
+					 "floorNo": ".additional-features--item :text(\"podlaží\") strong:visible",
+					 "utilityArea": ".parameter--info :text(\"Úžit. plocha\") strong",
+					 "builtArea": ".parameter--info :text(\"Zast. plocha\") strong",
+					 "landArea": ".parameter--info :text(\"Plocha pozemku\") strong",
+					 "location": ".top--info-location",
+					 "desc": ".text-inner",
+					 "broker": ".broker-name",
+					 "brokerAddress": ".info--address",
+				 }
+			 },
+			 {
+				 "type": "close"
 			 }
 		  ]
 	   },
 	   {
-		  "name": "navigateToPage",
+		"name": "openDetailsInNewTabs",
+		"where":{
+			"selectors": ["li + li .component-pagination__arrow-color"]
+		},
+		"what":[
+			{
+				"type": "waitForLoadState"
+			},
+			{
+				"type": "script",
+				"params": "\
+				const links = await page.evaluate(() => \
+				{\
+					return Array.from(\
+						document.querySelectorAll('a.advertisement-item--content__title')\
+					).map(a => a.href);\
+				});\
+				\
+				for(let link of links){\
+					await new Promise(res => setTimeout(res, 100));\
+					const new_page = await page.context().newPage();\
+					await new_page.goto(link);\
+				}\
+				"
+			},
+			{
+				"type":"click",
+				"params": "li + li .component-pagination__arrow-color"
+			},
+			{
+				"type":"waitForTimeout",
+				"params": 2000
+			},
+		  ]
+	   },
+	   {
+		"name": "scrape_basic",
+		"where":{
+			"selectors": ["tr:not(.HeaderStyle)"]
+		},
+		"what":[
+			{
+				"type": "waitForLoadState"
+			},
+			{
+				"type": "scrapeSchema",
+				"params": {
+					"caseNumber": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(1):visible",
+					"caseName": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(2):visible",
+					"party": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(3):visible",
+					"typeOfCase": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(4):visible",
+					"fillingDate": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(5):visible",
+					"county": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(6):visible",
+					"appointmentDate": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(7):visible",
+					"creditorClaimDue": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(8):visible",
+					"caseStatus": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle) td:nth-child(9):visible",
+				}
+			},
+			{
+				"type": "click"
+			}
+		  ]
+	   },
+	   {
+		  "name": "base",
 		  "where":{
-			 "url": "about:blank"
 		  },
 		  "what":[
 			 {
 				"type":"goto",
-				"params":"https://store.steampowered.com/specials/#p=0&tab=TopSellers"
+				"params": "https://www.southcarolinaprobate.net/search/"
 			 },
 			 {
 				"type":"waitForLoadState"
 			 },
 			 {
 				"type":"waitForTimeout",
-				"params":[
-				   3000
-				]
+				"params": 1000
+			 },
+			 {
+				"type":"selectOption",
+				"params": ["select",{"$param": "county"}]
+			 },
+			 {
+				"type":"fill",
+				"params": ["#ctl00_ContentPlaceHolder1_tbFirstName",{"$param": "firstName"}]
+			 },
+			 {
+				"type":"fill",
+				"params": ["#ctl00_ContentPlaceHolder1_tbLastName",{"$param": "lastName"}]
+			 },
+			 {
+				"type":"keyboard.press",
+				"params": "Enter"
+			 },
+			 {
+				"type":"waitForLoadState"
 			 }
 		  ]
 	   }
 	]
- };
+};
 
 (
 	async () => {
-		const interpret = new Interpret(sauto_workflow, {serializableCallback: console.log});
+		const interpret = new Interpret(SouthCarolinaProbate, {serializableCallback: console.log});
 		
 		const browser = await chromium.launch({headless: false});
 		const ctx = await browser.newContext();
 		const page = await ctx.newPage();
 		
-		await interpret.run(page);
+		await interpret.run(page, {
+			"county": "Aiken",
+			"firstName": "John",
+			"lastName": "Smith",
+		});
 
 		await browser.close();
 	}

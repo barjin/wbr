@@ -24,6 +24,6 @@
     "url": "https://github.com/barjin/wbr/issues"
   },
   "dependencies": {
-    "@wbr-project/wbr-interpret": "^0.1.1"
+    "@wbr-project/wbr-interpret": "*"
   }
 }
