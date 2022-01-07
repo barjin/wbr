@@ -20,8 +20,6 @@ interface InterpreterOptions {
   binaryCallback: (output: any, mimeType: string) => (void | Promise<void>);
 }
 
-const MAX_REPEAT = 5;
-
 /**
  * Class for running the Smart Workflows.
  */
@@ -310,7 +308,7 @@ export default class Interpreter {
 
         if (action) { // action is matched
           repeatCount = action === lastAction ? repeatCount + 1 : 0;
-          if (repeatCount >= MAX_REPEAT) {
+          if (this.options.maxRepeats && repeatCount >= this.options.maxRepeats) {
             return;
           }
           lastAction = action;

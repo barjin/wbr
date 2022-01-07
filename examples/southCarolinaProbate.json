@@ -1,0 +1,94 @@
+{
+    "meta": {
+        "params": [
+            "county",
+            "firstName",
+            "lastName"
+        ],
+        "name": "Southcarolinaprobate.net scraper",
+        "desc": "Scraper for southcarolinaprobate.net, South Carolinian government page."
+    },
+    "workflow": [
+        {
+            "name": "scrape_basic",
+            "where": {
+                "selectors": [
+                    "tr:not(.HeaderStyle)"
+                ]
+            },
+            "what": [
+                {
+                    "type": "waitForLoadState"
+                },
+                {
+                    "type": "scrapeSchema",
+                    "params": {
+                        "caseNumber": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(1):visible",
+                        "caseName": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(2):visible",
+                        "party": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(3):visible",
+                        "typeOfCase": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(4):visible",
+                        "fillingDate": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(5):visible",
+                        "county": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(6):visible",
+                        "appointmentDate": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(7):visible",
+                        "creditorClaimDue": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(8):visible",
+                        "caseStatus": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(9):visible"
+                    }
+                },
+                {
+                    "type": "script",
+                    "params": "\t\t\t\tconst nextLink = await page.$(\"a:right-of(td[colspan='14'] table span,20)\");\t\t\t\tif(nextLink){\t\t\t\t\tawait nextLink.click();\t\t\t\t\twhile(true){\t\t\t\t\t\ttry{\t\t\t\t\t\t\tawait page.evaluate(() => \t\t\t\t\t\t\tnew Promise(\t\t\t\t\t\t\t\tasync (res, rej) => {\t\t\t\t\t\t\t\t\tvar x = document.querySelector('.HeaderStyle + tr');\t\t\t\t\t\t\t\t\tawait new Promise(res => setInterval(res, 1000));\t\t\t\t\t\t\t\t\tvar y = document.querySelector('.HeaderStyle + tr');\t\t\t\t\t\t\t\t\tif(x != y){\t\t\t\t\t\t\t\t\t\tres();\t\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t\t\telse{\t\t\t\t\t\t\t\t\t\trej();\t\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t));\t\t\t\t\t\t\tbreak;\t\t\t\t\t\t}\t\t\t\t\t\tcatch{\t\t\t\t\t\t\tcontinue;\t\t\t\t\t\t}\t\t\t\t\t}\t\t\t\t}\t\t\t\telse{\t\t\t\t\tawait page.close();\t\t\t\t}\t\t\t\t\t\t\t\t"
+                }
+            ]
+        },
+        {
+            "name": "base",
+            "where": {
+                "url": "about:blank"
+            },
+            "what": [
+                {
+                    "type": "goto",
+                    "params": "https://www.southcarolinaprobate.net/search/"
+                },
+                {
+                    "type": "waitForLoadState"
+                },
+                {
+                    "type": "selectOption",
+                    "params": [
+                        "select",
+                        {
+                            "$param": "county"
+                        }
+                    ]
+                },
+                {
+                    "type": "fill",
+                    "params": [
+                        "#ctl00_ContentPlaceHolder1_tbFirstName",
+                        {
+                            "$param": "firstName"
+                        }
+                    ]
+                },
+                {
+                    "type": "fill",
+                    "params": [
+                        "#ctl00_ContentPlaceHolder1_tbLastName",
+                        {
+                            "$param": "lastName"
+                        }
+                    ]
+                },
+                {
+                    "type": "keyboard.press",
+                    "params": "Enter"
+                },
+                {
+                    "type": "waitForTimeout",
+                    "params": 3000
+                }
+            ]
+        }
+    ]
+}

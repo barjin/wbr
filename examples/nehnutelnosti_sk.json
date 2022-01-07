@@ -1,0 +1,131 @@
+{
+    "meta": {
+        "params": [],
+        "name": "Nehnutelnosti.sk scraper (tech demo)",
+        "desc": "Scraper for the nehnutelnosti.sk, Slovak real estate online marketplace."
+    },
+    "workflow": [
+        {
+            "name": "closePopups",
+            "where": {
+                "selectors": [
+                    "[title=\"SP Consent Message\"]"
+                ]
+            },
+            "what": [
+                {
+                    "type": "script",
+                    "params": "\t\t\t\tconst frame = page.frameLocator(\"[title='SP Consent Message']\");\t\t\t\tawait frame.locator(\"[title='Prijať všetko']\").click();\t\t\t\t"
+                },
+                {
+                    "type": "waitForLoadState"
+                }
+            ]
+        },
+        {
+            "name": "scrapeInfoPage",
+            "where": {
+                "selectors": [
+                    ".price--main.paramNo0"
+                ]
+            },
+            "what": [
+                {
+                    "type": "waitForLoadState"
+                },
+                {
+                    "type": "scrapeSchema",
+                    "params": {
+                        "id": ".parameter--info :text(\"ID inzerátu\") strong",
+                        "title": "h1",
+                        "date": ".date",
+                        "price": ".price--main.paramNo0",
+                        "offerType": ".parameter--info :text(\"Typ\") strong",
+                        "type": ".parameter--info :text(\"Druh\") strong",
+                        "condition": ".parameter--info :text(\"Stav\") strong",
+                        "roomNo": ".additional-features--item :text(\"izieb\") strong:visible",
+                        "floorNo": ".additional-features--item :text(\"podlaží\") strong:visible",
+                        "utilityArea": ".parameter--info :text(\"Úžit. plocha\") strong",
+                        "builtArea": ".parameter--info :text(\"Zast. plocha\") strong",
+                        "landArea": ".parameter--info :text(\"Plocha pozemku\") strong",
+                        "location": ".top--info-location",
+                        "desc": ".text-inner",
+                        "broker": ".broker-name",
+                        "brokerAddress": ".info--address"
+                    }
+                },
+                {
+                    "type": "close"
+                }
+            ]
+        },
+        {
+            "name": "openDetailsInNewTabs",
+            "where": {
+                "selectors": [
+                    "li + li .component-pagination__arrow-color"
+                ]
+            },
+            "what": [
+                {
+                    "type": "waitForLoadState"
+                },
+                {
+                    "type": "script",
+                    "params": "\t\t\t\tconst links = await page.evaluate(() => \t\t\t\t{\t\t\t\t\treturn Array.from(\t\t\t\t\t\tdocument.querySelectorAll('a.advertisement-item--content__title')\t\t\t\t\t).map(a => a.href);\t\t\t\t});\t\t\t\t\t\t\t\tfor(let link of links){\t\t\t\t\tawait new Promise(res => setTimeout(res, 100));\t\t\t\t\tconst new_page = await page.context().newPage();\t\t\t\t\tawait new_page.goto(link);\t\t\t\t}\t\t\t\t"
+                },
+                {
+                    "type": "click",
+                    "params": "li + li .component-pagination__arrow-color"
+                },
+                {
+                    "type": "waitForTimeout",
+                    "params": 2000
+                }
+            ]
+        },
+        {
+            "name": "scrape_basic",
+            "where": {
+                "selectors": [
+                    "li + li .component-pagination__arrow-color"
+                ]
+            },
+            "what": [
+                {
+                    "type": "waitForLoadState"
+                },
+                {
+                    "type": "scrape"
+                },
+                {
+                    "type": "click",
+                    "params": "li + li .component-pagination__arrow-color"
+                },
+                {
+                    "type": "waitForTimeout",
+                    "params": 2000
+                }
+            ]
+        },
+        {
+            "name": "base",
+            "where": {},
+            "what": [
+                {
+                    "type": "goto",
+                    "params": {
+                        "$param": "url"
+                    }
+                },
+                {
+                    "type": "waitForLoadState"
+                },
+                {
+                    "type": "waitForTimeout",
+                    "params": 1000
+                }
+            ]
+        }
+    ]
+}
