@@ -41,9 +41,6 @@ COPY --from=wbr-cloud-build /root/package.json package.json
 # this makes me a little nauseous, but it works, why would we install the packages twice, right?
 COPY --from=wbr-cloud-build /root/node_modules /root/node_modules
 
-RUN mkdir uploads
-COPY "examples" "uploads"
-
 RUN mkdir public
 COPY "public" "public"
 

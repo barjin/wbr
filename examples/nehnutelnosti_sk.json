@@ -71,16 +71,11 @@
                     "type": "waitForLoadState"
                 },
                 {
-                    "type": "script",
-                    "params": "\t\t\t\tconst links = await page.evaluate(() => \t\t\t\t{\t\t\t\t\treturn Array.from(\t\t\t\t\t\tdocument.querySelectorAll('a.advertisement-item--content__title')\t\t\t\t\t).map(a => a.href);\t\t\t\t});\t\t\t\t\t\t\t\tfor(let link of links){\t\t\t\t\tawait new Promise(res => setTimeout(res, 100));\t\t\t\t\tconst new_page = await page.context().newPage();\t\t\t\t\tawait new_page.goto(link);\t\t\t\t}\t\t\t\t"
+                    "type": "enqueueLinks",
+                    "params": "a.advertisement-item--content__title"
                 },
                 {
-                    "type": "click",
-                    "params": "li + li .component-pagination__arrow-color"
-                },
-                {
-                    "type": "waitForTimeout",
-                    "params": 2000
+                    "type": "close"
                 }
             ]
         },

@@ -9,6 +9,7 @@ import {
 
 import { operators, meta } from './logic';
 import { arrayToObject } from './utils';
+import Concurrency from './concurrency';
 import Preprocessor from './preprocessor';
 
 /**
@@ -16,6 +17,7 @@ import Preprocessor from './preprocessor';
  */
 interface InterpreterOptions {
   maxRepeats: number;
+  maxConcurrency: number;
   serializableCallback: (output: any) => (void | Promise<void>);
   binaryCallback: (output: any, mimeType: string) => (void | Promise<void>);
 }
@@ -28,19 +30,26 @@ export default class Interpreter {
 
   private workflow: Workflow;
 
+  private __initializedWorkflow: Workflow|null;
+
   private options: InterpreterOptions;
 
   private preprocess: Preprocessor = new Preprocessor();
 
+  private concurrency : Concurrency;
+
   constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
     this.meta = workflow.meta;
     this.workflow = workflow.workflow;
+    this.__initializedWorkflow = null;
     this.options = {
       maxRepeats: 5,
+      maxConcurrency: 1,
       serializableCallback: (data) => { console.log(JSON.stringify(data)); },
       binaryCallback: () => { console.log('Received binary data, thrashing them.'); },
       ...options,
     };
+    this.concurrency = new Concurrency(this.options.maxConcurrency);
   }
 
   /**
@@ -198,6 +207,24 @@ export default class Interpreter {
         });
         await this.options.binaryCallback(screenshotBuffer, 'image/png');
       },
+      enqueueLinks: async (selector : string) => {
+        const links : string[] = await page.locator(selector)
+          .evaluateAll(
+            (elements) => elements.map(a => a.href)
+          );
+        const context = page.context();
+
+        for(let link of links){
+          // Creating a worker only to open a page (and let another worker run the workflow) -> improve this!
+          this.concurrency.addWorker(async () => {
+            const newPage = await context.newPage();
+            await newPage.goto(link);
+            await newPage.waitForLoadState('networkidle');
+            await this.runLoop(newPage, this.__initializedWorkflow!);
+          })
+        }
+
+      },
       scrape: async (selector?: string) => {
         // eslint-disable-next-line
         // @ts-ignore
@@ -265,9 +292,62 @@ export default class Interpreter {
     }
   }
 
+  private async runLoop(p : Page, workflow: Workflow) {
+    const usedActions : string[] = [];
+    let lastAction = null;
+    let repeatCount = 0;
+
+    /**
+    *  Enables the interpreter functionality for popup windows.
+    * User-requested concurrency should be entirely managed by the concurrency manager,
+    * e.g. via `enqueueLinks`.
+    */
+    p.on('popup', (popup) => {
+      this.concurrency.addWorker(() => this.runLoop(popup, workflow));
+    });
+
+    while (true) {
+      if (p.isClosed()) {
+        return;
+      }
+
+      try{
+        await p.waitForLoadState('networkidle');
+      }
+      catch(e){
+        await p.close();
+        return;
+      }
+
+      const pageState = await this.getState(p, workflow);
+      const action = workflow.find(
+        (step) => this.applicable(step.where, pageState, usedActions),
+      );
+
+      console.log(`Matched ${JSON.stringify(action?.where)}`);
+
+      if (action) { // action is matched
+        repeatCount = action === lastAction ? repeatCount + 1 : 0;
+        if (this.options.maxRepeats && repeatCount >= this.options.maxRepeats) {
+          return;
+        }
+        lastAction = action;
+
+        try {
+          await this.carryOutSteps(p, action.what);
+          usedActions.push(action.name ?? 'undefined');
+        } catch (e) {
+          console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
+          console.error(e);
+        }
+      } else {
+        return;
+      }
+    }
+  };
+
   /**
-   * Spawns a browser context and runs given workflow. If specified, calls debugCallback with
-   * updates about playback (messages, screencast).\
+   * Spawns a browser context and runs given workflow. 
    * \
    * Resolves after the playback is finished.
    * @param {Page} [page] Page to run the workflow on.
@@ -278,66 +358,16 @@ export default class Interpreter {
     /**
      * `this.workflow` with the parameters initialized.
      */
-    const workflow = this.preprocess.initParams(this.workflow, params);
-
-    const runs : Promise<void>[] = [];
+    this.__initializedWorkflow = this.preprocess.initParams(this.workflow, params);
 
     // @ts-ignore
     if (await page.evaluate(() => !<any>window.scrape)) {
       page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
     }
 
-    const runLoop = async (p : Page) => {
-      const usedActions : string[] = [];
-      let lastAction = null;
-      let repeatCount = 0;
+    this.concurrency.addWorker(() => this.runLoop(page, this.__initializedWorkflow!));
 
-      while (true) {
-        if (p.isClosed()) {
-          return;
-        }
-
-        await p.waitForLoadState('networkidle');
-
-        const pageState = await this.getState(p, workflow);
-        const action = workflow.find(
-          (step) => this.applicable(step.where, pageState, usedActions),
-        );
-
-        console.log(`Matched ${JSON.stringify(action?.where)}`);
-
-        if (action) { // action is matched
-          repeatCount = action === lastAction ? repeatCount + 1 : 0;
-          if (this.options.maxRepeats && repeatCount >= this.options.maxRepeats) {
-            return;
-          }
-          lastAction = action;
-
-          try {
-            await this.carryOutSteps(p, action.what);
-            usedActions.push(action.name ?? 'undefined');
-          } catch (e) {
-            console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
-            console.error(e);
-          }
-        } else {
-          return;
-        }
-      }
-    };
-
-    let finishedRuns = 0;
-
-    runs.push(runLoop(page).then(() => { finishedRuns += 1; }));
-
-    page.context().on('page', (p) => {
-      runs.push(runLoop(p).then(() => { finishedRuns += 1; }));
-    });
-
-    // While there are still some open pages, wait for current runs to finish.
-    while (runs.length !== finishedRuns) {
-      await Promise.all(runs);
-    }
+    await this.concurrency.waitForCompletion();
 
     console.debug('Workflow done, bye!');
   }
