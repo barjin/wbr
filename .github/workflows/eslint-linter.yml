@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  eslint:
+  eslint-interpreter:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -13,7 +13,8 @@ jobs:
         with:
           node-version: 16
       - run: >
-          npm install --production=false $GITHUB_WORKSPACE/.
+          npm install --production=false $GITHUB_WORKSPACE/. &&
           cd $GITHUB_WORKSPACE/packages/wbr-interpret/ &&
-          npx eslint ./src
+          ls &&
+          npx eslint ./src/
 
