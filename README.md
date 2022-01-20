@@ -1,10 +1,10 @@
 # WBR - Web Browser Robot 🤖🔮
 
-![Code style](https://badgen.net/badge/ESLint/Airbnb/ff5a5f?icon=airbnb)
+[![Code style](https://badgen.net/badge/ESLint/Airbnb/ff5a5f?icon=airbnb)](https://github.com/airbnb/javascript)
+[![ESLint](https://github.com/barjin/wbr/actions/workflows/eslint-linter.yml/badge.svg)](https://github.com/barjin/wbr/actions/workflows/eslint-linter.yml)
 
 Web Browser Robot, a one-stop shop for running and managing automated tasks on the web. \
 A spiritual successor of [PWWW (Playwright on Web)](https://github.com/barjin/pw-web).
-
 ___
 
 ## Watch out! 🛑
