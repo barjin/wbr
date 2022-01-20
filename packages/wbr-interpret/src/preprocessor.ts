@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import {
   Workflow, WorkflowFile, ParamType, SelectorArray, Where,
 } from './workflow';
@@ -66,14 +67,16 @@ export default class Preprocessor {
       if (!object || typeof object !== 'object') {
         return object;
       }
-      // for every key of the object
+
+      const out = object;
+      // for every key (child) of the object
       Object.keys(object!).forEach((key) => {
         // if the field has only one key, which is `$param`
         if (Object.keys((<any>object)[key]).length === 1 && (<any>object)[key].$param) {
           // and the param name exists in the `params` object
           if (params[(<any>object)[key].$param]) {
             // then replace
-            (<any>object)[key] = params[(<any>object)[key].$param];
+            (<any>out)[key] = params[(<any>object)[key].$param];
           } else {
             throw new SyntaxError(`Unspecified parameter found ${(<any>object)[key].$param}.`);
           }
@@ -81,7 +84,7 @@ export default class Preprocessor {
           initParamsRecurse((<any>object)[key]);
         }
       });
-      return object;
+      return out;
     };
 
     // TODO: do better deep copy, this is hideous.

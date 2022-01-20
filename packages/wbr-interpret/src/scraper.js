@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 function area(element) {
   return element.offsetHeight * element.offsetWidth;
 }
@@ -73,39 +75,44 @@ function scrapableHeuristics(maxCountPerPage = 50, minArea = 20000, scrolls = 3,
 
   let maxSelector = { selector: 'body', metric: 0 };
 
+  const updateMaximumWithPoint = (point) => {
+    const currentElement = document.elementFromPoint(point.x, point.y);
+    const selector = GetSelectorStructural(currentElement);
+
+    const elements = Array.from(document.querySelectorAll(selector))
+      .filter((element) => area(element) > minArea);
+
+    // If the current selector targets less than three elements,
+    // we consider it not interesting (would be a very underwhelming scraper)
+    if (elements.length < 3) {
+      return;
+    }
+
+    let metric = null;
+
+    if (metricType === 'total_area') {
+      metric = elements
+        .reduce((p, x) => p + area(x), 0);
+    } else if (metricType === 'size_deviation') {
+      // This could use a proper "statistics" approach... but meh, so far so good!
+      const sizes = elements
+        .map((element) => area(element));
+
+      metric = (1 - (Math.max(...sizes) - Math.min(...sizes)) / Math.max(...sizes));
+    }
+
+    // console.debug(`Total ${metricType} is ${metric}.`)
+    if (metric > maxSelector.metric && elements.length < maxCountPerPage) {
+      maxSelector = { selector, metric };
+    }
+  };
+
   for (let scroll = 0; scroll < scrolls; scroll += 1) {
     window.scrollTo(0, scroll * window.innerHeight);
 
     const grid = getGrid();
 
-    for (const point of grid) {
-      const currentElement = document.elementFromPoint(point.x, point.y);
-      const selector = GetSelectorStructural(currentElement);
-
-      const elements = Array.from(document.querySelectorAll(selector)).filter((element) => area(element) > minArea);
-
-      // If the current selector targets less than three elements,
-      // we consider it not interesting (would be a very underwhelming scraper)
-      if (elements.length < 3) {
-        continue;
-      }
-
-      if (metricType === 'total_area') {
-        var metric = elements
-          .reduce((p, x) => p + area(x), 0);
-      } else if (metricType === 'size_deviation') {
-        // This could use a proper "statistics" approach... but meh, so far so good!
-        const sizes = elements
-          .map((element) => area(element));
-
-        var metric = (1 - (Math.max(...sizes) - Math.min(...sizes)) / Math.max(...sizes));
-      }
-
-      // console.debug(`Total ${metricType} is ${metric}.`)
-      if (metric > maxSelector.metric && elements.length < maxCountPerPage) {
-        maxSelector = { selector, metric };
-      }
-    }
+    grid.forEach(updateMaximumWithPoint);
   }
 
   restoreScroll();

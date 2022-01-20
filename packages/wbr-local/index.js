@@ -1,16 +1,19 @@
+
 const Interpret = require('@wbr-project/wbr-interpret').default;
 const {chromium} = require('playwright');
 const fs = require('fs');
 
-const workflow = {
-	"meta": {
-		"name": "Example workflow",
-		"desc": "A WAW object workflow example/placeholder."
-	},
-	"workflow":[
+// const workflow = {
+// 	"meta": {
+// 		"name": "Example workflow",
+// 		"desc": "A WAW object workflow example/placeholder."
+// 	},
+// 	"workflow":[
 
-	]
-};
+// 	]
+// };
+
+const workflow = JSON.parse(fs.readFileSync('../../examples/nehnutelnosti_sk.json'));
 
 (
 	async () => {
@@ -20,7 +23,9 @@ const workflow = {
 		const ctx = await browser.newContext();
 		const page = await ctx.newPage();
 		
-		await interpret.run(page);
+		await interpret.run(page, {
+			url: "https://www.nehnutelnosti.sk/bratislava/"
+		});
 
 		await browser.close();
 	}

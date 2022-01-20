@@ -230,5 +230,8 @@ As of now (27.12.2021) these are:
 		"
 	},
 	```
-	The example runs a server-side script opening all links on the current page in new tabs with 100 ms delay.
+	The example runs a server-side script opening all links on the current page in new tabs with 100 ms delay *(Note: if you want to simply open links on a page, see `enqueueLinks` lower).*
 	- Even though it is possible to write the whole workflow using one `script` field, we do not endorse it. The WAW format should allow the developers to write comprehensible, easy to maintain workflow definitions.
+- `enqueueLinks` *(new in 0.4.0)*
+	- Accepts `selector` parameter. Reads elements targetted by the specified selector ([Playwright selectors](https://playwright.dev/docs/selectors)) and stores their links in a queue. 
+	- Those pages are then processed using the same workflow as the initial page (in parallel, if the `maxConcurrency` interpreter parameter is greater than 1).

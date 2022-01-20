@@ -11,6 +11,7 @@ import { operators, meta } from './logic';
 import { arrayToObject } from './utils';
 import Concurrency from './concurrency';
 import Preprocessor from './preprocessor';
+import log, { Level } from './logger';
 
 /**
  * Defines optional intepreter options (passed in constructor)
@@ -30,7 +31,7 @@ export default class Interpreter {
 
   private workflow: Workflow;
 
-  private __initializedWorkflow: Workflow|null;
+  private initializedWorkflow: Workflow | null;
 
   private options: InterpreterOptions;
 
@@ -41,12 +42,12 @@ export default class Interpreter {
   constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
     this.meta = workflow.meta;
     this.workflow = workflow.workflow;
-    this.__initializedWorkflow = null;
+    this.initializedWorkflow = null;
     this.options = {
       maxRepeats: 5,
       maxConcurrency: 1,
-      serializableCallback: (data) => { console.log(JSON.stringify(data)); },
-      binaryCallback: () => { console.log('Received binary data, thrashing them.'); },
+      serializableCallback: (data) => { log(JSON.stringify(data), Level.DEBUG); },
+      binaryCallback: () => { log('Received binary data, thrashing them.', Level.DEBUG); },
       ...options,
     };
     this.concurrency = new Concurrency(this.options.maxConcurrency);
@@ -132,17 +133,20 @@ export default class Interpreter {
           /**
            * Arrays are compared without order (are transformed into objects before comparison).
            */
-          value = Array.isArray(value) ? arrayToObject(value) : value;
-          superset[key] = Array.isArray(superset[key])
+
+          const parsedValue = Array.isArray(value) ? arrayToObject(value) : value;
+
+          const parsedSuperset : Record<string, unknown> = {};
+          parsedSuperset[key] = Array.isArray(superset[key])
             ? arrayToObject(<any>superset[key])
             : superset[key];
 
           // Every `subset` key must exist in the `superset` and
           // have the same value (strict equality), or subset[key] <= superset[key]
-          return superset[key]
+          return parsedSuperset[key]
           && (
-            superset[key] === value
-            || (typeof value === 'object' && inclusive(<typeof subset>value, <typeof superset>superset[key]))
+            parsedSuperset[key] === parsedValue
+            || (typeof parsedValue === 'object' && inclusive(<typeof subset>parsedValue, <typeof superset>parsedSuperset[key]))
           );
         },
       )
@@ -162,6 +166,8 @@ export default class Interpreter {
               return array?.every((x) => this.applicable(context, x));
             case '$or':
               return array?.some((x) => this.applicable(x, context));
+            case '$none':
+              return !array?.some((x) => this.applicable(x, context));
             default:
               throw new Error('Undefined logic operator.');
           }
@@ -210,25 +216,31 @@ export default class Interpreter {
       enqueueLinks: async (selector : string) => {
         const links : string[] = await page.locator(selector)
           .evaluateAll(
-            (elements) => elements.map(a => a.href)
+            (elements) => elements.map((a) => a.href).filter((x) => x),
           );
         const context = page.context();
 
-        for(let link of links){
-          // Creating a worker only to open a page (and let another worker run the workflow) -> improve this!
-          this.concurrency.addWorker(async () => {
-            const newPage = await context.newPage();
-            await newPage.goto(link);
-            await newPage.waitForLoadState('networkidle');
-            await this.runLoop(newPage, this.__initializedWorkflow!);
-          })
+        for (const link of links) {
+          this.concurrency.addJob(async () => {
+            try {
+              const newPage = await context.newPage();
+              await newPage.goto(link);
+              await newPage.waitForLoadState('networkidle');
+              await this.runLoop(newPage, this.initializedWorkflow!);
+            } catch (e) {
+              // `runLoop` uses soft mode, so it recovers from it's own exceptions
+              // but newPage(), goto() and waitForLoadState() don't (and will kill
+              // the interpreter by throwing).
+              log(<Error>e, Level.ERROR);
+            }
+          });
         }
-
       },
       scrape: async (selector?: string) => {
-        // eslint-disable-next-line
-        // @ts-ignore
-        const scrapeResults : Record<string, string>[] = <any> await page.evaluate((s) => scrape(s ?? null), selector);
+        const scrapeResults : Record<string, string>[] = <any> await page
+          // eslint-disable-next-line
+          // @ts-ignore
+          .evaluate((s) => scrape(s ?? null), selector);
         await this.options.serializableCallback(scrapeResults);
       },
       scrapeSchema: async (schema: Record<string, string>) => {
@@ -266,7 +278,7 @@ export default class Interpreter {
     };
 
     for (const step of steps) {
-      console.log(`Launching ${step.type}`);
+      log(`Launching ${step.type}`, Level.DEBUG);
 
       if (step.type in wawActions) {
         const params = !step.params || Array.isArray(step.params) ? step.params : [step.params];
@@ -303,18 +315,18 @@ export default class Interpreter {
     * e.g. via `enqueueLinks`.
     */
     p.on('popup', (popup) => {
-      this.concurrency.addWorker(() => this.runLoop(popup, workflow));
+      this.concurrency.addJob(() => this.runLoop(popup, workflow));
     });
 
+    /* eslint no-constant-condition: ["warn", { "checkLoops": false }] */
     while (true) {
       if (p.isClosed()) {
         return;
       }
 
-      try{
+      try {
         await p.waitForLoadState('networkidle');
-      }
-      catch(e){
+      } catch (e) {
         await p.close();
         return;
       }
@@ -324,7 +336,7 @@ export default class Interpreter {
         (step) => this.applicable(step.where, pageState, usedActions),
       );
 
-      console.log(`Matched ${JSON.stringify(action?.where)}`);
+      log(`Matched ${JSON.stringify(action?.where)}`, Level.DEBUG);
 
       if (action) { // action is matched
         repeatCount = action === lastAction ? repeatCount + 1 : 0;
@@ -337,17 +349,17 @@ export default class Interpreter {
           await this.carryOutSteps(p, action.what);
           usedActions.push(action.name ?? 'undefined');
         } catch (e) {
-          console.warn(`${action.name} didn't run successfully, retrying because of soft mode...`);
-          console.error(e);
+          log(`${action.name} didn't run successfully, retrying because of soft mode...`, Level.WARN);
+          log(<Error>e, Level.ERROR);
         }
       } else {
         return;
       }
     }
-  };
+  }
 
   /**
-   * Spawns a browser context and runs given workflow. 
+   * Spawns a browser context and runs given workflow.
    * \
    * Resolves after the playback is finished.
    * @param {Page} [page] Page to run the workflow on.
@@ -358,17 +370,17 @@ export default class Interpreter {
     /**
      * `this.workflow` with the parameters initialized.
      */
-    this.__initializedWorkflow = this.preprocess.initParams(this.workflow, params);
+    this.initializedWorkflow = this.preprocess.initParams(this.workflow, params);
 
     // @ts-ignore
     if (await page.evaluate(() => !<any>window.scrape)) {
       page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
     }
 
-    this.concurrency.addWorker(() => this.runLoop(page, this.__initializedWorkflow!));
+    this.concurrency.addJob(() => this.runLoop(page, this.initializedWorkflow!));
 
     await this.concurrency.waitForCompletion();
 
-    console.debug('Workflow done, bye!');
+    log('Workflow done, bye!', Level.DEBUG);
   }
 }
