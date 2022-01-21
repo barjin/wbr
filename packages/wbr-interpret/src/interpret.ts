@@ -163,7 +163,7 @@ export default class Interpreter {
 
           switch (key as keyof typeof operators) {
             case '$and':
-              return array?.every((x) => this.applicable(context, x));
+              return array?.every((x) => this.applicable(x, context));
             case '$or':
               return array?.some((x) => this.applicable(x, context));
             case '$none':

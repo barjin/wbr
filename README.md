@@ -1,9 +1,10 @@
 # WBR - Web Browser Robot 🤖🔮
 
+[![NPM](https://img.shields.io/npm/v/@wbr-project/wbr-interpret?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@wbr-project/wbr-interpret)
+[![Typescript](https://img.shields.io/npm/types/@wbr-project/wbr-interpret?logo=typescript&style=for-the-badge)](https://www.npmjs.com/package/@wbr-project/wbr-interpret)\
 [![Code style](https://img.shields.io/static/v1?label=Code%20style&message=Airbnb&color=salmon&logo=airbnb&style=for-the-badge&)](https://github.com/airbnb/javascript)
 [![ESLint](https://img.shields.io/github/workflow/status/barjin/wbr/ESLint?label=ESLint&logo=eslint&style=for-the-badge)](https://github.com/barjin/wbr/actions/workflows/eslint-linter.yml) \
-[![MIT License](https://img.shields.io/github/license/barjin/wbr?style=for-the-badge)](https://choosealicense.com/licenses/mit/)\
-[![NPM](https://img.shields.io/npm/v/@wbr-project/wbr-interpret?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@wbr-project/wbr-interpret)
+[![MIT License](https://img.shields.io/github/license/barjin/wbr?style=for-the-badge)](https://choosealicense.com/licenses/mit/)
 
 
 Web Browser Robot, a one-stop shop for running and managing automated tasks on the web. A spiritual successor of [PWWW (Playwright on Web)](https://github.com/barjin/pw-web).

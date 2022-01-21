@@ -1,4 +1,8 @@
-const interpret = require('../build/interpret.js');
+/**
+ * Series of unit tests testing the interpreter's pattern matching and logic.
+ */
+
+const Interpreter = require('../build/index').default;
 
 const context = {
 	url: 'https://apify.com',
@@ -9,101 +13,188 @@ const context = {
 	selectors: ['abc', 'efg', 'hij'],
   };
 
-test('Pattern matching - Basic, positive', () => {
-	let condition = {
-		url: 'https://apify.com',
-	};
-	expect(interpret.applicable(condition, context)).toBeTruthy();
-	
-	condition = {
-		cookies: {
-			hello: 'cookie'
-		}
-	};
-	expect(interpret.applicable(condition, context)).toBeTruthy();
+describe('Basic matching (inclusion)', () => {
+	const interpret = new Interpreter({});
 
-	condition = {
-		selectors: ['hij', 'abc'] // inverted order shouldn't be a problem
-	};
-	expect(interpret.applicable(condition, context)).toBeTruthy();
+	test('Basic, positive', () => {
+		const conditions = [{
+			url: 'https://apify.com',
+		},
+		{
+			selectors: ['hij', 'abc'] // inverted order shouldn't be a problem
+		},
+		{
+			url: 'https://apify.com',
+			selectors: ['efg'],
+			cookies: {
+				extra: 'superfluous',
+				hello: 'cookie',
+			}
+		},
+		{
+			...context
+		},
+	];
 	
-	condition = {
-		url: 'https://apify.com',
-		selectors: ['efg'],
-		cookies: {
-			extra: 'superfluous',
-			hello: 'cookie',
+		conditions.forEach(condition => expect(interpret.applicable(condition, context)).toBeTruthy());
+	});
+	
+	test('Basic, negative', () => {
+		const conditions = [{
+			url: 'https://jindrich.bar',
+		},
+		{
+			cookies: {
+				hello: 'cookie',
+				nonexisting: 'cookie',
+			},
+		},
+		{
+			...context,
+			extraKey: 'causingTrouble'
+		},
+		{
+			selectors: ['hij', 'abc', 'this_one_is_not_there']
 		}
-	};
-	expect(interpret.applicable(condition, context)).toBeTruthy();
+		];
+	
+		conditions.forEach(condition => expect(interpret.applicable(condition, context)).toBeFalsy());
+	});
 });
 
-test('Pattern matching - Basic, negative', () => {
-	let condition = {
-		url: 'https://jindrich.bar',
-	};
-	expect(interpret.applicable(condition, context)).toBeFalsy();
-	
-	condition = {
-		cookies: {
-			hello: 'cookie',
-			nonexisting: 'cookie',
-		},
-	};
-	expect(interpret.applicable(condition, context)).toBeFalsy();
+describe('Advanced matching (logic, state)', () => {
+	const interpret = new Interpreter({});
 
-	condition = {
-		selectors: ['hij', 'abc', 'this_one_is_not_there']
-	};
-	expect(interpret.applicable(condition, context)).toBeFalsy();
-	
-	condition = {
-		url: 'https://apify.com',
-		selectors: ['efg'],
-		cookies: {
-			extra: 'superfluous',
-			hello: 'cookie',
-		},
-		extraKey: 'causingTrouble'
-	};
-	expect(interpret.applicable(condition, context)).toBeFalsy();
-});
+	test('Basic Logic Operators', () => {
+		const conditions = [
+			{
+				cond: {
+					$or: [
+						{url: 'https://jindrich.bar'},
+						{url: 'https://apify.com'},
+					]
+				},
+				res: true
+			},
+			{
+				cond: {
+					$or: {
+						url: 'https://jindrich.bar',
+						selectors: ['abc', 'efg']
+					}
+				},
+				res: true
+			},
+			{
+				cond: {
+					$and: [
+						{url: 'https://jindrich.bar'},
+						{url: 'https://apify.com'},
+					]
+				},
+				res: false
+			},
+			{
+				cond: {
+					$none: {
+						url: 'https://jindrich.bar',
+						selectors: ['123', 'efg']
+					}
+				},
+				res: true
+			},			
+			{
+				cond: {
+					$none: {
+						url: 'https://apify.com',
+						cookies: {
+							hello: 'not_expected_value'
+						}
+					}
+				},
+				res: false
+			},			
+		];
+		
+		conditions.forEach(({cond, res}) => 
+		expect(interpret.applicable(cond, context)).toBe(res));
 
-test('Pattern matching - Logic', () => {
-	let condition = {
-		$or: [
-			{url: 'https://jindrich.bar'},
-			{url: 'https://apify.com'},
-		]
-	};
-	expect(interpret.applicable(condition, context)).toBeTruthy();
+	});
 
-	condition = {
-		$or: {
-			url: 'https://jindrich.bar',
-			selectors: ['abc', 'efg']
-		}
-	};
-	expect(interpret.applicable(condition, context)).toBeTruthy();
-	
-	condition = {
-		$and: [
-			{url: 'https://jindrich.bar'},
-			{url: 'https://apify.com'},
-		]
-	};
-	expect(interpret.applicable(condition, context)).toBeFalsy();
-	
-	condition = {
-		$or: {
-			url: 'https://jindrich.bar',
-			$and: {
-				url: 'https://apify.com',
-				cookies: {
-					hello: 'cookie',
+	test('Nested Logic Operators', () => {
+		condition = {
+			$or: {
+				url: 'https://jindrich.bar',
+				$and: {
+					url: 'https://apify.com',
+					cookies: {
+						hello: 'cookie',
+					}
 				}
 			}
+		};
+		expect(interpret.applicable(condition, context)).toBeTruthy();
+		
+		condition = {
+			$and: [
+				{
+					$or: {
+						url: 'https://jindrich.bar', // this does not match
+						cookies: {
+							hello: 'cookie', // this does
+						}
+					}
+				},
+				{
+					$or: {
+						selectors: ['abc', 'efg', 'not_in_the_current_context'],
+						$none: { // this rule gets matched ($none($and(X))) means "Match if there is at least one failing match in X"
+							$and: {
+								...context,
+								url: "https://abcd.xyz"
+							}
+						}
+					}
+				}
+			]
+		};
+		expect(interpret.applicable(condition, context)).toBeTruthy();
+	});
+
+	test('State (before/after)', () => {
+		const conditions = [
+		{
+			cond: {
+				$after: 'login',
+				$before: 'logout'
+			},
+			state: ['login'],
+			result: true
+		},
+		{
+			cond: {
+				$after: 'signup',
+				$after: 'login'
+			},
+			state: ['signup'],
+			result: false
+		},
+		{
+			cond: {
+				$or: {
+					url: 'https://jindrich.bar', // this does not match
+					cookies: {
+						hello: 'nonexistent', // this doesn't either
+					},
+					$before: 'signup' // this does
+				}
+			},
+			state: ['signup'],
+			result: true
 		}
-	};
-	expect(interpret.applicable(condition, context)).toBeTruthy();
-})
+		];
+	
+		conditions.forEach(({cond, state, result}) => 
+			expect(interpret.applicable(cond, context, state)).toBe(result));
+	});	
+});

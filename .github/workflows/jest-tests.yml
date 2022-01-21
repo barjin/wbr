@@ -1,4 +1,4 @@
-name: ESLint
+name: Jest Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - 'packages/wbr-interpret/**/*'
 
 jobs:
-  eslint-interpreter:
+  interpret-run-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,6 +16,6 @@ jobs:
           node-version: 16
       - run: >
           npm install --production=false $GITHUB_WORKSPACE/. &&
-          cd $GITHUB_WORKSPACE/packages/wbr-interpret/ &&
-          npx eslint ./src/
+          cd $GITHUB_WORKSPACE/packages/wbr-interpret &&
+          npx tsc && npx jest
 
