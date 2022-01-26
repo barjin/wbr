@@ -50,9 +50,11 @@ export default class Preprocessor {
 
       // or nested in the "operator" array
       operators.forEach((op) => {
-        if (where[op] && Array.isArray(where[op])) {
-          (<Where[]>where[op]).forEach((step) => {
-            out = [...out, ...selectorsFromCondition(step)];
+        let condWhere = where[op];
+        if (condWhere) {
+          condWhere = Array.isArray(condWhere) ? condWhere : [condWhere];
+          (condWhere).forEach((subWhere) => {
+            out = [...out, ...selectorsFromCondition(subWhere)];
           });
         }
       });
@@ -63,7 +65,7 @@ export default class Preprocessor {
     // Iterate through all the steps and extract the selectors from all of them.
     return workflow.reduce((p: SelectorArray, step) => [
       ...p,
-      ...selectorsFromCondition(step.where),
+      ...selectorsFromCondition(step.where).filter((x) => !p.includes(x)),
     ], []);
   }
 

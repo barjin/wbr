@@ -5,6 +5,31 @@ const Preprocessor = require('../build/preprocessor.js').default;
  * state of the Preprocessor class instance, which could get damaged between the tests.
  */
 
+const randString = () => Math.random().toString(36).substring(Math.floor(Math.random() * 7) + 2);
+
+const randomValues = [
+    "sdfsdfg",
+    "adfghj",
+    "123465",
+    "qwertyuio",
+    "123sdfg4d;'\\[p"
+]
+
+const hideInRandomStructure = (objectToHide, depth) => {
+    if(depth == 0){
+        return {[randString()]: objectToHide};
+    };
+
+    const neigh = randomValues.slice(Math.floor((Math.random()*randomValues.length)+1));
+    
+    return {
+        ...neigh.reduce((p,v) => ({...p, 
+            [v]: hideInRandomStructure(v, depth - 1)
+        }), {}),
+        [randString()]: hideInRandomStructure(objectToHide, depth - 1)
+    }
+};
+
 const preproc = new Preprocessor();
 
 describe('Preprocessor parameter extraction', () => {
@@ -46,30 +71,6 @@ describe('Preprocessor parameter extraction', () => {
          * Generates a random alphanumeric string.
          * @returns A random alphanumeric string.
          */
-        const randString = () => Math.random().toString(36).substring(Math.floor(Math.random() * 7) + 2);
-
-        const randomValues = [
-            "sdfsdfg",
-            "adfghj",
-            "123465",
-            "qwertyuio",
-            "123sdfg4d;'\\[p"
-        ]
-
-        const hideInRandomStructure = (objectToHide, depth) => {
-            if(depth == 0){
-                return {[randString()]: objectToHide};
-            };
-
-            const neigh = randomValues.slice(Math.floor((Math.random()*randomValues.length)+1));
-            
-            return {
-                ...neigh.reduce((p,v) => ({...p, 
-                    [v]: hideInRandomStructure(v, depth - 1)
-                }), {}),
-                [randString()]: hideInRandomStructure(objectToHide, depth - 1)
-            }
-        };
 
         /** An array of generated parameter names (should be the final output of the `preprocessor.getParams()` method) */
         let params = [];
@@ -99,4 +100,110 @@ describe('Preprocessor parameter extraction', () => {
             expect(preproc.getParams(object)).toEqual(parameters);
         }
     })
+});
+
+describe('Selector extraction', () => {
+	test('Single selector extraction', () => {
+        const workflow = {
+            meta: {},
+            workflow:[
+                {
+                    where: {
+                        selectors: "test_selector"
+                    },
+                    what: [
+                        {
+                            selectors: ["not_this_one!"]
+                        },
+                        {
+                            selectors: "nor_this_one"
+                        }
+                    ]
+                },
+                {
+                    where: {
+                        selectors: "test_selector"
+                    },
+                    what: [
+                        {
+                            selectors: ["not_this_one!"]
+                        },
+                        {
+                            selectors: "nor_this_one"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        expect(
+            preproc.extractSelectors(workflow.workflow))
+                .toEqual(['test_selector']
+        );
+	});
+
+	test('Selector array extraction', () => {
+        const workflow = {
+            meta: {},
+            workflow:[
+                {
+                    where: {
+                        selectors: ["test_selector", "test_selector_2"]
+                    },
+                    what: [
+                    ]
+                }
+            ]
+        }
+
+        expect(
+            preproc.extractSelectors(workflow.workflow))
+                .toEqual(["test_selector", "test_selector_2"]
+        );
+	});
+
+    test('(Nested) logic selector extraction', () => {
+        const workflow = {
+            meta: {},
+            workflow:[
+                {
+                    where: {
+                        $or: {
+                            url: "https://example.org",
+                            selectors: ["test_selector", "test_selector_2"],
+                            $none: {
+                                selectors: ["test_selector_3"],
+                                cookies: {
+                                    "selectors": "notthisone"
+                                }
+                            }
+                        }
+                    },
+                    what: [
+                    ]
+                },
+                {
+                    where: {
+                        $or: {
+                            url: "https://example.org",
+                            selectors: ["test_selector", "test_selector_2"],
+                            $and: {
+                                selectors: ["test_selector_3"],
+                                cookies: {
+                                    "selectors": "notthisone"
+                                }
+                            }
+                        }
+                    },
+                    what: [
+                    ]
+                }
+            ]
+        }
+
+        expect(
+            preproc.extractSelectors(workflow.workflow))
+                .toEqual(["test_selector", "test_selector_2", "test_selector_3"]
+        );
+	});
 });
