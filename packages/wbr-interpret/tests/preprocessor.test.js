@@ -235,14 +235,14 @@ describe('Parameter initialization', () => {
 
         expect(
             preproc.initParams(workflow.workflow, {
-                "first_parameter": "123", 
-                "object_parameter": {"cookie": "test"}, 
+                "first_parameter": 123,
+                "object_parameter": {"cookie": "xyz"}, 
                 "array_parameter": [1,2,3]
             })).toEqual([
                 {
                     where: {
                         url: 123,
-                        cookies: {cookie: test},
+                        cookies: {cookie: 'xyz'},
                         $or: {
                             $none:{
                                 $and: {
