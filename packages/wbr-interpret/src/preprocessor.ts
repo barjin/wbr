@@ -13,8 +13,22 @@ export default class Preprocessor {
 * @param {WorkflowFile} workflow The given workflow
 * @returns {String[]} List of parameters' names.
 */
-  getParams(workflow: WorkflowFile) : (keyof ParamType)[] {
-    return workflow.meta.params!;
+  getParams(workflow: WorkflowFile) : string[] {
+    const getParamsRecurse = (object : any) : string[] => {
+      if (typeof object === 'object') {
+        // Recursion base case
+        if (object.$param) {
+          return [object.$param];
+        }
+
+        // Recursion general case
+        return Object.values(object)
+          .reduce((p: string[], v : any) : string[] => [...p, ...getParamsRecurse(v)], []);
+      }
+      return [];
+    };
+
+    return getParamsRecurse(workflow.workflow);
   }
 
   /**
