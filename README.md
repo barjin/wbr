@@ -1,6 +1,8 @@
 # WBR - Web Browser Robot 🤖🔮
 
-![Logo](./docs/static/img/logo.svg)
+<h1 align="center">
+    <img src="./docs/static/img/logo.svg"/>
+</h1>
 
 **Web Browser Robot** is a one-stop shop for creating, running and managing **web crawlers** and **automated web tasks** _with ease_.
 
