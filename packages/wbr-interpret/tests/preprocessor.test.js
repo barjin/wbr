@@ -207,3 +207,51 @@ describe('Selector extraction', () => {
         );
 	});
 });
+
+describe('Parameter initialization', () => {
+	test('Simple parameter initialization', () => {
+        const workflow = {
+            meta: {},
+            workflow:[
+                {
+                    where: {
+                        url: {
+                            $param: "first_parameter"
+                        },
+                        cookies : {
+                            $param: "object_parameter"
+                        },
+                        $or: {
+                            $none:{
+                                $and: {
+                                    selectors: { $param: "array_parameter" }
+                                }
+                            }
+                        }
+                    },
+                },
+            ]
+        }
+
+        expect(
+            preproc.initParams(workflow.workflow, {
+                "first_parameter": "123", 
+                "object_parameter": {"cookie": "test"}, 
+                "array_parameter": [1,2,3]
+            })).toEqual([
+                {
+                    where: {
+                        url: 123,
+                        cookies: {cookie: test},
+                        $or: {
+                            $none:{
+                                $and: {
+                                    selectors: [1,2,3]
+                                }
+                            }
+                        }
+                    },
+                }
+            ]);
+	});
+});

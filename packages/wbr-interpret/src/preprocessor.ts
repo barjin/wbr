@@ -72,7 +72,7 @@ export default class Preprocessor {
   /**
 * Recursively crawl `object` and initializes params - replaces the `{$param : paramName}` objects
 * with the defined value.
-* @returns {void} Modifies the `workflow` parameters itself.
+* @returns {Workflow} Copy of the given workflow, modified (the initial workflow is left untouched).
 */
   initParams(workflow: Workflow, params?: ParamType) : Workflow {
     if (!params) {
