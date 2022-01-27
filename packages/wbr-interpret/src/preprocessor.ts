@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import {
   Workflow, WorkflowFile, ParamType, SelectorArray, Where,
 } from './workflow';

@@ -17,6 +17,7 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
-    "react/jsx-filename-extension": "off"
+    "react/jsx-filename-extension": "off",
+    "class-methods-use-this": "off"
   },
 };
