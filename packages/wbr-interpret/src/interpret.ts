@@ -35,8 +35,6 @@ export default class Interpreter {
 
   private options: InterpreterOptions;
 
-  private preprocess: Preprocessor = new Preprocessor();
-
   private concurrency : Concurrency;
 
   constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
@@ -66,7 +64,7 @@ export default class Interpreter {
     /**
      * All the selectors present in the current Workflow
      */
-    const selectors = this.preprocess.extractSelectors(workflow);
+    const selectors = Preprocessor.extractSelectors(workflow);
 
     /**
       * Determines whether the element targetted by the selector is [actionable](https://playwright.dev/docs/actionability).
@@ -370,7 +368,7 @@ export default class Interpreter {
     /**
      * `this.workflow` with the parameters initialized.
      */
-    this.initializedWorkflow = this.preprocess.initParams(this.workflow, params);
+    this.initializedWorkflow = Preprocessor.initParams(this.workflow, params);
 
     // @ts-ignore
     if (await page.evaluate(() => !<any>window.scrape)) {

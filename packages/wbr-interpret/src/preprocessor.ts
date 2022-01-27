@@ -13,7 +13,7 @@ export default class Preprocessor {
 * @param {WorkflowFile} workflow The given workflow
 * @returns {String[]} List of parameters' names.
 */
-  getParams(workflow: WorkflowFile) : string[] {
+  static getParams(workflow: WorkflowFile) : string[] {
     const getParamsRecurse = (object : any) : string[] => {
       if (typeof object === 'object') {
         // Recursion base case
@@ -36,7 +36,7 @@ export default class Preprocessor {
 * field in WHERE clauses so far)
 */
   // TODO : add recursive selector search (also in click/fill etc. events?)
-  extractSelectors(workflow: Workflow) : SelectorArray {
+  static extractSelectors(workflow: Workflow) : SelectorArray {
     /**
 * Given a Where condition, this function extracts
 * all the existing selectors from it (recursively).
@@ -74,7 +74,7 @@ export default class Preprocessor {
 * with the defined value.
 * @returns {Workflow} Copy of the given workflow, modified (the initial workflow is left untouched).
 */
-  initParams(workflow: Workflow, params?: ParamType) : Workflow {
+  static initParams(workflow: Workflow, params?: ParamType) : Workflow {
     if (!params) {
       return workflow;
     }

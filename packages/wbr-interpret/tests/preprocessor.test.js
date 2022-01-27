@@ -1,7 +1,7 @@
 const Preprocessor = require('../build/preprocessor.js').default;
 
 /**
- * All the preprocessor methods are static, there is no internal 
+ * All the Preprocessor methods are static, there is no internal 
  * state of the Preprocessor class instance, which could get damaged between the tests.
  */
 
@@ -30,8 +30,6 @@ const hideInRandomStructure = (objectToHide, depth) => {
     }
 };
 
-const preproc = new Preprocessor();
-
 describe('Preprocessor parameter extraction', () => {
 	test('Basic param extraction test', () => {
         const workflow = {
@@ -57,7 +55,7 @@ describe('Preprocessor parameter extraction', () => {
         }
 
         expect(
-            preproc.getParams(workflow))
+            Preprocessor.getParams(workflow))
                 .toEqual(['url', 'firstParam', 'sndParam']
         );
 	});
@@ -72,7 +70,7 @@ describe('Preprocessor parameter extraction', () => {
          * @returns A random alphanumeric string.
          */
 
-        /** An array of generated parameter names (should be the final output of the `preprocessor.getParams()` method) */
+        /** An array of generated parameter names (should be the final output of the `Preprocessor.getParams()` method) */
         let params = [];
         for(let i = 0; i < numParameters; i++){
             params.push(randString());
@@ -97,7 +95,7 @@ describe('Preprocessor parameter extraction', () => {
         for(let i = 0; i < TEST_SIZE; i++){
             const {parameters, object} = generateRandomObject(i*STEP_SIZE);
 
-            expect(preproc.getParams(object)).toEqual(parameters);
+            expect(Preprocessor.getParams(object)).toEqual(parameters);
         }
     })
 });
@@ -137,7 +135,7 @@ describe('Selector extraction', () => {
         }
 
         expect(
-            preproc.extractSelectors(workflow.workflow))
+            Preprocessor.extractSelectors(workflow.workflow))
                 .toEqual(['test_selector']
         );
 	});
@@ -157,7 +155,7 @@ describe('Selector extraction', () => {
         }
 
         expect(
-            preproc.extractSelectors(workflow.workflow))
+            Preprocessor.extractSelectors(workflow.workflow))
                 .toEqual(["test_selector", "test_selector_2"]
         );
 	});
@@ -202,7 +200,7 @@ describe('Selector extraction', () => {
         }
 
         expect(
-            preproc.extractSelectors(workflow.workflow))
+            Preprocessor.extractSelectors(workflow.workflow))
                 .toEqual(["test_selector", "test_selector_2", "test_selector_3"]
         );
 	});
@@ -234,15 +232,15 @@ describe('Parameter initialization', () => {
         }
 
         expect(
-            preproc.initParams(workflow.workflow, {
-                "first_parameter": 123,
+            Preprocessor.initParams(workflow.workflow, {
+                "first_parameter": 123, 
                 "object_parameter": {"cookie": "xyz"}, 
                 "array_parameter": [1,2,3]
             })).toEqual([
                 {
                     where: {
                         url: 123,
-                        cookies: {cookie: 'xyz'},
+                        cookies: {cookie: "xyz"},
                         $or: {
                             $none:{
                                 $and: {
@@ -254,4 +252,58 @@ describe('Parameter initialization', () => {
                 }
             ]);
 	});
-});
+
+    test('Workflow persistence', () => {
+        const workflow = {
+            meta: {},
+            workflow:[
+                {
+                    where: {
+                        url: {
+                            $param: "first_parameter"
+                        },
+                        cookies : {
+                            $param: "object_parameter"
+                        },
+                        $or: {
+                            $none:{
+                                $and: {
+                                    selectors: { $param: "array_parameter" }
+                                }
+                            }
+                        }
+                    },
+                },
+            ]
+        }
+
+        Preprocessor.initParams(workflow.workflow, {
+            "first_parameter": 123, 
+            "object_parameter": {"cookie": "xyz"}, 
+            "array_parameter": [1,2,3]
+        });
+
+        expect(workflow).toEqual({
+            meta: {},
+            workflow:[
+                {
+                    where: {
+                        url: {
+                            $param: "first_parameter"
+                        },
+                        cookies : {
+                            $param: "object_parameter"
+                        },
+                        $or: {
+                            $none:{
+                                $and: {
+                                    selectors: { $param: "array_parameter" }
+                                }
+                            }
+                        }
+                    },
+                },
+            ]
+        });
+    });
+})
