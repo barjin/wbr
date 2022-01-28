@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-function area(element) {
-  return element.offsetHeight * element.offsetWidth;
-}
-
 function getBiggestElement(selector) {
+  const area = (element) => element.offsetHeight * element.offsetWidth;
+
   const elements = Array.from(document.querySelectorAll(selector));
   const biggest = elements.reduce(
     (max, elem) => (
@@ -36,31 +34,6 @@ function GetSelectorStructural(element) {
 }
 
 /**
-* @typedef {Array<{x: number, y: number}>} Grid
-*/
-
-/**
- * Returns an array of grid-aligned {x,y} points.
- * @param {number} [granularity=0.005] sets the number of generated points
- *  (the higher the granularity, the more points).
- * @returns {Grid} Array of {x, y} objects.
- */
-function getGrid(startX = 0, startY = 0, granularity = 0.005) {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-
-  const out = [];
-  for (let x = 0; x < width; x += 1 / granularity) {
-    for (let y = 0; y < height; y += 1 / granularity) {
-      out.push({ x: startX + x, y: startY + y });
-    }
-  }
-  return out;
-}
-
-const different = (x, i, a) => a.findIndex((e) => e === x) === i;
-
-/**
  * Heuristic method to find collections of "interesting" items on the page.
  * @returns {Array<HTMLElement>} A collection of interesting DOM nodes
  *  (online store products, plane tickets, list items... and many more?)
@@ -72,6 +45,29 @@ function scrapableHeuristics(maxCountPerPage = 50, minArea = 20000, scrolls = 3,
       window.scrollTo(scrollX, scrollY);
     };
   })();
+
+  /**
+* @typedef {Array<{x: number, y: number}>} Grid
+*/
+
+  /**
+ * Returns an array of grid-aligned {x,y} points.
+ * @param {number} [granularity=0.005] sets the number of generated points
+ *  (the higher the granularity, the more points).
+ * @returns {Grid} Array of {x, y} objects.
+ */
+  function getGrid(startX = 0, startY = 0, granularity = 0.005) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const out = [];
+    for (let x = 0; x < width; x += 1 / granularity) {
+      for (let y = 0; y < height; y += 1 / granularity) {
+        out.push({ x: startX + x, y: startY + y });
+      }
+    }
+    return out;
+  }
 
   let maxSelector = { selector: 'body', metric: 0 };
 
@@ -119,6 +115,7 @@ function scrapableHeuristics(maxCountPerPage = 50, minArea = 20000, scrolls = 3,
 
   let out = Array.from(document.querySelectorAll(maxSelector.selector));
 
+  const different = (x, i, a) => a.findIndex((e) => e === x) === i;
   // as long as we don't merge any two elements by substituing them for their parents,
   // we substitute.
   while (out.map((x) => x.parentElement).every(different)) {
@@ -175,4 +172,55 @@ function scrape(selector = null) {
     }));
 
   return crudeRecords;
+}
+
+/**
+ * Given an object with named lists of elements,
+ *  groups the elements by their distance in the DOM tree.
+ * @param {Object.<string, object[]>} lists The named lists of HTML elements.
+ * @returns {Array.<Object.<string, string>>}
+ */
+function scrapeSchema(lists) {
+  function omap(object, f, kf = (x) => x) {
+    return Object.fromEntries(
+      Object.entries(object)
+        .map(([k, v]) => [kf(k), f(v)]),
+    );
+  }
+
+  function ofilter(object, f) {
+    return Object.fromEntries(
+      Object.entries(object)
+        .filter(([k, v]) => f(k, v)),
+    );
+  }
+
+  function getSeedKey(listObj) {
+    const maxLength = Math.max(...Object.values(omap(listObj, (x) => x.length)));
+    return Object.keys(ofilter(listObj, (_, v) => v.length === maxLength))[0];
+  }
+
+  function getMBEs(elements) {
+    return elements.map((element) => {
+      let candidate = element;
+      const isUniqueChild = (e) => elements
+        .filter((elem) => e.parentNode?.contains(elem))
+        .length === 1;
+
+      while (candidate && isUniqueChild(candidate)) {
+        candidate = candidate.parentNode;
+      }
+
+      return candidate;
+    });
+  }
+
+  // const lists = omap(schema, (selector) => Array.from(document.querySelectorAll(selector)));
+  const seedName = getSeedKey(lists);
+  const MBEs = getMBEs(lists[seedName]);
+
+  return MBEs.map((mbe) => omap(
+    lists,
+    (listOfElements) => listOfElements.find((elem) => mbe.contains(elem))?.innerText,
+  ));
 }

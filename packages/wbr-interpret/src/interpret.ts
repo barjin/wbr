@@ -242,21 +242,17 @@ export default class Interpreter {
         await this.options.serializableCallback(scrapeResults);
       },
       scrapeSchema: async (schema: Record<string, string>) => {
-        const values = await Promise.all(
-          Object.values(schema).map(
-            (selector) => {
-              const locator = page.locator(selector);
-              return locator.allInnerTexts();
-            },
-          ),
+        const handleLists = await Promise.all(
+          Object.values(schema).map((selector) => page.$$(selector)),
         );
 
-        const nRows = Math.max(...values.map((x) => x.length));
+        const namedHandleLists = Object.fromEntries(
+          Object.keys(schema).map((key, i) => [key, handleLists[i]]),
+        );
 
-        for (let j = 0; j < nRows; j += 1) {
-          const out = Object.fromEntries(Object.keys(schema).map((key, i) => [key, values[i][j]]));
-          await this.options.serializableCallback(out);
-        }
+        const scrapeResult = await page.evaluate((n) => scrapeSchema(n), namedHandleLists);
+
+        this.options.serializableCallback(scrapeResult);
       },
       scroll: async (pages? : number) => {
         await page.evaluate(async (pagesInternal) => {
