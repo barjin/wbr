@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-function getBiggestElement(selector) {
-  const area = (element) => element.offsetHeight * element.offsetWidth;
+const area = (element) => element.offsetHeight * element.offsetWidth;
 
+function getBiggestElement(selector) {
   const elements = Array.from(document.querySelectorAll(selector));
   const biggest = elements.reduce(
     (max, elem) => (
