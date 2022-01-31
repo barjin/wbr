@@ -3,6 +3,7 @@
  */
 
 const Interpreter = require('../build/index').default;
+const Preprocessor = require('../build/preprocessor').default;
 
 const context = {
 	url: 'https://apify.com',
@@ -196,5 +197,46 @@ describe('Advanced matching (logic, state)', () => {
 	
 		conditions.forEach(({cond, state, result}) => 
 			expect(interpret.applicable(cond, context, state)).toBe(result));
+	});	
+	
+	test('RegEx', () => {
+		const conditions = [
+			{
+				cond: {
+					url: {$regex: "^https://.*$"}
+				},
+				result: true
+			},
+			{
+				cond: {
+					url: {$regex: "falsefalsefalse"}
+				},
+				result: false
+			},
+			{
+				cond: {
+					url: {$regex: "https?://a.*"},
+					cookies: {
+						hello: {$regex: "(cookie|COOKIE)"}	
+					},
+				},
+				result: true
+			},
+			{
+				cond: {
+					url: {$regex: "https?://a.*"},
+					cookies: {
+						hello: {$regex: ".*"},
+						extra: {$regex: "(super|hyper|extra)fluous"}
+					},
+				},
+				result: true
+			},
+		];
+	
+		conditions.forEach(({cond, result}) => {
+			cond = Preprocessor.initWorkflow(cond);
+			expect(interpret.applicable(cond, context)).toBe(result);
+		})
 	});	
 });

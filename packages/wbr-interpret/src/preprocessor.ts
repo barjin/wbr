@@ -73,12 +73,12 @@ export default class Preprocessor {
 * with the defined value.
 * @returns {Workflow} Copy of the given workflow, modified (the initial workflow is left untouched).
 */
-  static initParams(workflow: Workflow, params?: ParamType) : Workflow {
-    if (!params) {
-      return workflow;
-    }
-
-    const initParamsRecurse = (object: unknown) : unknown => {
+  static initWorkflow(workflow: Workflow, params?: ParamType) : Workflow {
+    const initSpecialRecurse = (
+      object: unknown,
+      k: string,
+      f: (value: string) => unknown,
+    ) : unknown => {
       if (!object || typeof object !== 'object') {
         return object;
       }
@@ -86,24 +86,39 @@ export default class Preprocessor {
       const out = object;
       // for every key (child) of the object
       Object.keys(object!).forEach((key) => {
-        // if the field has only one key, which is `$param`
-        if (Object.keys((<any>object)[key]).length === 1 && (<any>object)[key].$param) {
-          // and the param name exists in the `params` object
-          if (params[(<any>object)[key].$param]) {
-            // then replace
-            (<any>out)[key] = params[(<any>object)[key].$param];
-          } else {
-            throw new SyntaxError(`Unspecified parameter found ${(<any>object)[key].$param}.`);
-          }
+        // if the field has only one key, which is `k`
+        if (Object.keys((<any>object)[key]).length === 1 && (<any>object)[key][k]) {
+          // process the current special tag (init param, hydrate regex...)
+          (<any>out)[key] = f((<any>object)[key][k]);
         } else {
-          initParamsRecurse((<any>object)[key]);
+          initSpecialRecurse((<any>object)[key], k, f);
         }
       });
       return out;
     };
 
     // TODO: do better deep copy, this is hideous.
-    const workflowCopy = JSON.parse(JSON.stringify(workflow));
-    return <Workflow> initParamsRecurse(workflowCopy);
+    let workflowCopy = JSON.parse(JSON.stringify(workflow));
+
+    if (params) {
+      workflowCopy = initSpecialRecurse(
+        workflowCopy,
+        '$param',
+        (paramName) => {
+          if (params && params[paramName]) {
+            return params[paramName];
+          }
+          throw new SyntaxError(`Unspecified parameter found ${paramName}.`);
+        },
+      );
+    }
+
+    workflowCopy = initSpecialRecurse(
+      workflowCopy,
+      '$regex',
+      (regex) => new RegExp(regex),
+    );
+
+    return <Workflow> workflowCopy;
   }
 }

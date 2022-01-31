@@ -131,7 +131,6 @@ export default class Interpreter {
           /**
            * Arrays are compared without order (are transformed into objects before comparison).
            */
-
           const parsedValue = Array.isArray(value) ? arrayToObject(value) : value;
 
           const parsedSuperset : Record<string, unknown> = {};
@@ -143,8 +142,12 @@ export default class Interpreter {
           // have the same value (strict equality), or subset[key] <= superset[key]
           return parsedSuperset[key]
           && (
-            parsedSuperset[key] === parsedValue
-            || (typeof parsedValue === 'object' && inclusive(<typeof subset>parsedValue, <typeof superset>parsedSuperset[key]))
+            (parsedSuperset[key] === parsedValue)
+            || ((parsedValue).constructor.name === 'RegExp' && (<RegExp>parsedValue).test(<string>parsedSuperset[key]))
+            || (
+              (parsedValue).constructor.name !== 'RegExp'
+              && typeof parsedValue === 'object' && inclusive(<typeof subset>parsedValue, <typeof superset>parsedSuperset[key])
+            )
           );
         },
       )
@@ -199,7 +202,7 @@ export default class Interpreter {
   /**
    * Defines overloaded (or added) methods/actions usable in the workflow.
    * If a method overloads any existing method of the Page class, it accepts the same set
-   * of parameters *(but can suppress some!)*\
+   * of parameters *(but can override some!)*\
    * \
    * Also, following piece of code defines functions to be run in the browser's context.
    * Beware of false linter errors - here, we know better!
@@ -364,7 +367,7 @@ export default class Interpreter {
     /**
      * `this.workflow` with the parameters initialized.
      */
-    this.initializedWorkflow = Preprocessor.initParams(this.workflow, params);
+    this.initializedWorkflow = Preprocessor.initWorkflow(this.workflow, params);
 
     // @ts-ignore
     if (await page.evaluate(() => !<any>window.scrape)) {
