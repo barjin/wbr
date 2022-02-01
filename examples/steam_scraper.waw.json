@@ -40,18 +40,17 @@
 	   {
 		"name": "Scrape",
 		  "where":{
-			 "selectors":[
-				"#TopSellers_btn_next"
-			 ]
+			 "selectors": "[class~=salepreviewwidgets_TitleCtn]"
 		  },
 		  "what":[
 			 {
-				"type": "scrape",
-				"params": "#TopSellersRows > a"
-			 },
-			 {
-				"type": "click",
-				"params":"#TopSellers_btn_next"
+				"type": "scrapeSchema",
+				"params": {
+					"name": "[class~=salepreviewwidgets_TitleCtn]",
+					"priceOriginal": ".salepreviewwidgets_StoreSaleWidgetContainer_2hhNO .salepreviewwidgets_StoreOriginalPrice_3fFFs",
+					"priceCurrent": ".salepreviewwidgets_StoreSaleWidgetContainer_2hhNO .salepreviewwidgets_StoreSalePriceBox_3j4dI",
+					"reduction": ".salepreviewwidgets_StoreSaleWidgetContainer_2hhNO .salepreviewwidgets_StoreSaleDiscountBox_cnkoF"
+				}
 			 },
 			 {
 				"type":"waitForLoadState"
@@ -82,6 +81,15 @@
 				"params":[
 				   3000
 				]
+			 },
+			 {
+				"type":"scroll",
+				"params":[
+				   5
+				]
+			 },
+			 {
+				"type":"flag"
 			 }
 		  ]
 	   }

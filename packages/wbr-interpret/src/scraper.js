@@ -215,7 +215,6 @@ function scrapeSchema(lists) {
     });
   }
 
-  // const lists = omap(schema, (selector) => Array.from(document.querySelectorAll(selector)));
   const seedName = getSeedKey(lists);
   const MBEs = getMBEs(lists[seedName]);
 

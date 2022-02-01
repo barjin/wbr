@@ -2,6 +2,7 @@
 import { Page, PageScreenshotOptions } from 'playwright';
 import path from 'path';
 
+import { EventEmitter } from 'events';
 import {
   Where, What, PageState, Workflow, WorkflowFile,
   ParamType, SelectorArray, MetaData, CustomFunctions,
@@ -26,7 +27,7 @@ interface InterpreterOptions {
 /**
  * Class for running the Smart Workflows.
  */
-export default class Interpreter {
+export default class Interpreter extends EventEmitter {
   private meta: MetaData;
 
   private workflow: Workflow;
@@ -38,6 +39,7 @@ export default class Interpreter {
   private concurrency : Concurrency;
 
   constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
+    super();
     this.meta = workflow.meta;
     this.workflow = workflow.workflow;
     this.initializedWorkflow = null;
@@ -272,6 +274,9 @@ export default class Interpreter {
         const x = new AsyncFunction('page', code);
         await x(page);
       },
+      flag: async () => new Promise((res) => {
+        this.emit('flag', page, res);
+      }),
     };
 
     for (const step of steps) {
