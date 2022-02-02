@@ -23,7 +23,7 @@ function runConcurrencyJob(numJobs, maxParallel, jobLength, done){
         const endTime = new Date();
         const bestCase = Math.ceil(numJobs/maxParallel) * jobLength;
 
-        expect(endTime - startTime).toBeGreaterThanOrEqual(bestCase);
+        expect(endTime - startTime).toBeGreaterThanOrEqual(bestCase-5); // 5 milliseconds to weed out possible timing inaccuracy
         expect(endTime - startTime).toBeLessThan(1.05 * bestCase);
 
         expect(results.length).toBe(numJobs);
