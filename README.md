@@ -4,7 +4,7 @@
     <img src="./docs/static/img/logo.svg"/>
 </h1>
 
-**Web Browser Robot** is a one-stop shop for creating, running and managing **web crawlers** and **automated web tasks** _with ease_.
+**Web Browser Robot** is a one-stop shop for creating, running, and managing **web crawlers** and **automated web tasks** _with ease_.
 
 [![NPM](https://img.shields.io/npm/v/@wbr-project/wbr-interpret?logo=npm)](https://www.npmjs.com/package/@wbr-project/wbr-interpret)
 [![Typescript](https://img.shields.io/npm/types/@wbr-project/wbr-interpret?logo=typescript&)](https://www.npmjs.com/package/@wbr-project/wbr-interpret)
@@ -16,10 +16,34 @@ ___
 
 ## Web Browser Robot
 
-Forget everything you know about tedious asynchronous programming in Playwright or Puppeteer and focus on what you really want to achieve instead. Using an intuitive **if-this-then-that** schema, optimized concurrency with zero run conditions and state-of-art backend technology, creating crawlers and automations has never been easier.
+Forget everything you know about tedious asynchronous programming in Playwright or Puppeteer and focus on what you really want to achieve instead. Using an intuitive **if-this-then-that** schema, optimized concurrency with zero run conditions, and state-of-art backend technology, creating crawlers and automations has never been easier.
 
-## How easy it is?
-Creating _lightning fast web automations_ with WBR is easier than you think. Consider the following snippet:
+> For work, Miss Glory. **One Robot can replace two and a half workmen.**
+> > K. Čapek, R. U. R. (1920)
+
+Even though *Web Browser Robot* cannot overthrow our society and exterminate mankind, it can definitely replace more than just 2.5 people.
+
+With the web growing faster than ever, containing ever more data, it is sometimes difficult to focus on what is important. Delegating the tedious, repetitive work to WBR makes your web workflows (almost) maintenance-free.
+
+## Installation
+```bash
+npm i -S @wbr-project/wbr-interpret
+```
+
+This installs the package into the `node_modules` folder of your project. The package also includes [Typescript](https://www.typescriptlang.org/) typings by default to facilitate its usage.
+
+Now you are all set!
+
+## Made for people, tailored to devs
+
+With WBR, even a complete beginner can start scraping and crawling in no time. See the [docs](./docs/) and read for yourself how you can create your first scraper/crawler/automation with WBR.
+
+Are you *way too senior* for this child's play? We've got you covered. WBR allows you to embed your own high-performance code into its syntax, effectively combining the generic easy-to-maintain nature of Smart Workflows and specific niche actions crucial for your use case. From the outside, the programmed user actions are indistinguishable from native WBR's actions. 
+
+## Examples
+
+Creating _lightning-fast web automations_ with WBR is easier than you think - nobody likes to [spend 8 hours writing an automation to a 1-hour task](https://xkcd.com/1319/). Consider the following snippet:
+
 ```javascript
 [{
     where: {
@@ -32,9 +56,45 @@ Creating _lightning fast web automations_ with WBR is easier than you think. Con
     ]
 }]
 ```
-This code snippet is a 100% valid WBR workflow definition. What does it do? **It scrapes `https://wikipedia.org`**.
 
-You see that with WBR, even a complete beginner can start scraping and crawling in no time. Still not sure? See the [docs](./docs/) and read for yourself, how you can create your first scraper/crawler/automation with WBR.
+This code snippet is a 100% valid WBR workflow definition. What does it do? **It scrapes `https://wikipedia.org`**. Yes, yes, not very impressive, I know. 
+
+In that case, take a look at this one:
+
+```javascript
+[{
+    where: {
+        selectors: [
+            "form input[type=text]",
+            "form input[type=password]",
+        ]
+    },
+    what: [
+        {
+            type: "fill",
+            params: [
+                "form input"
+                "login@login.com"
+            ]
+        },
+        {
+            type: "fill",
+            params: [
+                "form input[type=password]"
+                "verysecretpassword"
+            ]
+        },
+        {
+            type: "keyboard.press",
+            params: "Enter"
+        }
+    ]
+}]
+```
+
+What does this one do? On a page (any page) with a login form, this Smart Workflow fills in the login form and hits `Enter`, effectively logging the user in. This demonstrates many strengths of the Smart Workflow philosophy - they are highly reusable, as generic as possible, and help you automating your use cases while writing less code, only describing what you really want to do.
+
+See more examples and explanations in the [docs](./docs/).
 
 ## Legal 
 

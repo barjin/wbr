@@ -7,7 +7,7 @@ const fs = require('fs');
 const readline = require('readline/promises');
 const { stdin: input, stdout: output } = require('process');
 			
-const workflow = JSON.parse(fs.readFileSync('../../examples/steam_scraper.waw.json'));
+const workflow = JSON.parse(fs.readFileSync('../../examples/nehnutelnosti_sk.json'));
 
 (
 	async () => {
@@ -31,7 +31,9 @@ const workflow = JSON.parse(fs.readFileSync('../../examples/steam_scraper.waw.js
 			await rl.close();
 		})
 		
-		await interpret.run(page, {});
+		await interpret.run(page, {
+			url: "https://www.nehnutelnosti.sk/bratislava/"
+		});
 
 		await browser.close();
 	}
