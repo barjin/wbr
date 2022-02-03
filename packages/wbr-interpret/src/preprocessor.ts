@@ -78,7 +78,7 @@ export default class Preprocessor {
      * A recursive method for initializing special `{key: value}` syntax objects in the workflow.
      * @param object Workflow to initialize (or a part of it).
      * @param k key to look for ($regex, $param)
-     * @param f function mutating the special `{}` syntax into 
+     * @param f function mutating the special `{}` syntax into
      *            its true representation (RegExp...)
      * @returns Updated object
      */
