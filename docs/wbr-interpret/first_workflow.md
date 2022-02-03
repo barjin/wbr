@@ -54,9 +54,9 @@ const workflow = {
 
 Now we added another rule to the workflow specification. Whenever the robot gets to the page "https://example.org/", it navigates to "https://jindrich.bar" - and in all the other cases, it goes to "https://example.org". Effectively, this means the robot will bounce between those two pages indefinitely (try to think, when does which rule apply). So far, it is pretty straightforward, right? 
 
-<center>
+<div align="center">
 <img src="./static/img/flip-flop.gif" alt="Showcase of a simple automation script"/>
-</center>
+</div>
 
 ## Intermezzo: Order matters!
 
@@ -172,9 +172,9 @@ const workflow = {
 ```
 The top rule matches whenever is sees text "Did you know ..." and runs the schema scraper - a clever little piece of code which reads the text in the elements you specify with the selectors, takes care of pairing it with its neighbors and related info and sends them into the robot's serializable output.
 
-<center>
+<div align="center">
 <img src="./static/img/wikipedia_scraper.gif" alt="Successful and speedy Wikipedia scraper"/>
-</center>
+</div>
 
 ## What now?
 
