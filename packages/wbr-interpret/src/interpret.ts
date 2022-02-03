@@ -22,6 +22,7 @@ interface InterpreterOptions {
   maxConcurrency: number;
   serializableCallback: (output: any) => (void | Promise<void>);
   binaryCallback: (output: any, mimeType: string) => (void | Promise<void>);
+  debug: boolean;
 }
 
 /**
@@ -45,9 +46,10 @@ export default class Interpreter extends EventEmitter {
     this.initializedWorkflow = null;
     this.options = {
       maxRepeats: 5,
-      maxConcurrency: 1,
-      serializableCallback: (data) => { log(JSON.stringify(data), Level.DEBUG); },
-      binaryCallback: () => { log('Received binary data, thrashing them.', Level.DEBUG); },
+      maxConcurrency: 5,
+      serializableCallback: (data) => { log(JSON.stringify(data), Level.WARN); },
+      binaryCallback: () => { log('Received binary data, thrashing them.', Level.WARN); },
+      debug: false,
       ...options,
     };
     this.concurrency = new Concurrency(this.options.maxConcurrency);
@@ -280,7 +282,7 @@ export default class Interpreter extends EventEmitter {
     };
 
     for (const step of steps) {
-      log(`Launching ${step.type}`, Level.DEBUG);
+      log(`Launching ${step.type}`, Level.LOG);
 
       if (step.type in wawActions) {
         const params = !step.params || Array.isArray(step.params) ? step.params : [step.params];
@@ -334,11 +336,14 @@ export default class Interpreter extends EventEmitter {
       }
 
       const pageState = await this.getState(p, workflow);
+      if (this.options.debug) {
+        log(`Current state is: \n${JSON.stringify(pageState, null, 2)}`, Level.WARN);
+      }
       const action = workflow.find(
         (step) => this.applicable(step.where, pageState, usedActions),
       );
 
-      log(`Matched ${JSON.stringify(action?.where)}`, Level.DEBUG);
+      log(`Matched ${JSON.stringify(action?.where)}`, Level.LOG);
 
       if (action) { // action is matched
         repeatCount = action === lastAction ? repeatCount + 1 : 0;
@@ -383,6 +388,6 @@ export default class Interpreter extends EventEmitter {
 
     await this.concurrency.waitForCompletion();
 
-    log('Workflow done, bye!', Level.DEBUG);
+    log('Workflow done, bye!', Level.LOG);
   }
 }

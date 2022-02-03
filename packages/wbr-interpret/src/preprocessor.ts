@@ -74,6 +74,14 @@ export default class Preprocessor {
 * @returns {Workflow} Copy of the given workflow, modified (the initial workflow is left untouched).
 */
   static initWorkflow(workflow: Workflow, params?: ParamType) : Workflow {
+    /**
+     * A recursive method for initializing special `{key: value}` syntax objects in the workflow.
+     * @param object Workflow to initialize (or a part of it).
+     * @param k key to look for ($regex, $param)
+     * @param f function mutating the special `{}` syntax into 
+     *            its true representation (RegExp...)
+     * @returns Updated object
+     */
     const initSpecialRecurse = (
       object: unknown,
       k: string,
