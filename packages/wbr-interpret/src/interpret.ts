@@ -179,13 +179,12 @@ export default class Interpreter extends EventEmitter {
           }
         } else if (meta.includes(<any>key)) {
           const testRegexString = (x: string) => {
-            if(typeof value === 'string'){
-              return x === value
+            if (typeof value === 'string') {
+              return x === value;
             }
-            else{
-              return (<RegExp>value).test(x);
-            }
-          }
+
+            return (<RegExp>value).test(x);
+          };
 
           switch (key as keyof typeof meta) {
             case '$before':
