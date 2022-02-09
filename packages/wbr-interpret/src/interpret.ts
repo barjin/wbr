@@ -84,7 +84,7 @@ export default class Interpreter extends EventEmitter {
 
         return await Promise.all(proms).then((bools) => bools.every((x) => x));
       } catch (e) {
-        console.error(e);
+        log(<Error>e, Level.ERROR);
         return false;
       }
     };
