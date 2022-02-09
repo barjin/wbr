@@ -5,65 +5,52 @@
 
 .pair{
   border: 1px black solid;
-  padding: 0px 10px;
+  padding: 10px 10px;
   border-radius: 10px;
   margin-bottom: 10px
 }
 
-.collapsible{
-  margin: 0px 20px;
-  padding: 10px 10px;
-  border-radius: 5px;
+.toggler {
+  font-size: 150%;
+  margin: 0px
 }
 
-.collapsible h3:hover {
+.toggler:hover {
   cursor: pointer;
 }
 
-.collapsible h3::before{
-  content: '-';
-  display: inline-flexbox;
-  display: inline-block;
-  margin-right: 10px
+.toggler::before{
+  margin-right: 5px;
 }
 
-.orBlock > div > div + div::before {
-  content: "~ or ~"
-}
-
-.collapsed h3::before{
+.toggler.on::before {
   content: '+';
 }
+.toggler.off::before {
+  content: '-';
+}
 
-.collapsed h3 + * {
+.recursive {
+  margin-left: 20px
+}
+
+.collapsible {
+  display: flex;
+  flex-direction: row;
+}
+
+.collapsed{
   display: none
 }
 
-.action{
-  padding: 5px;
-  background-color: #c9c9c9;
-  margin-bottom: 5px;
-  border-radius: 5px;
+.horizontal-line {
+  border-left: 1px solid grey;
+  margin-right: 10px;
+  height: 100%
 }
 
-.codeblock {
-  background-color: #303030;
-  padding: 10px;
-  color: white;
-  border-radius: 10px;
-}
-
-.genericObject {
-  padding: 10px 10px;
-  border-radius: 5px;
-  width: 70%;
-  background-color: rgb(194, 215, 255, 0.5);
-}
-
-.genericObject + .genericObject{
-  margin-top: 5px
-}
-
-.key{
-  font-size: 120%;
+.scalar {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 5px solid lightgrey
 }

@@ -1,9 +1,9 @@
 import './App.css';
 import {Where, What, Workflow} from './workflow';
 import { operators } from './logic';
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 
-function GenericObject(props: {name: string, object: any}) : JSX.Element {
+function CollapsibleObject(props: {name: string, object: any}) : JSX.Element {
   const {name, object} = props;
   if(typeof object !== 'object'){
     return (
@@ -18,7 +18,7 @@ function GenericObject(props: {name: string, object: any}) : JSX.Element {
       Object.entries(object).map(([key,val]) => (
         <div className='collapsible'>
         <p className="key">{name}: </p>
-        <GenericObject name={key} object={val}/>
+        <CollapsibleObject name={key} object={val}/>
         </div>
       ))
     }
@@ -54,7 +54,7 @@ function Conditions(props: {logic?: typeof operators[number]; where: Where}) : J
           );
         }
         return (
-          <GenericObject name={key} object={value}/>
+          <CollapsibleObject name={key} object={value}/>
         )
       })
     }
@@ -62,71 +62,110 @@ function Conditions(props: {logic?: typeof operators[number]; where: Where}) : J
   )
 }
 
-function CodeBlock(props: {code: string}){
-  const lines = props.code.split(';');
-  return (<div className='codeblock'>
-    {
-      lines.map(line => (
-        <p className='codeline'>
-          {line+';'}
-        </p>
-      ))
-    }
-  </div>);
+type JSONScalar = string | number | boolean;
+
+function RecursiveCollection({collection}: {collection: Record<string, any> | any[] | JSONScalar}){
+  if(collection && typeof collection === 'object'){
+      return(
+        <div className='recursive'>
+        {
+          Object.entries(collection).map(([key,value]) => (
+            <Collapsible header={key} content={value} updater={() => {}}/>
+          ))
+        }
+        </div>
+      )
+  }
+  else{
+    return(<div className='rvalue'>{collection}</div>);
+  }
+}
+// /**
+//  * Returns `true` if all the values are scalar types.
+//  */
+// function isSimple(obj: Record<string,any> | any[]) : boolean{
+//   return Object.values(obj).reduce(
+//     (p,x) => (
+//       p && (typeof obj !== 'object' || obj === null)
+//     ), true
+//   )
+// }
+
+// function SimpleObject({content}: {content: Record<string,any> | any[]}) {
+//   return (
+//     <table>
+//       {!Array.isArray(content) ? 
+//         Object.entries(content).map(([k,v]) => (
+//           <tr>
+//             <td>{k}</td><td>{v}</td>
+//           </tr>
+//         )
+//       ) : 
+//       Object.values(content).map((v) => (
+//         <tr>
+//           <td>{v}</td>
+//         </tr>
+//       ))
+//       }
+//     </table>
+//   )
+// }
+
+function isScalar (object: any) : boolean {
+  return typeof object !== 'object' && object !== null
 }
 
-function Action({data, updater}: {data: What, updater: ArbitraryFunction}) {
-  const addActionBelow = () => {
-    updater([
-      data,
-      {
-        type: undefined,
-        params: undefined
-      }
-    ])
+function Collapsible({header, content, updater}: {header: string, content: Record<string, any>, updater: ArbitraryFunction}){
+  const [collapsed, setCollapsed] = useState(false);
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
   }
-
-  const removeAction = () => updater([])
-
-  return (
-    <>
-    <div className='action'>
-      <b>
-        {data.type}
-      </b>
-      <p>
-        {
-          data.type === 'script' ?
-          <CodeBlock code={data.params}/> :
-          JSON.stringify(data.params,null,2)
-        }
-      </p>
-      <div onClick={removeAction}>---</div>
+  return(
+    <div>
+      <p className={`toggler ${collapsed ? 'on' : 'off'}`} onClick={toggleCollapsed}>{header}</p>
+      <div className={`collapsible ${collapsed ? 'collapsed' : ''}`}>
+        <div style={{display:'flex', flexDirection: 'column'}}>
+          <div className='horizontal-line'></div>
+          {!isScalar(content) ? 
+            <div className='add' onClick={() => {
+              alert("adding!");
+            }}>+</div> 
+            : 
+            null}
+        </div>
+        <RecursiveCollection collection={content}/>
+      </div>
     </div>
-    <div onClick={addActionBelow}>+++</div>
-    </>
   )
 }
 
-function Actions({actions, updater}: {actions: What[], updater: ArbitraryFunction}) {
-  const updateActionOnIndex = (idx: number) => {
-    return (action: What[]) => updater(
-      [
-        ...actions.slice(0, idx),
-        ...action,
-        ...actions.slice(idx+1),
-      ]
-    )
-  }
-
-  return (
-    <div className='collapsible'>
-      {actions.map((action, idx) => (
-        <Action updater={updateActionOnIndex(idx)} data={action}/>
+function WhereEditor({where}: {where: Where}){
+  let out = Object.entries(where).map(([key, value]) => {
+    if(operators.includes(key as any)){
+      // out.push(<WhereEditor where={where as Where}/>)
+    }
+    if(typeof value === 'string'){
+      return (
+        <div>
+        <p className={`toggler`} >{key}</p>
+        <div className={`collapsible`}>
+          <div style={{display:'flex', flexDirection: 'column'}}>
+            <div className='horizontal-line'></div>
+          </div>
+          <p>{value}</p>
+        </div>
+      </div>
       )
-      )}
+    }
+  }
+  )
+  return (
+    <div>
+    {
+      out
+    }
     </div>
-  );
+  )
 }
 
 type PairData = Workflow[number];
@@ -167,10 +206,8 @@ function Pair({pair, updater} : {pair: PairData, updater: ArbitraryFunction}){
     <>
     <div className='pair'>
       {pair.name ? <h1>{pair.name}</h1> : null}
-      <h2>If there is...</h2>
-      <Conditions where={pair.where}/>
-      <h2>Then run...</h2>
-      <Actions updater={updateWhat} actions={pair.what} />
+      <SimpleWhere where={pair.where as Where[]}/>
+      <Collapsible header="Then do..." content={pair.what} updater={updateWhat}/>
     </div>
     <div onClick={addPairBelow}>
       +
@@ -178,6 +215,97 @@ function Pair({pair, updater} : {pair: PairData, updater: ArbitraryFunction}){
     </>
   )
 }
+
+function CollapsibleV({header, content}: {header: string, content: ReactElement}){
+  const [collapsed, setCollapsed] = useState(false);
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  }
+  return(
+    <div>
+      <p className={`toggler ${collapsed ? 'on' : 'off'}`} onClick={toggleCollapsed}>{header}</p>
+      <div className={`collapsible ${collapsed ? 'collapsed' : ''}`}>
+        <div style={{display:'flex', flexDirection: 'column'}}>
+          <div className='horizontal-line'></div>
+        </div>
+        {content}
+      </div>
+    </div>
+  )
+}
+
+function RValueObj({rval} : {rval: Record<string,string>}){
+  const [key,value] = Object.entries(rval)[0];
+  return (
+    <div>
+      <p><b>{key}</b></p>
+      <ScalarValue props={value}/>
+    </div>
+  )
+}
+
+function ScalarValue({props} : {props: JSONScalar}){
+  if(typeof props === 'object'){
+    return <RValueObj rval={props}/>
+  }
+  return (
+    <p className="scalar">
+      {props}
+    </p>
+  )
+}
+
+function Url({props}: {props: string}){
+  const content = <ScalarValue props={props}/>;
+  return ( <CollapsibleV header="URL" content={content}/> )
+}
+
+function SelectorList({props}: {props: string[]}){
+  const content = (<div>{ props.map(x => ScalarValue({props: x}) ) }</div>);
+  return (<CollapsibleV header="Selectors:" content={content}/>)
+}
+
+function CookieList({props} : {props: Record<string,string>}){
+  const content = 
+    <>
+      {
+        Object.entries(props).map(([key, value]) => (
+          <div>
+          <p>{key}</p>   
+          <ScalarValue props={value}/>
+          </div>
+        ))
+      }
+    </>;
+
+  return (
+    <CollapsibleV header="Cookies:" content={content}/>
+  )
+}
+
+
+function SimpleWhere({where}: {where: Where[]}){
+  const key_element_mapping : Record<string,ArbitraryFunction> = {
+    url: Url,
+    selectors: SelectorList,
+    cookies: CookieList,
+  };
+  console.log(where);
+  return (
+    <>
+    {
+      where.map(obj => {
+        if(obj !== {}){
+          const [key,value] = Object.entries(obj)[0];
+          return key_element_mapping[key]({props: value});
+        }
+        return null
+      })
+    }
+  </>
+  );
+}
+
 
 function WorkflowEditor({w} : {w: Workflow}) {
   const [workflow, updateWorkflow] = useState(w);
@@ -200,14 +328,33 @@ function WorkflowEditor({w} : {w: Workflow}) {
   );
 }
 
+const workflow_new = [
+  {
+    where:[
+        {url: "https://apify.com"},
+        {url: {$regex: "https://.*"}},
+        {selectors: [
+          "abcd",
+          "xyz"
+        ]},
+        {cookies: {
+          "abcd": "true"
+        }}
+    ],
+    what:[]
+  }
+]
+
 const workflow_nehnutelnosti : any = [
   {
     "name": "closePopups",
-    "where": {
+    "where": [{
         "selectors": [
-            "[title=\"SP Consent Message\"]"
+            "[title=\"SP Consent Message\"]",
+            "[lalalal]",
+            ".classyMF"
         ]
-    },
+    }],
     "what": [
         {
             "type": "script",
@@ -220,11 +367,11 @@ const workflow_nehnutelnosti : any = [
 },
 {
     "name": "scrapeInfoPage",
-    "where": {
+    "where": [{
         "selectors": [
             ".price--main.paramNo0"
         ]
-    },
+    }],
     "what": [
         {
             "type": "waitForLoadState"
@@ -257,11 +404,11 @@ const workflow_nehnutelnosti : any = [
 },
 {
     "name": "openDetailsInNewTabs",
-    "where": {
+    "where": [{
         "selectors": [
             "li + li .component-pagination__arrow-color"
         ]
-    },
+    }],
     "what": [
         {
             "type": "waitForLoadState"
@@ -277,11 +424,11 @@ const workflow_nehnutelnosti : any = [
 },
 {
     "name": "scrape_basic",
-    "where": {
+    "where": [{
         "selectors": [
             "li + li .component-pagination__arrow-color"
         ]
-    },
+    }],
     "what": [
         {
             "type": "waitForLoadState"
@@ -301,7 +448,7 @@ const workflow_nehnutelnosti : any = [
 },
 {
     "name": "base",
-    "where": {},
+    "where": [{}],
     "what": [
         {
             "type": "goto",
@@ -319,7 +466,6 @@ const workflow_nehnutelnosti : any = [
     ]
 }
 ]
-
 const workflow1 : any = [
   {
     where:{
@@ -340,7 +486,7 @@ const workflow1 : any = [
 function App() {
   return (
     <div className="App">
-        <WorkflowEditor w={workflow_nehnutelnosti}/>
+        <WorkflowEditor w={workflow_new as Workflow}/>
     </div>
   );
 }
