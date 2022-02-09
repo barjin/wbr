@@ -1,4 +1,4 @@
-# WAW (Web Automation Workflow) format definition
+# Web Automation Workflow (WAW) format definition
 
 The following document is considered the official definition of the Web Automation Workflow (waw) format.
 

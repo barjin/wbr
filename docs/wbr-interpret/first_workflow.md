@@ -1,6 +1,6 @@
 # Creating your first workflow
 
-You have [installed the interpreter](./README.md), got familiar with [all the options](./interpreter.md) and have a tedious task to automate. What now?
+You have [installed the interpreter](../README.md), got familiar with [all the options](./interpreter.md) and have a tedious task to automate. What now?
 
 Writing a Smart Workflow is a very simple task, not requiring much programming knowledge. Feel free to experiment, copy-paste and edit following examples, finding out what works the best for you.
 
