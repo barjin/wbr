@@ -1,0 +1,69 @@
+.App {
+  width: 30%;
+  margin-left: 35%;
+}
+
+.pair{
+  border: 1px black solid;
+  padding: 0px 10px;
+  border-radius: 10px;
+  margin-bottom: 10px
+}
+
+.collapsible{
+  margin: 0px 20px;
+  padding: 10px 10px;
+  border-radius: 5px;
+}
+
+.collapsible h3:hover {
+  cursor: pointer;
+}
+
+.collapsible h3::before{
+  content: '-';
+  display: inline-flexbox;
+  display: inline-block;
+  margin-right: 10px
+}
+
+.orBlock > div > div + div::before {
+  content: "~ or ~"
+}
+
+.collapsed h3::before{
+  content: '+';
+}
+
+.collapsed h3 + * {
+  display: none
+}
+
+.action{
+  padding: 5px;
+  background-color: #c9c9c9;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+
+.codeblock {
+  background-color: #303030;
+  padding: 10px;
+  color: white;
+  border-radius: 10px;
+}
+
+.genericObject {
+  padding: 10px 10px;
+  border-radius: 5px;
+  width: 70%;
+  background-color: rgb(194, 215, 255, 0.5);
+}
+
+.genericObject + .genericObject{
+  margin-top: 5px
+}
+
+.key{
+  font-size: 120%;
+}
