@@ -178,11 +178,20 @@ export default class Interpreter extends EventEmitter {
               throw new Error('Undefined logic operator.');
           }
         } else if (meta.includes(<any>key)) {
+          const testRegexString = (x: string) => {
+            if(typeof value === 'string'){
+              return x === value
+            }
+            else{
+              return (<RegExp>value).test(x);
+            }
+          }
+
           switch (key as keyof typeof meta) {
             case '$before':
-              return !usedActions.find((x : any) => x === value);
+              return !usedActions.find(testRegexString);
             case '$after':
-              return !!usedActions.find((x : any) => x === value);
+              return !!usedActions.find(testRegexString);
             default:
               throw new Error('Undefined meta operator.');
           }

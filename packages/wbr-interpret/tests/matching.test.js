@@ -232,11 +232,36 @@ describe('Advanced matching (logic, state)', () => {
 				},
 				result: true
 			},
+			{
+				cond: {
+					url: {$regex: "https?://a.*"},
+					cookies: {
+						hello: {$regex: ".*"},
+						extra: {$regex: "(super|hyper|extra)fluous"}
+					},
+				},
+				result: true
+			},
+			{
+				cond: {
+					$after: {$regex: "cookieDismiss"},
+					$before: {$regex: "login\\d+"}
+				},
+				result: false,
+				state: ["cookieDismiss", "login123"]
+			},
+			{
+				cond: {
+					$after: {$regex: "^[a-zA-Z]+\@[a-zA-Z]+\\.(cz|sk|uk)"}, // a (not so beefy) email regex
+				},
+				result: true,
+				state: ["regexTest@seznam.cz"]
+			},
 		];
 	
-		conditions.forEach(({cond, result}) => {
+		conditions.forEach(({cond, result, state}) => {
 			cond = Preprocessor.initWorkflow(cond);
-			expect(interpret.applicable(cond, context)).toBe(result);
+			expect(interpret.applicable(cond, context, state)).toBe(result);
 		})
 	});	
 });
