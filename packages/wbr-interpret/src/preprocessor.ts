@@ -14,7 +14,7 @@ export default class Preprocessor {
     });
 
     const whereSchema = Joi.object({
-      url: [Joi.string(), regex],
+      url: [Joi.string().uri(), regex],
       selectors: Joi.array().items(Joi.string()),
       cookies: Joi.object({}).pattern(Joi.string(), Joi.string()),
       $after: [Joi.string(), regex],
@@ -25,7 +25,10 @@ export default class Preprocessor {
     }).id('whereSchema');
 
     const schema = Joi.object({
-      meta: Joi.object(),
+      meta: Joi.object({
+        name: Joi.string(),
+        desc: Joi.string(),
+      }),
       workflow: Joi.array().items(
         Joi.object({
           name: Joi.string(),

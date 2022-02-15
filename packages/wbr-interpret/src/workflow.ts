@@ -42,7 +42,6 @@ export type ParamType = Record<string, string>;
 export type MetaData = {
   name?: string,
   desc?: string,
-  params?: (keyof ParamType)[]
 };
 
 export interface WhereWhatPair {
