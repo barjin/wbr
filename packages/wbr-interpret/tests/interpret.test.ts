@@ -1,7 +1,11 @@
-const Interpret = require('../build/interpret').default;
+import Interpret from "@wbr-project/wbr-interpret";
 
 class MockPage {
-    constructor({ url, cookies, selectors }){
+    private _url : string;
+    private _cookies : Record<string,string>;
+    private _selectors : string[];
+
+    constructor({ url, cookies, selectors }: {url: string, cookies: Record<string,string>, selectors: string[]}){
         this._url = url ?? "";
         this._cookies = cookies ?? {};
         this._selectors = selectors ?? [];
@@ -13,23 +17,29 @@ class MockPage {
 
     context(){
         return {
-            cookies: (_) => Object.entries(this._cookies)
+            cookies: () => Object.entries(this._cookies)
                 .map((cookie) => ({name: cookie[0], value: cookie[1]}))
         }
     }
 
-    isEnabled(selector){
+    isEnabled(selector: string){
         return this._selectors.includes(selector);
     }
     
-    isVisible(selector){
+    isVisible(selector: string){
         return this._selectors.includes(selector);
     }
 }
 
-const interpret = new Interpret({workflow:[]});
+type StateType = Record<string,
+    string|
+    string[]|
+    Record<string,string>
+>
 
 describe('State extraction', () => {
+    const interpret = new Interpret({workflow:[]});
+
     test('Simple state extraction', () => {
         const workflow = {
             workflow: [
@@ -52,7 +62,7 @@ describe('State extraction', () => {
 
         const mockPage = new MockPage(pageSettings);
 
-        interpret.getState(mockPage, workflow.workflow).then((state) => {
+        interpret['getState'](mockPage, workflow.workflow).then((state: StateType) => {
             expect(state).toEqual(pageSettings);
             }
         );
@@ -85,7 +95,7 @@ describe('State extraction', () => {
 
         let mockPage = new MockPage(pageSettings);
 
-        interpret.getState(mockPage, workflow).then((state) => {
+        interpret['getState'](mockPage, workflow).then((state: StateType) => {
             expect(state).toEqual(pageSettings);
         });
     });
@@ -117,7 +127,7 @@ describe('State extraction', () => {
 
         let mockPage = new MockPage(pageSettings);
 
-        interpret.getState(mockPage, workflow).then((state) => {
+        interpret['getState'](mockPage, workflow).then((state: StateType) => {
             expect(state).toEqual({...pageSettings, selectors:["button.blue","button.green"]});
         });
     });

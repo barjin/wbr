@@ -5,7 +5,7 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import {
   Where, What, PageState, Workflow, WorkflowFile,
-  ParamType, SelectorArray, MetaData, CustomFunctions,
+  ParamType, SelectorArray, CustomFunctions,
 } from './workflow';
 
 import { operators, meta } from './logic';
@@ -29,8 +29,6 @@ interface InterpreterOptions {
  * Class for running the Smart Workflows.
  */
 export default class Interpreter extends EventEmitter {
-  private meta: MetaData;
-
   private workflow: Workflow;
 
   private initializedWorkflow: Workflow | null;
@@ -41,7 +39,6 @@ export default class Interpreter extends EventEmitter {
 
   constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
     super();
-    this.meta = workflow.meta;
     this.workflow = workflow.workflow;
     this.initializedWorkflow = null;
     this.options = {

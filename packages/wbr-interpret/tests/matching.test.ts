@@ -2,8 +2,9 @@
  * Series of unit tests testing the interpreter's pattern matching and logic.
  */
 
-const Interpreter = require('../build/index').default;
-const Preprocessor = require('../build/preprocessor').default;
+import Interpret from "@wbr-project/wbr-interpret";
+import { Preprocessor } from "@wbr-project/wbr-interpret";
+import { Where } from "@wbr-project/wbr-interpret/src/workflow";
 
 const context = {
 	url: 'https://apify.com',
@@ -14,9 +15,10 @@ const context = {
 	selectors: ['abc', 'efg', 'hij'],
   };
 
-const interpret = new Interpreter({workflow:[]});
+type ConditionArray = {cond : Where, state?: string[], res: boolean }[];
 
 describe('Basic matching (inclusion)', () => {
+	const interpret = new Interpret({workflow:[]});
 
 	test('Basic, positive', () => {
 		const conditions = [{
@@ -38,7 +40,7 @@ describe('Basic matching (inclusion)', () => {
 		},
 	];
 	
-		conditions.forEach(condition => expect(interpret.applicable(condition, context)).toBeTruthy());
+		conditions.forEach(condition => expect(interpret['applicable'](condition, context)).toBeTruthy());
 	});
 	
 	test('Basic, negative', () => {
@@ -60,14 +62,16 @@ describe('Basic matching (inclusion)', () => {
 		}
 		];
 	
-		conditions.forEach(condition => expect(interpret.applicable(condition, context)).toBeFalsy());
+		conditions.forEach(condition => expect(interpret['applicable'](condition, context)).toBeFalsy());
 	});
 });
 
 describe('Advanced matching (logic, state)', () => {
 
+	const interpret = new Interpret({workflow:[]});
+
 	test('Basic Logic Operators', () => {
-		const conditions = [
+		const conditions : ConditionArray = [
 			{
 				cond: {
 					$or: [
@@ -79,10 +83,10 @@ describe('Advanced matching (logic, state)', () => {
 			},
 			{
 				cond: {
-					$or: {
-						url: 'https://jindrich.bar',
-						selectors: ['abc', 'efg']
-					}
+					$or: [
+						{url: 'https://jindrich.bar'},
+						{selectors: ['abc', 'efg']}
+					]
 				},
 				res: true
 			},
@@ -98,12 +102,12 @@ describe('Advanced matching (logic, state)', () => {
 			{
 				cond: {
 					$not: {
-						$or: {
-							url: 'https://apify.com',
-							cookies: {
+						$or: [
+							{url: 'https://apify.com'},
+							{cookies: {
 								hello: 'not_expected_value'
-							}
-						}
+							}},
+						]
 					}
 				},
 				res: false
@@ -111,23 +115,25 @@ describe('Advanced matching (logic, state)', () => {
 		];
 		
 		conditions.forEach(({cond, res}) => 
-		expect(interpret.applicable(cond, context)).toBe(res));
+		expect(interpret['applicable'](cond, context)).toBe(res));
 
 	});
 
 	test('Nested Logic Operators', () => {
-		condition = {
-			$or: {
-				url: 'https://jindrich.bar',
-				$and: {
-					url: 'https://apify.com',
-					cookies: {
-						hello: 'cookie',
-					}
+		let condition : Where = {
+			$or: [
+				{url: 'https://jindrich.bar'},
+				{
+					$and: [
+						{url: 'https://apify.com'},
+						{cookies: {
+							hello: 'cookie',
+						}}
+					]
 				}
-			}
+			]
 		};
-		expect(interpret.applicable(condition, context)).toBeTruthy();
+		expect(interpret['applicable'](condition, context)).toBeTruthy();
 		
 		condition = {
 			$and: [
@@ -156,59 +162,65 @@ describe('Advanced matching (logic, state)', () => {
 				}
 			]
 		};
-		expect(interpret.applicable(condition, context)).toBeTruthy();
+		expect(interpret['applicable'](condition, context)).toBeTruthy();
 	});
 
 	test('State (before/after)', () => {
-		const conditions = [
+		const conditions : ConditionArray = [
 		{
 			cond: {
 				$after: 'login',
 				$before: 'logout'
 			},
 			state: ['login'],
-			result: true
+			res: true
 		},
 		{
 			cond: {
-				$after: 'signup',
+				$before: 'signup',
 				$after: 'login'
 			},
 			state: ['signup'],
-			result: false
+			res: false
 		},
 		{
 			cond: {
-				$or: {
-					url: 'https://jindrich.bar', // this does not match
-					cookies: {
-						hello: 'nonexistent', // this doesn't either
+				$or: [
+					{
+						url: 'https://jindrich.bar', // this does not match
 					},
-					$before: 'signup' // this does
-				}
+					{
+						cookies: {
+							hello: 'nonexistent', // this doesn't either
+						}
+					},
+					{
+						$before: 'signup' // this does
+					}
+				]
 			},
 			state: ['signup'],
-			result: true
+			res: true
 		}
 		];
 	
-		conditions.forEach(({cond, state, result}) => 
-			expect(interpret.applicable(cond, context, state)).toBe(result));
+		conditions.forEach(({cond, state, res}) => 
+			expect(interpret['applicable'](cond, context, state)).toBe(res));
 	});	
 	
 	test('RegEx', () => {
-		const conditions = [
+		const conditions : ConditionArray = [
 			{
 				cond: {
 					url: {$regex: "^https://.*$"}
 				},
-				result: true
+				res: true
 			},
 			{
 				cond: {
 					url: {$regex: "falsefalsefalse"}
 				},
-				result: false
+				res: false
 			},
 			{
 				cond: {
@@ -217,7 +229,7 @@ describe('Advanced matching (logic, state)', () => {
 						hello: {$regex: "(cookie|COOKIE)"}	
 					},
 				},
-				result: true
+				res: true
 			},
 			{
 				cond: {
@@ -227,7 +239,7 @@ describe('Advanced matching (logic, state)', () => {
 						extra: {$regex: "(super|hyper|extra)fluous"}
 					},
 				},
-				result: true
+				res: true
 			},
 			{
 				cond: {
@@ -237,28 +249,28 @@ describe('Advanced matching (logic, state)', () => {
 						extra: {$regex: "(super|hyper|extra)fluous"}
 					},
 				},
-				result: true
+				res: true
 			},
 			{
 				cond: {
 					$after: {$regex: "cookieDismiss"},
 					$before: {$regex: "login\\d+"}
 				},
-				result: false,
+				res: false,
 				state: ["cookieDismiss", "login123"]
 			},
 			{
 				cond: {
 					$after: {$regex: "^[a-zA-Z]+\@[a-zA-Z]+\\.(cz|sk|uk)"}, // a (not so beefy) email regex
 				},
-				result: true,
+				res: true,
 				state: ["regexTest@seznam.cz"]
 			},
 		];
 	
-		conditions.forEach(({cond, result, state}) => {
-			cond = Preprocessor.initWorkflow(cond);
-			expect(interpret.applicable(cond, context, state)).toBe(result);
+		conditions.forEach(({cond, res, state}) => {
+			const initializedCond = Preprocessor.initWorkflow(<any>cond);
+			expect(interpret['applicable'](initializedCond, context, state)).toBe(res);
 		})
 	});	
 });

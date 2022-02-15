@@ -37,7 +37,7 @@ export type What = {
 
 export type PageState = Partial<BaseConditions>;
 
-export type ParamType = Record<string, string>;
+export type ParamType = Record<string, any>;
 
 export type MetaData = {
   name?: string,
@@ -53,6 +53,6 @@ export interface WhereWhatPair {
 export type Workflow = WhereWhatPair[];
 
 export type WorkflowFile = {
-  meta: MetaData,
+  meta?: MetaData,
   workflow: Workflow
 };

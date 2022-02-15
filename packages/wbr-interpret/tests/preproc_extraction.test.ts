@@ -1,9 +1,5 @@
-const Preprocessor = require('../build/preprocessor.js').default;
-
-/**
- * All the Preprocessor methods are static, there is no internal 
- * state of the Preprocessor class instance, which could get damaged between the tests.
- */
+import { Preprocessor } from "@wbr-project/wbr-interpret";
+import { Where } from "../build/workflow";
 
 const randString = () => Math.random().toString(36).substring(Math.floor(Math.random() * 7) + 2);
 
@@ -15,7 +11,7 @@ const randomValues = [
     "123sdfg4d;'\\[p"
 ]
 
-const hideInRandomStructure = (objectToHide, depth) => {
+const hideInRandomStructure = (objectToHide: any, depth: number) : Record<string,any> | any => {
     if(depth == 0){
         return {[randString()]: objectToHide};
     };
@@ -23,7 +19,7 @@ const hideInRandomStructure = (objectToHide, depth) => {
     const neigh = randomValues.slice(Math.floor((Math.random()*randomValues.length)+1));
     
     return {
-        ...neigh.reduce((p,v) => ({...p, 
+        ...neigh.reduce((p: Record<string,any>,v: any) => ({...p, 
             [v]: hideInRandomStructure(v, depth - 1)
         }), {}),
         [randString()]: hideInRandomStructure(objectToHide, depth - 1)
@@ -37,13 +33,11 @@ describe('Preprocessor parameter extraction', () => {
             workflow:[
                 {
                     where: {
-                        url: {
-                            $param: 'url'
-                        }
+                        url: { $param: "url" },
                     },
                     what: [
                         {
-                            type: "abc",
+                            type: "waitForTimeout",
                             params: [
                                 { $param: "firstParam" },
                                 { $param: "sndParam" }
@@ -55,7 +49,7 @@ describe('Preprocessor parameter extraction', () => {
         }
 
         expect(
-            Preprocessor.getParams(workflow))
+            Preprocessor.getParams(<any>workflow))
                 .toEqual(['url', 'firstParam', 'sndParam']
         );
 	});
@@ -79,7 +73,7 @@ describe('Preprocessor parameter extraction', () => {
         const DEPTH = 3
 
         const object = {
-            workflow: params.reduce((p,x) => [...p, hideInRandomStructure({$param: x}, DEPTH)], [])
+            workflow: params.reduce((p: Where[], x: string) => [...p, hideInRandomStructure({$param: x}, DEPTH)], [])
         };
 
         return {
@@ -89,13 +83,13 @@ describe('Preprocessor parameter extraction', () => {
     }
 
     test('Exhaustive dynamic param extraction', () => {
-        TEST_SIZE = 50;
-        STEP_SIZE = 5;
+        const TEST_SIZE = 50;
+        const STEP_SIZE = 5;
         
         for(let i = 0; i < TEST_SIZE; i++){
             const {parameters, object} = generateRandomObject(i*STEP_SIZE);
 
-            expect(Preprocessor.getParams(object)).toEqual(parameters);
+            expect(Preprocessor.getParams(<any>object)).toEqual(parameters);
         }
     })
 });
@@ -135,7 +129,7 @@ describe('Selector extraction', () => {
         }
 
         expect(
-            Preprocessor.extractSelectors(workflow.workflow))
+            Preprocessor.extractSelectors(<any>workflow.workflow))
                 .toEqual(['test_selector']
         );
 	});
@@ -200,7 +194,7 @@ describe('Selector extraction', () => {
         }
 
         expect(
-            Preprocessor.extractSelectors(workflow.workflow))
+            Preprocessor.extractSelectors(<any>workflow.workflow))
                 .toEqual(["test_selector", "test_selector_2", "test_selector_3"]
         );
 	});

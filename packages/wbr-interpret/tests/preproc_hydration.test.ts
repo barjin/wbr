@@ -1,4 +1,4 @@
-const Preprocessor = require('../build/preprocessor.js').default;
+import { Preprocessor } from '@wbr-project/wbr-interpret';
 
 describe('Parameter initialization', () => {
 	test('Simple parameter initialization', () => {
@@ -13,20 +13,20 @@ describe('Parameter initialization', () => {
                         cookies : {
                             $param: "object_parameter"
                         },
-                        $or: {
+                        $or: [{
                             $none:{
-                                $and: {
+                                $and: [{
                                     selectors: { $param: "array_parameter" }
-                                }
+                                }]
                             }
-                        }
+                        }]
                     },
                 },
             ]
         }
 
         expect(
-            Preprocessor.initWorkflow(workflow.workflow, {
+            Preprocessor.initWorkflow(<any>workflow.workflow, {
                 "first_parameter": 123, 
                 "object_parameter": {"cookie": "xyz"}, 
                 "array_parameter": [1,2,3]
@@ -35,13 +35,13 @@ describe('Parameter initialization', () => {
                     where: {
                         url: 123,
                         cookies: {cookie: "xyz"},
-                        $or: {
+                        $or: [{
                             $none:{
-                                $and: {
+                                $and: [{
                                     selectors: [1,2,3]
-                                }
+                                }]
                             }
-                        }
+                        }]
                     },
                 }
             ]);
@@ -71,7 +71,7 @@ describe('Parameter initialization', () => {
             ]
         }
 
-        Preprocessor.initWorkflow(workflow.workflow, {
+        Preprocessor.initWorkflow(<any>workflow.workflow, {
             "first_parameter": 123, 
             "object_parameter": {"cookie": "xyz"}, 
             "array_parameter": [1,2,3]
@@ -117,14 +117,14 @@ describe('Regex initialization', () => {
             ]
         }
 
-        const initializedWorkflow = Preprocessor.initWorkflow(workflow.workflow);
+        const initializedWorkflow = Preprocessor.initWorkflow(<any>workflow.workflow);
 
         expect(
-            initializedWorkflow[0].where.url.test("https://jindrich.bar")
+            (<RegExp><unknown>initializedWorkflow[0].where.url).test("https://jindrich.bar")
         ).toBeTruthy();
         
         expect(
-            initializedWorkflow[0].where.url.test("http://example.org")
+            (<RegExp><unknown>initializedWorkflow[0].where.url).test("http://example.org")
         ).toBeFalsy();
 	});
 
@@ -152,7 +152,7 @@ describe('Regex initialization', () => {
             ]
         }
 
-        Preprocessor.initWorkflow(workflow.workflow, {
+        Preprocessor.initWorkflow(<any>workflow.workflow, {
             "first_parameter": 123, 
             "object_parameter": {"cookie": "xyz"}, 
             "array_parameter": [1,2,3]

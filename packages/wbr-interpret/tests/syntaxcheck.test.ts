@@ -1,4 +1,4 @@
-const Preprocessor = require('../build/preprocessor.js').default;
+import { Preprocessor } from '@wbr-project/wbr-interpret';
 
 describe('Basic tests', () => {
     test('Minimum working example', () => {
@@ -6,7 +6,7 @@ describe('Basic tests', () => {
             workflow: []
         }
 
-        expect(Preprocessor.validateWorkflow(workflowFile)).toBeUndefined();
+        expect(Preprocessor.validateWorkflow(<any>workflowFile)).toBeUndefined();
     });
 
     test('Small workflow', () => {
@@ -30,7 +30,7 @@ describe('Basic tests', () => {
             ]
         }
 
-        expect(Preprocessor.validateWorkflow(workflowFile)).toBeUndefined();
+        expect(Preprocessor.validateWorkflow(<any>workflowFile)).toBeUndefined();
     });
 
     test('Invalid workflow', () => {
@@ -53,7 +53,7 @@ describe('Basic tests', () => {
             ]
         }
 
-        expect(Preprocessor.validateWorkflow(workflowFile)).toBeTruthy();
+        expect(Preprocessor.validateWorkflow(<any>workflowFile)).toBeTruthy();
     });
 });
 
@@ -93,7 +93,7 @@ describe('Nesting tests', () => {
             ]
         }
 
-        expect(Preprocessor.validateWorkflow(workflowFile)).toBeUndefined();
+        expect(Preprocessor.validateWorkflow(<any>workflowFile)).toBeUndefined();
     });
 
     test('Nesting logic - old (invalid)', () => {
@@ -127,6 +127,6 @@ describe('Nesting tests', () => {
             ]
         }
 
-        expect(Preprocessor.validateWorkflow(workflowFile)).toBeTruthy();
+        expect(Preprocessor.validateWorkflow(<any>workflowFile)).toBeTruthy();
     });
 });
