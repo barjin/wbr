@@ -10,7 +10,7 @@ For more information about how to run the workflow from your code, please see th
 - [Workflow](#workflow)
 - [Where conditions](#the-where-clause)
 	- [Basics](#where-conditions---the-basics)
-	- [Boolean logic, syntactic sugar](#where-format---boolean-logic)
+	- [Boolean logic, syntactic sugar](#where-conditions---boolean-logic)
 	- [State persistence](#metaprogramming-state-persistence)
 - [What actions](#the-what-clause)
 	- [Custom functions](#custom-functions)
@@ -134,9 +134,9 @@ The WAW format is taking inspiration from from the [MongoDB query operators](htt
 
 ```javascript
 	"where": {
-		"$and": {
+		"$and": [{
 			"url": "https://jindrich.bar/",
-			"$or": {
+			"$or": [{
 				"cookies": {
 					"uid": "123456"
 				},
@@ -144,8 +144,8 @@ The WAW format is taking inspiration from from the [MongoDB query operators](htt
 					":text('My Profile')",
 					"button.logout"
 				]
-			}
-		}
+			}]
+		}]
 	}
 ```
 This notation describes a condition where the URL is `https://jindrich.bar/` **and** there is **either** the `uid` cookie set with the specified value, **or** there are the selectors present. Please note that the top-level `$and` condition is redundant, as the conjunction of the conditions is the implicit operation.
