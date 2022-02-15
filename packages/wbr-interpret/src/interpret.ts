@@ -53,6 +53,11 @@ export default class Interpreter extends EventEmitter {
       ...options,
     };
     this.concurrency = new Concurrency(this.options.maxConcurrency);
+
+    const error = Preprocessor.validateWorkflow(workflow);
+    if (error) {
+      throw (error);
+    }
   }
 
   /**

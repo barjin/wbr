@@ -119,6 +119,9 @@
                 {
                     "type": "waitForTimeout",
                     "params": 1000
+                },
+                {
+                    "type": "flag"
                 }
             ]
         }

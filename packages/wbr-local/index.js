@@ -1,5 +1,6 @@
 
 const Interpret = require('@wbr-project/wbr-interpret').default;
+const prep = require('@wbr-project/wbr-interpret').Preprocessor;
 const {chromium} = require('playwright');
 const fs = require('fs');
 
@@ -17,16 +18,14 @@ const workflow = JSON.parse(fs.readFileSync('../../examples/nehnutelnosti_sk.jso
 		const ctx = await browser.newContext();
 		const page = await ctx.newPage();
 		
-		
-		
-		interpret.on('flag', async (page, revive) => {
+		interpret.on('flag', async (page, resume) => { //done? callback?
 			const rl = readline.createInterface({ input, output });
 
 			const title = await page.title();
 			console.log(`The page ${title} requires your attention!`);
 			
 			await rl.question(`Please, handle the situation and continue by pressing [Enter]`);			
-			revive();
+			resume();
 			
 			await rl.close();
 		})

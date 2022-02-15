@@ -1,3 +1,4 @@
+import Joi from 'joi';
 import {
   Workflow, WorkflowFile, ParamType, SelectorArray, Where,
 } from './workflow';
@@ -7,7 +8,42 @@ import { operators } from './logic';
 * Class for static processing the workflow files/objects.
 */
 export default class Preprocessor {
-/**
+  static validateWorkflow(workflow: WorkflowFile) : any {
+    const regex = Joi.object({
+      $regex: Joi.string().required(),
+    });
+
+    const whereSchema = Joi.object({
+      url: [Joi.string(), regex],
+      selectors: Joi.array().items(Joi.string()),
+      cookies: Joi.object({}).pattern(Joi.string(), Joi.string()),
+      $after: [Joi.string(), regex],
+      $before: [Joi.string(), regex],
+      $and: Joi.array().items(Joi.link('#whereSchema')),
+      $or: Joi.array().items(Joi.link('#whereSchema')),
+      $not: Joi.link('#whereSchema'),
+    }).id('whereSchema');
+
+    const schema = Joi.object({
+      meta: Joi.object(),
+      workflow: Joi.array().items(
+        Joi.object({
+          name: Joi.string(),
+          where: whereSchema,
+          what: Joi.array().items({
+            type: Joi.string().required(),
+            params: Joi.any(),
+          }),
+        }),
+      ).required(),
+    });
+
+    const { error } = schema.validate(workflow);
+
+    return error;
+  }
+
+  /**
 * Extracts parameters from the workflow's metadata.
 * @param {WorkflowFile} workflow The given workflow
 * @returns {String[]} List of parameters' names.

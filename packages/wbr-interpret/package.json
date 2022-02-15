@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
+    "joi": "^17.6.0",
     "playwright": "*"
   }
 }
