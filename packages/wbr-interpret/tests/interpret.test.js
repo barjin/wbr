@@ -27,7 +27,7 @@ class MockPage {
     }
 }
 
-const interpret = new Interpret({});
+const interpret = new Interpret({workflow:[]});
 
 describe('State extraction', () => {
     test('Simple state extraction', () => {

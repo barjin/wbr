@@ -14,8 +14,9 @@ const context = {
 	selectors: ['abc', 'efg', 'hij'],
   };
 
+const interpret = new Interpreter({workflow:[]});
+
 describe('Basic matching (inclusion)', () => {
-	const interpret = new Interpreter({});
 
 	test('Basic, positive', () => {
 		const conditions = [{
@@ -64,7 +65,6 @@ describe('Basic matching (inclusion)', () => {
 });
 
 describe('Advanced matching (logic, state)', () => {
-	const interpret = new Interpreter({});
 
 	test('Basic Logic Operators', () => {
 		const conditions = [
@@ -94,22 +94,15 @@ describe('Advanced matching (logic, state)', () => {
 					]
 				},
 				res: false
-			},
+			},	
 			{
 				cond: {
-					$none: {
-						url: 'https://jindrich.bar',
-						selectors: ['123', 'efg']
-					}
-				},
-				res: true
-			},			
-			{
-				cond: {
-					$none: {
-						url: 'https://apify.com',
-						cookies: {
-							hello: 'not_expected_value'
+					$not: {
+						$or: {
+							url: 'https://apify.com',
+							cookies: {
+								hello: 'not_expected_value'
+							}
 						}
 					}
 				},
@@ -139,23 +132,27 @@ describe('Advanced matching (logic, state)', () => {
 		condition = {
 			$and: [
 				{
-					$or: {
+					$or: [{
 						url: 'https://jindrich.bar', // this does not match
+					},
+					{
 						cookies: {
 							hello: 'cookie', // this does
 						}
-					}
+					}]
 				},
 				{
-					$or: {
+					$or: [{
 						selectors: ['abc', 'efg', 'not_in_the_current_context'],
-						$none: { // this rule gets matched ($none($and(X))) means "Match if there is at least one failing match in X"
-							$and: {
+					},
+					{
+						$not: { // this rule gets matched ($not($and(X))) means "Match if there is at least one failing match in X"
+							$and: [{
 								...context,
 								url: "https://abcd.xyz"
-							}
+							}]
 						}
-					}
+					}]
 				}
 			]
 		};

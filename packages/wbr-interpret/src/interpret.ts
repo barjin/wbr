@@ -177,8 +177,8 @@ export default class Interpreter extends EventEmitter {
               return array?.every((x) => this.applicable(x, context));
             case '$or':
               return array?.some((x) => this.applicable(x, context));
-            case '$none':
-              return !array?.some((x) => this.applicable(x, context));
+            case '$not':
+              return !this.applicable(<Where>value, context); // $not should be a unary operator
             default:
               throw new Error('Undefined logic operator.');
           }
@@ -188,7 +188,7 @@ export default class Interpreter extends EventEmitter {
               return x === value;
             }
 
-            return (<RegExp>value).test(x);
+            return (<RegExp><unknown>value).test(x);
           };
 
           switch (key as keyof typeof meta) {
