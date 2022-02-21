@@ -181,4 +181,4 @@ The top rule matches whenever is sees text "Did you know ..." and runs the schem
 Great job, you have just finished your first scraper! There is nothing stopping you now.
 Keep in mind there are many more things you can do (e.g. login into a webpage, take a serie of screenshots or order a pizza) using WBR. Do you already have an idea for a great, useful scraper? 
 
-Continue reading to learn how to write parallel workflows for faster execution or how run your own JS code inside the workflows *(coming soon)*.
+<!-- Continue reading to learn how to write parallel workflows for faster execution or how to run your own JS code inside the workflows *(coming soon)*. -->

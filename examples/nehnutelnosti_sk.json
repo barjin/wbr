@@ -1,6 +1,5 @@
 {
     "meta": {
-        "params": [],
         "name": "Nehnutelnosti.sk scraper (tech demo)",
         "desc": "Scraper for the nehnutelnosti.sk, Slovak real estate online marketplace."
     },
