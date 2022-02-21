@@ -12,7 +12,7 @@ For more information about how to run the workflow from your code, please see th
 	- [Basics](#where-conditions---the-basics)
 	- [Boolean logic](#where-conditions---boolean-logic)
 	- [Ordering]()
-	- [State persistence](#metaprogramming-state-persistence)
+	- [State persistence](#state-persistence)
 - [What actions](#the-what-clause)
 	- [Custom functions](#custom-functions)
 
@@ -106,7 +106,7 @@ This should be enough to give you some basic understanding of the WAW Smart Work
 ## The Where Clause
 The Where clause describes a **condition** required for the respective What clause to be executed. 
 
-> In the basic version without the  "state/metaprogramming" part (more later), we can count with the Markov assumption, i.e. the Where clause always depends only on the current browser state and its "applicability" can be evaluated statically, knowing only the browser's state at the given point. For this reason, the workflow can be executed on different tabs in parallel (any popup window open from the first passed page is processed as well).
+> In the basic version without the state persistence (more later), we can count with the Markov assumption, i.e. the Where clause always depends only on the current browser state and its "applicability" can be evaluated statically, knowing only the browser's state at the given point. For this reason, the workflow can be executed on different tabs in parallel (any popup window open from the first passed page is processed as well).
 
 ### Where conditions - The Basics
 The `where` clause is an object with various keys. As of now, only three keys are recognized:
@@ -215,7 +215,7 @@ Again, the interpreter will execute only `action A`, even though both conditions
 
 > Another way to think of this is "put more specific conditions closer to the top".
 
-### Metaprogramming (state persistence)
+### State persistence
 As mentioned earlier, the interpreter also has an internal memory which allows for more specific conditions. Some of those could be e.g.
 ```javascript
 "where": {
