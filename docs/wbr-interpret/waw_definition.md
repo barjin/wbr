@@ -11,10 +11,14 @@ For more information about how to run the workflow from your code, please see th
 - [Where conditions](#the-where-clause)
 	- [Basics](#where-conditions---the-basics)
 	- [Boolean logic](#where-conditions---boolean-logic)
-	- [Ordering]()
+	- [Ordering](#ordering)
 	- [State persistence](#state-persistence)
 - [What actions](#the-what-clause)
 	- [Custom functions](#custom-functions)
+- [Miscellaneous](#extra-syntax)
+	- [Regular Expressions](#regular-expressions)
+	- [Parametrization](#parametrization)
+
 
 ## General
 
@@ -305,11 +309,40 @@ As of now (21.2.2022) these are:
 	- Accepts `selector` parameter. Reads elements targetted by the specified selector ([Playwright selectors](https://playwright.dev/docs/selectors)) and stores their links in a queue. 
 	- Those pages are then processed using the same workflow as the initial page (in parallel if the `maxConcurrency` interpreter parameter is greater than 1).
 
+## Extra Syntax 
+Apart from the mentioned syntax available for direct workflow specification, the WAW format contains more constructs for even better flexibility of the format.
+
+### Regular Expressions
+
+The format supports usage of RegExes, both in the conditions (URL values and Cookie values, selectors use their own wildcard engines) and the action parameters. The syntax is inspired by MongoDB and looks as follows:
+
+```json
+...
+	"url": {"$regex": "https.*"}
+...
+```
+
+Such a rule matches every url on a secured website, i.e. starting with `https`.
+
+### Parametrization
+
+The WAW format also allows the developer to parametrize the workflow - this can be particularly useful, e.g. for letting the user insert their login information, URL to be scraped etc.
+
+```json
+...
+	"type": "goto"
+	"params": [
+		{"$param": "startURL"}
+	]
+...
+```
+
+The interpreter of the format should allow the user to include their own value to replace the entire parameter structure with the user-supplied value. 
 ___
 
-Ready to automate? Read how to write [your first workflow](./first_workflow.md) step-by-step.
-
 Want to see a real-world example of a workflow? Visit the [examples folder](../../examples) with numerous example workflows or explore the [`wbr-local` package](../../packages/wbr-local), containing boilerplate code for running your automations.
+
+Ready to automate? Read how to write [your first workflow](./first_workflow.md) step-by-step.
 
 <br>
 <div align="center">
