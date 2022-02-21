@@ -236,8 +236,10 @@ The memory for actions used is **tab-scoped**, i.e. every new tab has its own me
 ## The What Clause
 In the most basic version, the What clause should contain a sequence of actions, which should be carried out in case the respective Where condition is satisfied.
 
+> Note: While the interpreter `wbr-interpret` uses Playwright for its backend, the WAW format is suitable for use with any other backend. Even the `wbr-interpret` is written as generic as possible, so rewriting it for any other backend library should be fairly easy.
+
 ### What actions - The Basics
-The `what` clause is an array of "function" objects. These objects consist of the `type` field, describing a function called and `params` - an optional property, scalar or array, providing parameters for the specified function.
+The `what` clause is an array of "function" objects. These objects consist of the `type` field, describing the function called and `params` - an optional property, scalar or array, providing parameters for the specified function.
 ```JSON
 "what":[
 	{
@@ -277,7 +279,7 @@ As of now (21.2.2022) these are:
 	}
 	```
 - `scroll` - scrolls down the webpage for given number of times (default = 1).
-- `script` - allows the user to run an arbitrary asynchronous function in the interpreter. The function's body is read as a string from the `params` field and evaluated at the server side (as opposed a browser). The function accepts one parameter named `page`, being the current Playwright Page instance.
+- `script` - allows the user to run an arbitrary asynchronous function in the interpreter. The function's body is read as a string from the `params` field and evaluated at the server side (as opposed to a browser). The function accepts one parameter named `page`, being the current Playwright Page instance.
 	- Example:
 	```javascript
 	{
@@ -301,7 +303,7 @@ As of now (21.2.2022) these are:
 	- Even though it is possible to write the whole workflow using one `script` field, we do not endorse this. The WAW format should allow the developers to write comprehensible, easy-to-maintain workflow definitions.
 - `enqueueLinks` *(new in 0.4.0)*
 	- Accepts `selector` parameter. Reads elements targetted by the specified selector ([Playwright selectors](https://playwright.dev/docs/selectors)) and stores their links in a queue. 
-	- Those pages are then processed using the same workflow as the initial page (in parallel, if the `maxConcurrency` interpreter parameter is greater than 1).
+	- Those pages are then processed using the same workflow as the initial page (in parallel if the `maxConcurrency` interpreter parameter is greater than 1).
 
 ___
 
