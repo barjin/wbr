@@ -1,8 +1,7 @@
 {
 	"meta":{
-	   "params":[
-		  "url"
-	   ]
+		"name": "Pager-scraper",
+		"desc": "An example workflow showing the paging (and scraping) capabilities. (use with e.g. https://sbazar.cz)"
 	},
 	"workflow":[
 	   {
@@ -15,7 +14,7 @@
 		  "what":[
 			 {
 				"type":"click",
-				"params": "[class*=popup] button[class*=close]"
+				"args": "[class*=popup] button[class*=close]"
 			 },
 			 {
 				 "type": "waitForLoadState"
@@ -33,7 +32,7 @@
 		"what":[
 		   {
 			  "type":"click",
-			  "params": "[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"
+			  "args": "[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"
 		   },
 		   {
 			   "type": "waitForLoadState"
@@ -49,14 +48,14 @@
 		  "what":[
 			 {
 				"type":"goto",
-				"params": { "$param": "url" }
+				"args": { "$param": "url" }
 			 },
 			 {
 				"type":"waitForLoadState"
 			 },
 			 {
 				"type":"waitForTimeout",
-				"params": 3000
+				"args": 3000
 			 }
 		  ]
 	   }

@@ -14,7 +14,7 @@
             "what": [
                 {
                     "type": "script",
-                    "params": "\t\t\t\tconst frame = page.frameLocator(\"[title='SP Consent Message']\");\t\t\t\tawait frame.locator(\"[title='Prijať všetko']\").click();\t\t\t\t"
+                    "args": "\t\t\t\tconst frame = page.frameLocator(\"[title='SP Consent Message']\");\t\t\t\tawait frame.locator(\"[title='Prijať všetko']\").click();\t\t\t\t"
                 },
                 {
                     "type": "waitForLoadState"
@@ -34,7 +34,7 @@
                 },
                 {
                     "type": "scrapeSchema",
-                    "params": {
+                    "args": {
                         "id": ".parameter--info :text(\"ID inzerátu\") strong",
                         "title": "h1",
                         "date": ".date",
@@ -71,7 +71,7 @@
                 },
                 {
                     "type": "enqueueLinks",
-                    "params": "a.advertisement-item--content__title"
+                    "args": "a.advertisement-item--content__title"
                 },
                 {
                     "type": "close"
@@ -94,11 +94,11 @@
                 },
                 {
                     "type": "click",
-                    "params": "li + li .component-pagination__arrow-color"
+                    "args": "li + li .component-pagination__arrow-color"
                 },
                 {
                     "type": "waitForTimeout",
-                    "params": 2000
+                    "args": 2000
                 }
             ]
         },
@@ -108,7 +108,7 @@
             "what": [
                 {
                     "type": "goto",
-                    "params": {
+                    "args": {
                         "$param": "url"
                     }
                 },
@@ -117,7 +117,7 @@
                 },
                 {
                     "type": "waitForTimeout",
-                    "params": 1000
+                    "args": 1000
                 },
                 {
                     "type": "flag"

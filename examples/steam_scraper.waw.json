@@ -1,6 +1,5 @@
 {
 	"meta":{
-	   "params":[],
 	   "name": "Steam Specials Scraper",
 	   "desc": "Scraper for Steam Specials. Shows usage of customized autoscraper."
 	},
@@ -15,7 +14,7 @@
 		  "what":[
 			 {
 				"type":"click",
-				"params":[
+				"args":[
 				   "button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
 				]
 			 }
@@ -31,7 +30,7 @@
 		"what": [
 			{
 				"type": "waitForTimeout",
-				"params": [
+				"args": [
 					2000
 				]
 			}
@@ -40,16 +39,16 @@
 	   {
 		"name": "Scrape",
 		  "where":{
-			 "selectors": "[class~=salepreviewwidgets_TitleCtn]"
+			 "selectors": ["#TopSellers_btn_next:visible"]
 		  },
 		  "what":[
 			 {
 				"type": "scrapeSchema",
-				"params": {
-					"name": "[class~=salepreviewwidgets_TitleCtn]",
-					"priceOriginal": ".salepreviewwidgets_StoreSaleWidgetContainer_2hhNO .salepreviewwidgets_StoreOriginalPrice_3fFFs",
-					"priceCurrent": ".salepreviewwidgets_StoreSaleWidgetContainer_2hhNO .salepreviewwidgets_StoreSalePriceBox_3j4dI",
-					"reduction": ".salepreviewwidgets_StoreSaleWidgetContainer_2hhNO .salepreviewwidgets_StoreSaleDiscountBox_cnkoF"
+				"args": {
+					"name": ".tab_item .tab_item_name",
+					"priceOriginal": ".tab_item .discount_original_price",
+					"priceCurrent": ".tab_item .discount_final_price",
+					"reduction": ".tab_item .discount_pct"
 				}
 			 },
 			 {
@@ -57,8 +56,14 @@
 			 },
 			 {
 				"type":"waitForTimeout",
-				"params":[
+				"args":[
 				   1000
+				]
+			 },
+			 {
+				"type":"click",
+				"args":[
+				   "#TopSellers_btn_next"
 				]
 			 }
 		  ]
@@ -71,25 +76,16 @@
 		  "what":[
 			 {
 				"type":"goto",
-				"params":"https://store.steampowered.com/specials/#p=0&tab=TopSellers"
+				"args":"https://store.steampowered.com/specials/#p=0&tab=TopSellers"
 			 },
 			 {
 				"type":"waitForLoadState"
 			 },
 			 {
 				"type":"waitForTimeout",
-				"params":[
+				"args":[
 				   3000
 				]
-			 },
-			 {
-				"type":"scroll",
-				"params":[
-				   5
-				]
-			 },
-			 {
-				"type":"flag"
 			 }
 		  ]
 	   }

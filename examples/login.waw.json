@@ -16,7 +16,7 @@
 		  "what":[
 			 {
 				"type":"click",
-				"params":[
+				"args":[
 				   "button:text-matches(\"(accept|agree|souhlasím|allow)\", \"i\")"
 				]
 			 }
@@ -31,7 +31,7 @@
 		"what": [
 			{
 				"type": "waitForTimeout",
-				"params": [
+				"args": [
 					2000
 				]
 			}
@@ -48,7 +48,7 @@
 		  "what":[
 			 {
 				"type":"fill",
-				"params":[
+				"args":[
 				   "input[type=text],input[type=email], input[class*=login]",
 				   {
 					  "$param":"login"
@@ -57,7 +57,7 @@
 			 },
 			 {
 				"type":"fill",
-				"params":[
+				"args":[
 				   "input[type=password]",
 				   {
 					  "$param":"password"
@@ -66,14 +66,14 @@
 			 },
 			 {
 				"type":"press",
-				"params":[
+				"args":[
 				   "input[type=password]",
 				   "Enter"
 				]
 			 },
 			 {
 				"type":"waitForTimeout",
-				"params":[
+				"args":[
 				   2000
 				]
 			 }
@@ -85,7 +85,7 @@
 		  "what":[
 			 {
 				"type":"goto",
-				"params":[
+				"args":[
 				   {
 					  "$param":"url"
 				   }
@@ -93,13 +93,13 @@
 			 },
 			 {
 				"type":"waitForLoadState",
-				"params":[
+				"args":[
 				   
 				]
 			 },
 			 {
 				"type":"waitForTimeout",
-				"params":[
+				"args":[
 				   3000
 				]
 			 }

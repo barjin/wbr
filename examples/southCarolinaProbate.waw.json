@@ -1,10 +1,5 @@
 {
     "meta": {
-        "params": [
-            "county",
-            "firstName",
-            "lastName"
-        ],
         "name": "Southcarolinaprobate.net scraper",
         "desc": "Scraper for southcarolinaprobate.net, South Carolinian government page."
     },
@@ -22,7 +17,7 @@
                 },
                 {
                     "type": "scrapeSchema",
-                    "params": {
+                    "args": {
                         "caseNumber": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(1):visible",
                         "caseName": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(2):visible",
                         "party": "#ctl00_ContentPlaceHolder1_cgvCases tr:not(.HeaderStyle, tr:last-of-type) td:nth-child(3):visible",
@@ -36,7 +31,7 @@
                 },
                 {
                     "type": "script",
-                    "params": "\t\t\t\tconst nextLink = await page.$(\"a:right-of(td[colspan='14'] table span,20)\");\t\t\t\tif(nextLink){\t\t\t\t\tawait nextLink.click();\t\t\t\t\twhile(true){\t\t\t\t\t\ttry{\t\t\t\t\t\t\tawait page.evaluate(() => \t\t\t\t\t\t\tnew Promise(\t\t\t\t\t\t\t\tasync (res, rej) => {\t\t\t\t\t\t\t\t\tvar x = document.querySelector('.HeaderStyle + tr');\t\t\t\t\t\t\t\t\tawait new Promise(res => setInterval(res, 1000));\t\t\t\t\t\t\t\t\tvar y = document.querySelector('.HeaderStyle + tr');\t\t\t\t\t\t\t\t\tif(x != y){\t\t\t\t\t\t\t\t\t\tres();\t\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t\t\telse{\t\t\t\t\t\t\t\t\t\trej();\t\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t));\t\t\t\t\t\t\tbreak;\t\t\t\t\t\t}\t\t\t\t\t\tcatch{\t\t\t\t\t\t\tcontinue;\t\t\t\t\t\t}\t\t\t\t\t}\t\t\t\t}\t\t\t\telse{\t\t\t\t\tawait page.close();\t\t\t\t}\t\t\t\t\t\t\t\t"
+                    "args": "\t\t\t\tconst nextLink = await page.$(\"a:right-of(td[colspan='14'] table span,20)\");\t\t\t\tif(nextLink){\t\t\t\t\tawait nextLink.click();\t\t\t\t\twhile(true){\t\t\t\t\t\ttry{\t\t\t\t\t\t\tawait page.evaluate(() => \t\t\t\t\t\t\tnew Promise(\t\t\t\t\t\t\t\tasync (res, rej) => {\t\t\t\t\t\t\t\t\tvar x = document.querySelector('.HeaderStyle + tr');\t\t\t\t\t\t\t\t\tawait new Promise(res => setInterval(res, 1000));\t\t\t\t\t\t\t\t\tvar y = document.querySelector('.HeaderStyle + tr');\t\t\t\t\t\t\t\t\tif(x != y){\t\t\t\t\t\t\t\t\t\tres();\t\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t\t\telse{\t\t\t\t\t\t\t\t\t\trej();\t\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t\t}\t\t\t\t\t\t\t));\t\t\t\t\t\t\tbreak;\t\t\t\t\t\t}\t\t\t\t\t\tcatch{\t\t\t\t\t\t\tcontinue;\t\t\t\t\t\t}\t\t\t\t\t}\t\t\t\t}\t\t\t\telse{\t\t\t\t\tawait page.close();\t\t\t\t}\t\t\t\t\t\t\t\t"
                 }
             ]
         },
@@ -48,14 +43,14 @@
             "what": [
                 {
                     "type": "goto",
-                    "params": "https://www.southcarolinaprobate.net/search/"
+                    "args": "https://www.southcarolinaprobate.net/search/"
                 },
                 {
                     "type": "waitForLoadState"
                 },
                 {
                     "type": "selectOption",
-                    "params": [
+                    "args": [
                         "select",
                         {
                             "$param": "county"
@@ -64,7 +59,7 @@
                 },
                 {
                     "type": "fill",
-                    "params": [
+                    "args": [
                         "#ctl00_ContentPlaceHolder1_tbFirstName",
                         {
                             "$param": "firstName"
@@ -73,7 +68,7 @@
                 },
                 {
                     "type": "fill",
-                    "params": [
+                    "args": [
                         "#ctl00_ContentPlaceHolder1_tbLastName",
                         {
                             "$param": "lastName"
@@ -82,11 +77,11 @@
                 },
                 {
                     "type": "keyboard.press",
-                    "params": "Enter"
+                    "args": "Enter"
                 },
                 {
                     "type": "waitForTimeout",
-                    "params": 3000
+                    "args": 3000
                 }
             ]
         }
