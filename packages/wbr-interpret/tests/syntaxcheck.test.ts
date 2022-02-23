@@ -23,7 +23,7 @@ describe('Basic tests', () => {
                     what: [
                         {
                             type: "goto",
-                            params: "https://jindrich.bar"
+                            args: "https://jindrich.bar"
                         }
                     ]
                 }
