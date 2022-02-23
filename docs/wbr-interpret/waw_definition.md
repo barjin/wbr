@@ -14,10 +14,10 @@ For more information about how to run the workflow from your code, please see th
 	- [Ordering](#ordering)
 	- [State persistence](#state-persistence)
 - [What actions](#the-what-clause)
-	- [Custom functions](#custom-functions)
+	- [`wbr-interpret` custom functions](#wbr-interpret-custom-functions)
 - [Miscellaneous](#extra-syntax)
 	- [Regular Expressions](#regular-expressions)
-	- [Parametrization](#parametrization)
+	- [Parametrization](#Parametrization)
 
 
 ## General
@@ -69,9 +69,9 @@ Even though all the metadata is optional, developers are strongly advised to use
 }
 ```
 ## Workflow
-The "workflow" part of the workflow is a single **array** consisting of the where-what pairs - objects describing desired behavior in different situations. 
+The "workflow" part of the file is a single **array** consisting of the where-what pairs - objects describing desired behavior in different situations. 
 
-For example, let's say we want to click on a button with the label "hello" every time we get on the page "https://example.com/". This behavior is described with the following snippet:
+<!-- For example, let's say we want to click on a button with the label "hello" every time we get on the page "https://example.com/". This behavior is described with the following snippet:
 
 ```json
 {
@@ -105,18 +105,25 @@ Now, let's say we want to type "Hello world!" into an input field, whenever we s
 }
 ```
 
-This should be enough to give you some basic understanding of the WAW Smart Workflow format. In the following sections, there are more details about the format and its certain features. 
+This should be enough to give you some basic understanding of the WAW Smart Workflow format. In the following sections, there are more details about the format and its certain features.  -->
 
 ## The Where Clause
 The Where clause describes a **condition** required for the respective What clause to be executed. 
 
-> In the basic version without the state persistence (more later), we can count with the Markov assumption, i.e. the Where clause always depends only on the current browser state and its "applicability" can be evaluated statically, knowing only the browser's state at the given point. For this reason, the workflow can be executed on different tabs in parallel (any popup window open from the first passed page is processed as well).
+In the basic version without the state persistence (more later), we can count with the Markov assumption, i.e. the Where clause always depends only on the current browser state and its "applicability" can be evaluated statically, knowing only the browser's state at the given point. 
+
+For this reason, the workflow can be executed on different tabs in parallel (any popup window open from the first passed page is processed as well).
 
 ### Where conditions - The Basics
-The `where` clause is an object with various keys. As of now, only three keys are recognized:
+
+The `where` clause is an object with various keys. 
+
+> The specific "basic" keys (like `url`, `cookies` etc.) are implementation-dependent and are not a part of the format specification. Keys shown here correspond to the `wbr-interpret` implementation.
+
+<!-- As of now, three keys are recognized:
 - URL *(string)*
 - cookies *(object with string keys/values)*
-- selectors *(array of CSS/[Playwright](https://playwright.dev/docs/selectors/) selectors - all of the targetted elements must be present in the page to match this clause)*
+- selectors *(array of CSS/[Playwright](https://playwright.dev/docs/selectors/) selectors - all of the targetted elements must be present in the page to match this clause)* -->
 
 An example of a full (simple, flat) Where clause:
 
@@ -134,7 +141,7 @@ An example of a full (simple, flat) Where clause:
 ```
 
 ### Where conditions - (Boolean) Logic
-For a system operating with conditions, is it crucial to have a simple way to work with formal logic.
+For a system operating with conditions, it is crucial to have a simple way to work with formal logic.
 The WAW format is taking inspiration from the [MongoDB query operators](https://docs.mongodb.com/manual/reference/operator/query/), as shown in the example below:
 
 ```javascript
@@ -240,32 +247,40 @@ The memory for actions used is **tab-scoped**, i.e. every new tab has its own me
 ## The What Clause
 In the most basic version, the What clause should contain a sequence of actions, which should be carried out in case the respective Where condition is satisfied.
 
-> Note: While the interpreter `wbr-interpret` uses Playwright for its backend, the WAW format is suitable for use with any other backend. Even the `wbr-interpret` is written as generic as possible, so rewriting it for any other backend library should be fairly easy.
+> Note: While the interpreter `wbr-interpret` uses Playwright for its backend, the WAW format is suitable for use with any other backend. Just like with the Where clause basic keys, the action's names and parameters are not a part of the format specification.
 
 ### What actions - The Basics
 The `what` clause is an array of "function" objects. These objects consist of the `type` field, describing the function called and `params` - an optional property, scalar or array, providing parameters for the specified function.
+
 ```JSON
 "what":[
 	{
-		"type":"goto",
-		"params": "https://jindrich.bar"
+		"type":"functionAcceptingString",
+		"params": "theFirstParameter"
 	},
 	{
-		"type":"waitForLoadState",
+		"type":"voidFunction",
 	},
 	{
-		"type":"waitForTimeout",
-		"params": 1000
+		"type":"moreParameters",
+		"params": [
+			1000,
+			"string parameter",
+			{
+				"option": true
+			}
+		]
 	}
 ]
 ```
-As of now, these actions correspond to the Playwright's [Page class methods](https://playwright.dev/docs/api/class-page/). On top of this, users can use dot notation to access the `Page`'s properties and call their methods (e.g. `page.keyboard.press` etc.) All parameters passed must be JSON's native types, i.e. scalars, arrays or objects (no functions etc.)
 
-### What Clause - Custom functions 
+In `wbr-interpret`, these actions correspond to the Playwright's [Page class methods](https://playwright.dev/docs/api/class-page/) (`goto`,`fill`, `click`...). On top of this, users can use dot notation to access the `Page`'s properties and call their methods (e.g. `page.keyboard.press` etc.) All parameters passed must be JSON's native types, i.e. scalars, arrays, or objects (no functions etc.)
 
-On top of the Playwright's native methods/functions, user can also use some **Interpreter-specific** functions. 
+### `wbr-interpret` custom functions 
 
-As of now (21.2.2022) these are:
+On top of the Playwright's native methods/functions, the user can also use some **interpreter-specific** functions. 
+
+As of now, these are:
 - `screenshot` - this is overriding Playwright's `page.screenshot` method and saves the screenshot using the interpreter's *binary output callback*.
 - `scrape` - using a heuristic algorithm, the interpreter tries to find the most important items on the webpage, parses those into a table and pushes the table into the *serializable callback*.
 	- user can also specify the item from the webpage to be scraped (using a [Playwright-style selector](https://playwright.dev/docs/selectors)).
@@ -314,7 +329,7 @@ Apart from the mentioned syntax available for direct workflow specification, the
 
 ### Regular Expressions
 
-The format supports usage of RegExes, both in the conditions (URL values and Cookie values, selectors use their own wildcard engines) and the action parameters. The syntax is inspired by MongoDB and looks as follows:
+The format supports usage of RegExes, both in the conditions and the action parameters. The syntax is inspired by the MongoDB regex syntax and looks as follows:
 
 ```json
 ...
@@ -322,7 +337,7 @@ The format supports usage of RegExes, both in the conditions (URL values and Coo
 ...
 ```
 
-Such a rule matches every url on a secured website, i.e. starting with `https`.
+Such a rule matches every URL on a secured website, i.e. starting with `https`.
 
 ### Parametrization
 
