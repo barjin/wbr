@@ -340,7 +340,7 @@ export default class Interpreter extends EventEmitter {
       }
 
       try {
-        await p.waitForLoadState('networkidle');
+        await p.waitForLoadState();
       } catch (e) {
         await p.close();
         return;
