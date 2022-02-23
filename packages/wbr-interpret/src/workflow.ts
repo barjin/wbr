@@ -32,7 +32,7 @@ export type CustomFunctions = 'scrape' | 'scrapeSchema' | 'scroll' | 'screenshot
 
 export type What = {
   type: MethodNames<Page> & CustomFunctions,
-  params?: any[] | any
+  args?: any[] | any
 };
 
 export type PageState = Partial<BaseConditions>;

@@ -296,7 +296,7 @@ export default class Interpreter extends EventEmitter {
       log(`Launching ${step.type}`, Level.LOG);
 
       if (step.type in wawActions) {
-        const params = !step.params || Array.isArray(step.params) ? step.params : [step.params];
+        const params = !step.args || Array.isArray(step.args) ? step.args : [step.args];
         await wawActions[step.type](...(params ?? []));
       } else {
       // Implements the dot notation for the "method name" in the workflow
@@ -308,10 +308,10 @@ export default class Interpreter extends EventEmitter {
           invokee = invokee[level];
         }
 
-        if (!step.params || Array.isArray(step.params)) {
-          await (<any>invokee[methodName])(...(step.params ?? []));
+        if (!step.args || Array.isArray(step.args)) {
+          await (<any>invokee[methodName])(...(step.args ?? []));
         } else {
-          await (<any>invokee[methodName])(step.params);
+          await (<any>invokee[methodName])(step.args);
         }
       }
 
