@@ -12,7 +12,7 @@ For more information about how to run the workflow from your code, please see th
 	- [Basics](#where-conditions---the-basics)
 	- [Boolean logic](#where-conditions---boolean-logic)
 	- [Ordering](#ordering)
-	- [State persistence](#state-persistence)
+	- [State memory](#state-memory)
 - [What actions](#the-what-clause)
 	- [`wbr-interpret` custom functions](#wbr-interpret-custom-functions)
 - [Miscellaneous](#extra-syntax)
@@ -110,7 +110,7 @@ This should be enough to give you some basic understanding of the WAW Smart Work
 ## The Where Clause
 The Where clause describes a **condition** required for the respective What clause to be executed. 
 
-In the basic version without the state persistence (more later), we can count with the Markov assumption, i.e. the Where clause always depends only on the current browser state and its "applicability" can be evaluated statically, knowing only the browser's state at the given point. 
+In the basic version without the state memory (more later), we can count with the Markov assumption, i.e. the Where clause always depends only on the current browser state and its "applicability" can be evaluated statically, knowing only the browser's state at the given point. 
 
 For this reason, the workflow can be executed on different tabs in parallel (any popup window open from the first passed page is processed as well).
 
@@ -226,7 +226,7 @@ Again, the interpreter will execute only `action A`, even though both conditions
 
 > Another way to think of this is "put more specific conditions closer to the top".
 
-### State persistence
+### State memory
 As mentioned earlier, the interpreter also has an internal memory which allows for more specific conditions. Some of those could be e.g.
 ```javascript
 "where": {

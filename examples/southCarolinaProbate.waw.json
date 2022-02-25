@@ -5,7 +5,7 @@
     },
     "workflow": [
         {
-            "name": "scrape_basic",
+            "id": "scrape_basic",
             "where": {
                 "selectors": [
                     "tr:not(.HeaderStyle)"
@@ -36,7 +36,7 @@
             ]
         },
         {
-            "name": "base",
+            "id": "base",
             "where": {
                 "url": "about:blank"
             },
