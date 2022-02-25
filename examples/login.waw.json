@@ -1,10 +1,7 @@
 {
 	"meta":{
-	   "params":[
-		  "url",
-		  "login",
-		  "password"
-	   ]
+		"name": "Generic workflow",
+		"desc": "An example workflow showcasing a generic login functionality."
 	},
 	"workflow":[
 	   {
@@ -15,7 +12,7 @@
 		  },
 		  "what":[
 			 {
-				"type":"click",
+				"action":"click",
 				"args":[
 				   "button:text-matches(\"(accept|agree|souhlasím|allow)\", \"i\")"
 				]
@@ -30,7 +27,7 @@
 		},
 		"what": [
 			{
-				"type": "waitForTimeout",
+				"action": "waitForTimeout",
 				"args": [
 					2000
 				]
@@ -47,7 +44,7 @@
 		  },
 		  "what":[
 			 {
-				"type":"fill",
+				"action":"fill",
 				"args":[
 				   "input[type=text],input[type=email], input[class*=login]",
 				   {
@@ -56,7 +53,7 @@
 				]
 			 },
 			 {
-				"type":"fill",
+				"action":"fill",
 				"args":[
 				   "input[type=password]",
 				   {
@@ -65,14 +62,14 @@
 				]
 			 },
 			 {
-				"type":"press",
+				"action":"press",
 				"args":[
 				   "input[type=password]",
 				   "Enter"
 				]
 			 },
 			 {
-				"type":"waitForTimeout",
+				"action":"waitForTimeout",
 				"args":[
 				   2000
 				]
@@ -84,7 +81,7 @@
 		  },
 		  "what":[
 			 {
-				"type":"goto",
+				"action":"goto",
 				"args":[
 				   {
 					  "$param":"url"
@@ -92,13 +89,13 @@
 				]
 			 },
 			 {
-				"type":"waitForLoadState",
+				"action":"waitForLoadState",
 				"args":[
 				   
 				]
 			 },
 			 {
-				"type":"waitForTimeout",
+				"action":"waitForTimeout",
 				"args":[
 				   3000
 				]

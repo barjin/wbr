@@ -13,7 +13,7 @@
 		  },
 		  "what":[
 			 {
-				"type":"click",
+				"action":"click",
 				"args":[
 				   "button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
 				]
@@ -29,7 +29,7 @@
 		},
 		"what": [
 			{
-				"type": "waitForTimeout",
+				"action": "waitForTimeout",
 				"args": [
 					2000
 				]
@@ -43,25 +43,25 @@
 		  },
 		  "what":[
 			 {
-				"type": "scrapeSchema",
-				"args": {
+				"action": "scrapeSchema",
+				"args": [{
 					"name": ".tab_item .tab_item_name",
 					"priceOriginal": ".tab_item .discount_original_price",
 					"priceCurrent": ".tab_item .discount_final_price",
 					"reduction": ".tab_item .discount_pct"
-				}
+				}]
 			 },
 			 {
-				"type":"waitForLoadState"
+				"action":"waitForLoadState"
 			 },
 			 {
-				"type":"waitForTimeout",
+				"action":"waitForTimeout",
 				"args":[
 				   1000
 				]
 			 },
 			 {
-				"type":"click",
+				"action":"click",
 				"args":[
 				   "#TopSellers_btn_next"
 				]
@@ -75,14 +75,14 @@
 		  },
 		  "what":[
 			 {
-				"type":"goto",
-				"args":"https://store.steampowered.com/specials/#p=0&tab=TopSellers"
+				"action":"goto",
+				"args": ["https://store.steampowered.com/specials/#p=0&tab=TopSellers"]
 			 },
 			 {
-				"type":"waitForLoadState"
+				"action":"waitForLoadState"
 			 },
 			 {
-				"type":"waitForTimeout",
+				"action":"waitForTimeout",
 				"args":[
 				   3000
 				]

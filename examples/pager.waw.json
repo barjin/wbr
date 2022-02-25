@@ -13,11 +13,11 @@
 		  },
 		  "what":[
 			 {
-				"type":"click",
-				"args": "[class*=popup] button[class*=close]"
+				"action":"click",
+				"args": ["[class*=popup] button[class*=close]"]
 			 },
 			 {
-				 "type": "waitForLoadState"
+				 "action": "waitForLoadState"
 			 }
 		  ]
 	   },
@@ -31,14 +31,14 @@
 		},
 		"what":[
 		   {
-			  "type":"click",
-			  "args": "[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"
+			  "action":"click",
+			  "args": ["[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"]
 		   },
 		   {
-			   "type": "waitForLoadState"
+			   "action": "waitForLoadState"
 		   },
 		   {
-			   "type": "scrape"
+			   "action": "scrape"
 		   }
 		]
 	   },
@@ -47,15 +47,15 @@
 		  },
 		  "what":[
 			 {
-				"type":"goto",
-				"args": { "$param": "url" }
+				"action":"goto",
+				"args": [{ "$param": "url" }]
 			 },
 			 {
-				"type":"waitForLoadState"
+				"action":"waitForLoadState"
 			 },
 			 {
-				"type":"waitForTimeout",
-				"args": 3000
+				"action":"waitForTimeout",
+				"args": [3000]
 			 }
 		  ]
 	   }

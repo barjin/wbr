@@ -8,7 +8,7 @@ const fs = require('fs');
 const readline = require('readline/promises');
 const { stdin: input, stdout: output } = require('process');
 			
-const workflow = JSON.parse(fs.readFileSync('../../examples/nehnutelnosti_sk.json'));
+const workflow = JSON.parse(fs.readFileSync('../../examples/steam_scraper.waw.json'));
 
 (
 	async () => {

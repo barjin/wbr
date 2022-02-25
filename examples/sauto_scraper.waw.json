@@ -13,11 +13,11 @@
 		  },
 		  "what":[
 			 {
-				"type":"click",
-				"args": "[class*=popup] button[class*=close]"
+				"action":"click",
+				"args": ["[class*=popup] button[class*=close]"]
 			 },
 			 {
-				 "type": "waitForLoadState"
+				 "action": "waitForLoadState"
 			 }
 		  ]
 	   },
@@ -28,21 +28,21 @@
 		},
 		"what":[
 			{
-				"type": "waitForLoadState"
+				"action": "waitForLoadState"
 			},
 			{
-				"type": "scrape"
+				"action": "scrape"
 			},
 			{
-				"type":"click",
-				"args": ":text-matches(\"Další stránka\")"
+				"action":"click",
+				"args": [":text-matches(\"Další stránka\")"]
 			},
 			{
-				"type": "waitForLoadState"
+				"action": "waitForLoadState"
 			},
 			{
-				"type":"waitForTimeout",
-				"args": 5000
+				"action":"waitForTimeout",
+				"args": [5000]
 			}
 		  ]
 	   },
@@ -52,26 +52,26 @@
 		  },
 		  "what":[
 			 {
-				"type":"goto",
-				"args": "https://www.sauto.cz/"
+				"action":"goto",
+				"args": ["https://www.sauto.cz/"]
 			 },
 			 {
-				"type":"waitForLoadState"
+				"action":"waitForLoadState"
 			 },
 			 {
-				"type":"waitForTimeout",
-				"args": 3000
+				"action":"waitForTimeout",
+				"args": [3000]
 			 },
 			 {
-				"type":"click",
-				"args": "a :text-matches(\"Zobrazit\",\"i\")"
+				"action":"click",
+				"args": ["a :text-matches(\"Zobrazit\",\"i\")"]
 			 },
 			 {
-				"type":"waitForLoadState"
+				"action":"waitForLoadState"
 			 },
 			 {
-				"type":"waitForTimeout",
-				"args": 7000
+				"action":"waitForTimeout",
+				"args": [7000]
 			 }
 		  ]
 	   }

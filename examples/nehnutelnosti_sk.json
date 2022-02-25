@@ -13,11 +13,11 @@
             },
             "what": [
                 {
-                    "type": "script",
-                    "args": "\t\t\t\tconst frame = page.frameLocator(\"[title='SP Consent Message']\");\t\t\t\tawait frame.locator(\"[title='Prijať všetko']\").click();\t\t\t\t"
+                    "action": "script",
+                    "args": ["\t\t\t\tconst frame = page.frameLocator(\"[title='SP Consent Message']\");\t\t\t\tawait frame.locator(\"[title='Prijať všetko']\").click();\t\t\t\t"]
                 },
                 {
-                    "type": "waitForLoadState"
+                    "action": "waitForLoadState"
                 }
             ]
         },
@@ -30,17 +30,17 @@
             },
             "what": [
                 {
-                    "type": "waitForLoadState"
+                    "action": "waitForLoadState"
                 },
                 {
-                    "type": "scrapeSchema",
-                    "args": {
+                    "action": "scrapeSchema",
+                    "args": [{
                         "id": ".parameter--info :text(\"ID inzerátu\") strong",
                         "title": "h1",
                         "date": ".date",
                         "price": ".price--main.paramNo0",
                         "offerType": ".parameter--info :text(\"Typ\") strong",
-                        "type": ".parameter--info :text(\"Druh\") strong",
+                        "action": ".parameter--info :text(\"Druh\") strong",
                         "condition": ".parameter--info :text(\"Stav\") strong",
                         "roomNo": ".additional-features--item :text(\"izieb\") strong:visible",
                         "floorNo": ".additional-features--item :text(\"podlaží\") strong:visible",
@@ -51,10 +51,10 @@
                         "desc": ".text-inner",
                         "broker": ".broker-name",
                         "brokerAddress": ".info--address"
-                    }
+                    }]
                 },
                 {
-                    "type": "close"
+                    "action": "close"
                 }
             ]
         },
@@ -67,14 +67,14 @@
             },
             "what": [
                 {
-                    "type": "waitForLoadState"
+                    "action": "waitForLoadState"
                 },
                 {
-                    "type": "enqueueLinks",
-                    "args": "a.advertisement-item--content__title"
+                    "action": "enqueueLinks",
+                    "args": ["a.advertisement-item--content__title"]
                 },
                 {
-                    "type": "close"
+                    "action": "close"
                 }
             ]
         },
@@ -87,18 +87,18 @@
             },
             "what": [
                 {
-                    "type": "waitForLoadState"
+                    "action": "waitForLoadState"
                 },
                 {
-                    "type": "scrape"
+                    "action": "scrape"
                 },
                 {
-                    "type": "click",
-                    "args": "li + li .component-pagination__arrow-color"
+                    "action": "click",
+                    "args": ["li + li .component-pagination__arrow-color"]
                 },
                 {
-                    "type": "waitForTimeout",
-                    "args": 2000
+                    "action": "waitForTimeout",
+                    "args": [2000]
                 }
             ]
         },
@@ -107,20 +107,20 @@
             "where": {},
             "what": [
                 {
-                    "type": "goto",
-                    "args": {
+                    "action": "goto",
+                    "args": [{
                         "$param": "url"
-                    }
+                    }]
                 },
                 {
-                    "type": "waitForLoadState"
+                    "action": "waitForLoadState"
                 },
                 {
-                    "type": "waitForTimeout",
-                    "args": 1000
+                    "action": "waitForTimeout",
+                    "args": [1000]
                 },
                 {
-                    "type": "flag"
+                    "action": "flag"
                 }
             ]
         }
