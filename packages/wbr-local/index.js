@@ -1,6 +1,5 @@
 
 const Interpret = require('@wbr-project/wbr-interpret').default;
-const prep = require('@wbr-project/wbr-interpret').Preprocessor;
 const {chromium} = require('playwright');
 const fs = require('fs');
 

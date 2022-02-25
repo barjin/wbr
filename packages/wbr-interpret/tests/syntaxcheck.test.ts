@@ -22,8 +22,8 @@ describe('Basic tests', () => {
                     },
                     what: [
                         {
-                            type: "goto",
-                            args: "https://jindrich.bar"
+                            action: "goto",
+                            args: ["https://jindrich.bar"]
                         }
                     ]
                 }
