@@ -365,9 +365,9 @@ export default class Interpreter extends EventEmitter {
 
         try {
           await this.carryOutSteps(p, action.what);
-          usedActions.push(action.name ?? 'undefined');
+          usedActions.push(action.id ?? 'undefined');
         } catch (e) {
-          log(`${action.name} didn't run successfully, retrying because of soft mode...`, Level.WARN);
+          log(`${action.id} didn't run successfully, retrying because of soft mode...`, Level.WARN);
           log(<Error>e, Level.ERROR);
         }
       } else {

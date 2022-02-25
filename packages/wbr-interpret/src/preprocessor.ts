@@ -31,7 +31,7 @@ export default class Preprocessor {
       }),
       workflow: Joi.array().items(
         Joi.object({
-          name: Joi.string(),
+          id: Joi.string(),
           where: whereSchema,
           what: Joi.array().items({
             type: Joi.string().required(),

@@ -45,7 +45,7 @@ export type MetaData = {
 };
 
 export interface WhereWhatPair {
-  name?: string
+  id?: string
   where: Where
   what: What[]
 }
