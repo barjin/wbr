@@ -5,7 +5,7 @@
 	},
 	"workflow":[
 	   {
-		  "name": "closePopups",
+		  "id": "closePopups",
 		  "where":{
 			"selectors":[
 				"[class*=popup] button[class*=close]"
@@ -22,7 +22,7 @@
 		  ]
 	   },
 	   {
-		"name": "paginateAndScrape",
+		"id": "paginateAndScrape",
 		"where":{
 		  "selectors":[
 			  "[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"

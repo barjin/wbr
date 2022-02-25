@@ -5,7 +5,7 @@
 	},
 	"workflow":[
 		{
-		  "name": "acceptCookies",
+		  "id": "acceptCookies",
 		  "where":{
 			 "selectors":[
 				"button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
@@ -21,7 +21,7 @@
 		  ]
 	   },
 	   {
-		"name": "waitForAsyncLoad",
+		"id": "waitForAsyncLoad",
 		"where":{
 			"selectors": [
 				":text-matches(\"(searching|loading)\",\"i\")"
@@ -37,7 +37,7 @@
 		]
 	   },
 	   {
-		  "name": "closePopups",
+		  "id": "closePopups",
 		  "where":{
 			"selectors":[
 				"[class*=popup] button[class*=close]"
@@ -54,7 +54,7 @@
 		  ]
 	   },
 	   {
-	  "name": "Scrape",
+	  "id": "Scrape",
 	  "where":{
 		"$after": "Search",
 		"selectors":[
@@ -87,7 +87,7 @@
 		]
 	   },
 	   {
-		"name": "Search",
+		"id": "Search",
 		  "where":{
 			 "selectors":[
 				"div:text(\"Odkud\")"
@@ -160,7 +160,7 @@
 		  ]
 	   },
 	   {
-		  "name": "base",
+		  "id": "base",
 		  "where":{
 		  },
 		  "what":[

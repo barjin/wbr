@@ -38,7 +38,7 @@
 		]
 	   },
 	   {
-		  "name":"login",
+		  "id":"login",
 		  "where":{
 			 "selectors":[
 				"input[type=text], input[type=email], input[class*=login]",

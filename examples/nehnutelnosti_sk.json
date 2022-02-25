@@ -5,7 +5,7 @@
     },
     "workflow": [
         {
-            "name": "closePopups",
+            "id": "closePopups",
             "where": {
                 "selectors": [
                     "[title=\"SP Consent Message\"]"
@@ -22,7 +22,7 @@
             ]
         },
         {
-            "name": "scrapeInfoPage",
+            "id": "scrapeInfoPage",
             "where": {
                 "selectors": [
                     ".price--main.paramNo0"
@@ -59,7 +59,7 @@
             ]
         },
         {
-            "name": "openDetailsInNewTabs",
+            "id": "openDetailsInNewTabs",
             "where": {
                 "selectors": [
                     "li + li .component-pagination__arrow-color"
@@ -79,7 +79,7 @@
             ]
         },
         {
-            "name": "scrape_basic",
+            "id": "scrape_basic",
             "where": {
                 "selectors": [
                     "li + li .component-pagination__arrow-color"
@@ -103,7 +103,7 @@
             ]
         },
         {
-            "name": "base",
+            "id": "base",
             "where": {},
             "what": [
                 {

@@ -5,7 +5,7 @@
 	},
 	"workflow":[
 	   {
-		  "name": "acceptCookies",
+		  "id": "acceptCookies",
 		  "where":{
 			 "selectors":[
 				"button:text-matches(\"(accept|agree|souhlasím|allow|přijmout)\", \"i\")"
@@ -21,7 +21,7 @@
 		  ]
 	   },
 	   {
-		"name": "waitForAsyncLoad",
+		"id": "waitForAsyncLoad",
 		"where":{
 			"selectors": [
 				":text-matches(\"(searching|loading)\",\"i\")"
@@ -37,7 +37,7 @@
 		]
 	   },
 	   {
-		"name": "Scrape",
+		"id": "Scrape",
 		  "where":{
 			 "selectors": ["#TopSellers_btn_next:visible"]
 		  },
@@ -69,7 +69,7 @@
 		  ]
 	   },
 	   {
-		  "name": "navigateToPage",
+		  "id": "navigateToPage",
 		  "where":{
 			 "url": "about:blank"
 		  },

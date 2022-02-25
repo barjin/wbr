@@ -5,7 +5,7 @@
 	},
 	"workflow":[
 	   {
-		  "name": "closePopups",
+		  "id": "closePopups",
 		  "where":{
 			"selectors":[
 				"[class*=popup] button[class*=close]"
@@ -22,7 +22,7 @@
 		  ]
 	   },
 	   {
-		"name": "paginateAndScrape",
+		"id": "paginateAndScrape",
 		"where":{
 			"selectors": [":text-matches(\"Další stránka\")"]
 		},
@@ -47,7 +47,7 @@
 		  ]
 	   },
 	   {
-		  "name": "base",
+		  "id": "base",
 		  "where":{
 		  },
 		  "what":[
