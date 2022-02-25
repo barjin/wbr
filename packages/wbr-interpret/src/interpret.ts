@@ -293,14 +293,15 @@ export default class Interpreter extends EventEmitter {
     };
 
     for (const step of steps) {
-      log(`Launching ${step.type}`, Level.LOG);
+      log(`Launching ${step.action}`, Level.LOG);
 
-      if (step.type in wawActions) {
+      if (step.action in wawActions) {
+        // "Arrayifying" here should not be needed (TS + syntax checker - only arrays; but why not)
         const params = !step.args || Array.isArray(step.args) ? step.args : [step.args];
-        await wawActions[step.type](...(params ?? []));
+        await wawActions[step.action](...(params ?? []));
       } else {
       // Implements the dot notation for the "method name" in the workflow
-        const levels = step.type.split('.');
+        const levels = step.action.split('.');
         const methodName = levels[levels.length - 1];
 
         let invokee : any = page;
