@@ -31,8 +31,8 @@ type MethodNames<T> = {
 export type CustomFunctions = 'scrape' | 'scrapeSchema' | 'scroll' | 'screenshot' | 'script' | 'enqueueLinks' | 'flag';
 
 export type What = {
-  type: MethodNames<Page> & CustomFunctions,
-  args?: any[] | any
+  action: MethodNames<Page> & CustomFunctions,
+  args?: any[]
 };
 
 export type PageState = Partial<BaseConditions>;

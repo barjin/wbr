@@ -34,8 +34,8 @@ export default class Preprocessor {
           id: Joi.string(),
           where: whereSchema,
           what: Joi.array().items({
-            type: Joi.string().required(),
-            args: Joi.any(),
+            action: Joi.string().required(),
+            args: Joi.array().items(Joi.any()),
           }),
         }),
       ).required(),
