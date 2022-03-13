@@ -1,12 +1,12 @@
-import EditableArray from "./EditableArray";
-import EditableObject from "./EditableObject";
-import EditableValue from "./EditableValue";
+import {EditableArray, EditableObject, EditableValue, IInputOptions} from '.';
 
-export default function RenderValue<T extends unknown>({val, updater} : {val: T, updater: (x: T) => void}) : JSX.Element {
+export default function RenderValue<T extends unknown>({val, updater, options} : {val: T, updater: (x: T) => void, options?: IInputOptions}) : JSX.Element {
     const type = typeof val;
     switch (type) {
         case 'object':
-            return Array.isArray(val) ? <EditableArray array={val} updater={updater}/> : <EditableObject object={val as Record<string, unknown>} updater={updater}/>;
+            return Array.isArray(val) ? 
+            <EditableArray array={val} {...{updater, options}}/> : 
+            <EditableObject object={val as Record<string, unknown>} {...{updater, options}}/>;
         default:
             return <EditableValue val={val} updater={updater}/>
     }

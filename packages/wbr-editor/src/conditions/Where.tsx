@@ -1,13 +1,15 @@
 import { Where as WhereType } from '../wbr-types/workflow';
 import { naryOperators, unaryOperators } from '../wbr-types/logic';
 import { RenderValue } from './tiny';
-import { useState } from 'react';
 import Select from './tiny/Select';
+
+import UpdaterFactory from './functions/UpdaterFactory';
 
 type NaryOperator = typeof naryOperators[number];
 type UnaryOperator = typeof unaryOperators[number];
 
-const ConditionDefaults: Record<keyof Required<WhereType>, any>= {
+// TODO: Implement all the "templates" (remove Partial<>)
+const ConditionDefaults: Partial<Record<keyof WhereType, any>> = {
     'url': 'url',
     'selectors': ['selectors'],
     'cookies': {'cookie_name': 'cookie_value'},
@@ -15,56 +17,36 @@ const ConditionDefaults: Record<keyof Required<WhereType>, any>= {
     '$or': [],
     '$after': 'action_id',
     '$before': 'action_id',
-    '$not': {},
+    // '$not': {},
 };
 
-function WhereList({whereList, updater}: {whereList: WhereType[], updater:Function}): JSX.Element {
-    const setList = (list: typeof whereList) => {
-        updater(list);
-    }
-
-    const updateOnIdx = (idx: keyof typeof whereList) => (cond: WhereType) => {
-        setList(whereList.map((x,i) => i === idx ? cond : x));
-    }
-
-    const addCondition = (name: keyof WhereType) : void => {
-        setList(
+function WhereList<T extends WhereType>({whereList, updater}: {whereList: T[], updater : (arg0: T[]) => void}): JSX.Element {
+    const instantiateCondition = (name: keyof WhereType) : void => {
+        updater(
             [...whereList, {
                 [name]: ConditionDefaults[name],
-            }]
+            } as T]
         )
     }
 
+    const updateOnIdx = UpdaterFactory.ArrayIdxUpdater(whereList, updater);
+
+
     return (
     <div style={{display: 'flex', flexDirection: 'row'}}>
-    <div style={{display: 'flex', flexDirection: 'column'}}>
-        <div className='verticalLine'/>
-        <Select options={Object.keys(ConditionDefaults)} select={addCondition}/>
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+            <div className='verticalLine'/>
+            <Select options={Object.keys(ConditionDefaults)} select={instantiateCondition}/>
+            </div>
+        <div>
+            {whereList.map((x,i) => <Where where={x} updater={updateOnIdx(i)}/>)}
         </div>
-    <div>
-        {whereList.map((x,i) => <Where where={x as WhereType} updater={updateOnIdx(i)}/>)}
-    </div>
     </div>);
 }
 
-export default function Where({where, updater}: {where: WhereType, updater: Function}) : JSX.Element {
-    // const [state, setWhere] = useState(where);
-
-    // console.log(state);
-
-    const setWhere = (newWhere: WhereType) => {
-        updater(newWhere);
-    }
-
-    const updateOnKey = (key: keyof WhereType) : Function => (
-        (newValue: keyof WhereType) => {
-            setWhere({...where, [key]: newValue});
-        }
-    );
-    
-    const removeKey = (keyToRemove: keyof WhereType) => () => {
-            setWhere(Object.fromEntries(Object.entries(where).filter(([k]) => k !== keyToRemove)));
-        }
+export default function Where<T extends WhereType>({where, updater}: {where: T, updater: (arg0: T) => void}) : JSX.Element {
+    const updateOnKey = UpdaterFactory.ObjectValueUpdater(where, updater);
+    const removeKey = UpdaterFactory.ObjectRemoveKey(where, updater);
 
     return (
             <div className="where" style={{display: 'flex', flexDirection: 'row'}}>
@@ -79,7 +61,7 @@ export default function Where({where, updater}: {where: WhereType, updater: Func
                         {!naryOperators.includes(k as NaryOperator) ? 
                             (!unaryOperators.includes(k as UnaryOperator) ?
                             <div className='value'>
-                                <RenderValue val={v} updater={updateOnKey(k) as any}/>
+                                <RenderValue val={v} updater={updateOnKey(k) as any} options={{dynamic: true}}/>
                             </div> :
                             <Where where={v as WhereType} updater={updateOnKey(k) as any} />) :
                         <WhereList whereList={v as WhereType[]} updater={updateOnKey(k) as any}/>}

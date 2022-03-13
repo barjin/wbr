@@ -12,13 +12,20 @@ export default function Pair({pair, updater}: {pair: PairType, updater: Function
         })
     }
 
+    const updateWhat = (what: typeof pair.what) => {
+        updater({
+            ...pair,
+            what: what
+        })
+    }
+
     return (
         <div className='pair'>
             <h1>{pair.id}</h1>
             <h2>If...</h2>
             <Where where={pair.where} updater={updateWhere}/>
             <h2>Then...</h2>
-            <What what={pair.what}/>
+            <What what={pair.what} updater={updateWhat}/>
         </div>
     )
 }

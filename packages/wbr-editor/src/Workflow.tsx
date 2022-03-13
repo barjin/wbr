@@ -1,4 +1,5 @@
 import { useState } from "react";
+import UpdaterFactory from "./conditions/functions/UpdaterFactory";
 import Pair from "./conditions/Pair";
 import { WhereWhatPair, WorkflowFile } from "./wbr-types/workflow";
 
@@ -12,17 +13,13 @@ const emptyPair : WhereWhatPair = {
 export default function Workflow ({workflow}: {workflow: WorkflowFile['workflow']}) : JSX.Element {
     const [wf, setWorkflow] = useState(workflow);
 
-    const removePair = (idx: keyof typeof wf) => () => {
-        setWorkflow(wf.filter((_,i) => i !== idx));
-    }
+    const removePair = UpdaterFactory.ArrayIdxDeleter(wf,setWorkflow);
     
-    const updatePair = (idx: keyof typeof wf) => (pair: WhereWhatPair) => {
-        setWorkflow(wf.map((x,i) => i === idx ? pair : x));
-    }
+    const updatePair = UpdaterFactory.ArrayIdxUpdater(wf,setWorkflow);
 
-    const pushPair = () => {
-        setWorkflow([...wf, emptyPair]);
-    }
+    const pushPair = UpdaterFactory.ArrayPusher(wf,setWorkflow);
+
+    console.log(JSON.stringify(wf,null,2));
 
     return (
         <>

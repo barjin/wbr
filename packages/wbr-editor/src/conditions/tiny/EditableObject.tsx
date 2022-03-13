@@ -1,34 +1,17 @@
-// import { useState } from 'react';
-import {EditableValue} from '.';
+import {EditableValue, IInputOptions} from '.';
+import UpdaterFactory from '../functions/UpdaterFactory';
 
-export default function EditableObject({object, updater} : {object: Record<string, unknown>, updater: Function}) : JSX.Element {
-    // const [object, _setObject] = useState(val);
-
+export default function EditableObject({object, updater, options} : {object: Record<string, unknown>, updater: Function, options?: IInputOptions}) : JSX.Element {
     const setObject = (object: Record<string,unknown>) : void => {
-        const clean = Object.entries(object).filter(([k,x]) => !(k === "" && x === ""));
+        const clean = options?.dynamic ? Object.entries(object).filter(([k,x]) => !(k === "" && x === "")) : Object.entries(object);
         updater(Object.fromEntries(clean));
-        // _setObject(Object.fromEntries(clean));
     }
 
-    const updateKey = (oldKey: string) : Function => (
-        (newKey: string) => {
-            const value = object[oldKey];
-            const {[oldKey]: _, ...rest} = object;
-            setObject({...rest, [newKey]: value});
-        }
-    );
+    const addKey = UpdaterFactory.ObjectAddKey(object, setObject);
 
-    const addKey = (newKey: string) : void => {
-        if(newKey){
-            setObject({...object, [newKey]: ''});
-        }
-    };
+    const updateKey = UpdaterFactory.ObjectKeyUpdater(object, setObject);
+    const updateOnKey = UpdaterFactory.ObjectValueUpdater(object, setObject);
 
-    const updateOnKey = (key: string) : Function => (
-        (value: any) => {
-            setObject({...object, [key]: value});
-        }
-    );
 
     return (
         <table>
@@ -42,11 +25,11 @@ export default function EditableObject({object, updater} : {object: Record<strin
             </td>
         </tr>
         )}
-        <tr>
+        {options?.dynamic ? <tr>
             <td>
-                <EditableValue val={''} key={Math.random()} updater={addKey} placeholder='New key...'/>:&nbsp;
+                <EditableValue val={''} key={Math.random()} updater={addKey()} placeholder='New key...'/>:&nbsp;
             </td>
-        </tr>
+        </tr> : null}
         </table>
     );
 }
