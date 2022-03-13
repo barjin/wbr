@@ -1,13 +1,27 @@
+:root {
+  --primary-color:rgb(0, 65, 129);
+  --primary-select-color:rgb(0, 35, 70);
+  --primary-text-color:white;
+
+  --secondary-color:rgb(195, 211, 226);
+  --secondary-select-color:rgb(168, 194, 219);
+  --secondary-text-color:rgb(39, 39, 39);
+
+  --warning-color:rgb(158, 0, 0);
+  --warning-select-color:rgb(83, 0, 0);
+  --warning-text-color:white;
+  
+  --background-color: rgb(240,240,240);
+}
 .App {
   width: 30%;
   margin-left: 35%;
 }
 
 .pair{
-  border: 1px black solid;
-  padding: 10px 10px;
-  border-radius: 10px;
-  margin-bottom: 10px
+  padding: 5px 20px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, white 20px, var(--background-color) 20px);
 }
 
 .toggler {
@@ -30,8 +44,22 @@
   content: '-';
 }
 
-.recursive {
-  margin-left: 20px
+.where {
+  margin-left: 20px;
+}
+
+.spacer{
+  width: 10px;
+}
+
+.key {
+  font-size: 1.5em;
+  display: flex;
+  flex-direction: row;
+}
+
+.value {
+  margin-bottom: 20px;
 }
 
 .collapsible {
@@ -43,10 +71,51 @@
   display: none
 }
 
-.horizontal-line {
+.button {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: small;
+}
+
+.button:hover{
+  cursor: pointer;
+}
+
+.primary {
+  background-color: var(--primary-color);
+  color: var(--primary-text-color);
+}
+
+.primary:hover {
+  background-color: var(--primary-select-color);
+}
+
+.warning {
+  background-color: var(--warning-color);
+  color: var(--primary-text-color);
+}
+
+.warning:hover {
+  background-color: var(--warning-select-color);
+}
+
+.option {
+  padding: 10px;
+  background-color: var(--secondary-color);
+  color: var(--secondary-text-color);
+}
+
+.option:hover {
+  cursor: pointer;
+  background-color: var(--secondary-select-color);
+}
+
+.verticalLine {
   border-left: 1px solid grey;
-  margin-right: 10px;
-  height: 100%
+  margin-top: 5px;
+  flex:1
 }
 
 .scalar {
