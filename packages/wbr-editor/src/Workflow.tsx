@@ -11,7 +11,14 @@ const emptyPair : WhereWhatPair = {
 }
 
 export default function Workflow ({workflow}: {workflow: WorkflowFile['workflow']}) : JSX.Element {
-    const [wf, setWorkflow] = useState(workflow);
+    const [wf, _setWorkflow] = useState(workflow);
+
+    const setWorkflow = (newWorkflow: typeof workflow) => {
+        _setWorkflow(newWorkflow);
+        const downloadLink = document.getElementById('download_link');
+        downloadLink?.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(newWorkflow, null, 2))}`);
+        downloadLink?.setAttribute('download', `workflow.json`);
+    }
 
     const removePair = UpdaterFactory.ArrayIdxDeleter(wf,setWorkflow);
     
@@ -23,6 +30,7 @@ export default function Workflow ({workflow}: {workflow: WorkflowFile['workflow'
 
     return (
         <>
+        <a id='download_link'>Download this Workflow!</a>
         {wf.map((pair,i) => <Pair updater={updatePair(i)} pair={pair}/>)}
         </>
     )

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { MouseEventHandler, useState } from 'react';
 
-export default function Select({options, select}: {options: string[], select: (choice: any) => void}) : JSX.Element {
+export function Select({options, select}: {options: string[], select: (choice: any) => void}) : JSX.Element {
     const [collapsed, setCollapsed] = useState(true);
 
     const toggleCollapsed = () => setCollapsed(!collapsed);
@@ -26,4 +26,8 @@ export default function Select({options, select}: {options: string[], select: (c
         </div>
         </div>
     )
+};
+
+export function DeleteButton({callback}: {callback: MouseEventHandler}) : JSX.Element {
+    return <div className='button warning' onClick={callback}>x</div>;
 }

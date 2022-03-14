@@ -1,7 +1,7 @@
 export default class UpdaterFactory {
-    static ArrayIdxUpdater<T extends unknown>(input: T[], callback: (arg0: T[]) => void){
+    static ArrayIdxUpdater<T extends unknown>(input: T[], callback: (arg0: T[]) => void, options?: {deleteEmpty: boolean}){
         return (idx: number) => (newElement: T) => {
-            if(typeof newElement !== 'object' || Object.keys(newElement as any).length !== 0){
+            if(typeof newElement !== 'object' || Object.keys(newElement as any).length !== 0 || !options?.deleteEmpty){
                 callback(input.map((x,i) => i === idx ? newElement : x));
             }
             else{

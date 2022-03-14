@@ -1,11 +1,21 @@
 import { What as StepType } from '../wbr-types/workflow';
+import UpdaterFactory from './functions/UpdaterFactory';
 import { RenderValue } from './tiny';
-import Select from './tiny/Select';
+import { DeleteButton, Select } from './tiny/Controls';
 
-function WhatStep({step}: {step: StepType}): JSX.Element {
+function WhatStep({step, updater}: {step: StepType, updater: Function}): JSX.Element {
+    const updateArgs = (args: StepType['args']) => {
+        updater({
+            ...step,
+            args
+        })
+    }
+
+    const deleteStep = () => updater({});
+
     return <div>
-        <h3>{step.action}</h3>
-        <p>{step.args ? <RenderValue val={step.args} updater={()=>{}}/> : <></>}</p>
+        <div style={{display: 'flex', flexDirection: 'row'}}><p>{step.action}</p><div className='spacer'/><DeleteButton callback={deleteStep}/></div>
+        <p>{step.args ? <RenderValue val={step.args} updater={updateArgs}/> : <></>}</p>
     </div>
 }
 
@@ -17,7 +27,9 @@ const ActionDefaults = {
         'first column name': 'selector',
         'second column name': 'selector',
     }],
-    // '$not': {},
+    'waitForLoadState' : ['load'],
+    'fill' : ['selector', 'text'],
+    'keyboard.press' : ['Enter']
 };
 
 export default function What({what, updater}: {what: StepType[], updater: (x: StepType[]) => void}) : JSX.Element {
@@ -30,9 +42,11 @@ export default function What({what, updater}: {what: StepType[], updater: (x: St
         )
     }
 
+    const updateStep = UpdaterFactory.ArrayIdxUpdater(what, updater, {deleteEmpty: true});
+
     return (
     <div>
-        {what.map(x=><WhatStep step={x}/>)}
+        {what.map((x,i) => <WhatStep step={x} updater={updateStep(i)}/>)}
         <Select options={Object.keys(ActionDefaults)} select={instantiateAction}/>
     </div>
     );

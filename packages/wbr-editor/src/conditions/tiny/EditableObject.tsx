@@ -2,6 +2,8 @@ import {EditableValue, IInputOptions} from '.';
 import UpdaterFactory from '../functions/UpdaterFactory';
 
 export default function EditableObject({object, updater, options} : {object: Record<string, unknown>, updater: Function, options?: IInputOptions}) : JSX.Element {
+    options = {...options, dynamic: true};
+
     const setObject = (object: Record<string,unknown>) : void => {
         const clean = options?.dynamic ? Object.entries(object).filter(([k,x]) => !(k === "" && x === "")) : Object.entries(object);
         updater(Object.fromEntries(clean));

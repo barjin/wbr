@@ -1,7 +1,7 @@
 import { Where as WhereType } from '../wbr-types/workflow';
 import { naryOperators, unaryOperators } from '../wbr-types/logic';
 import { RenderValue } from './tiny';
-import Select from './tiny/Select';
+import { Select, DeleteButton } from './tiny/Controls';
 
 import UpdaterFactory from './functions/UpdaterFactory';
 
@@ -29,7 +29,7 @@ function WhereList<T extends WhereType>({whereList, updater}: {whereList: T[], u
         )
     }
 
-    const updateOnIdx = UpdaterFactory.ArrayIdxUpdater(whereList, updater);
+    const updateOnIdx = UpdaterFactory.ArrayIdxUpdater(whereList, updater, {deleteEmpty: true});
 
 
     return (
@@ -56,7 +56,7 @@ export default function Where<T extends WhereType>({where, updater}: {where: T, 
                     <div className='key'>
                         <span>{k}</span> 
                         <div className='spacer'/>
-                        <div className='button warning' onClick={removeKey(k)}>x</div>
+                        <DeleteButton callback={removeKey(k)}/>
                     </div>
                         {!naryOperators.includes(k as NaryOperator) ? 
                             (!unaryOperators.includes(k as UnaryOperator) ?
