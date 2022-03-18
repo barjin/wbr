@@ -36,7 +36,7 @@ export default function What({what, updater}: {what: StepType[], updater: (x: St
     const instantiateAction = (name: keyof typeof ActionDefaults) : void => {
         updater(
             [...what, {
-                action: [name],
+                action: name,
                 args: ActionDefaults[name],
             } as any]
         )

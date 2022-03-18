@@ -23,6 +23,9 @@ interface InterpreterOptions {
   serializableCallback: (output: any) => (void | Promise<void>);
   binaryCallback: (output: any, mimeType: string) => (void | Promise<void>);
   debug: boolean;
+  debugChannel: Partial<{
+    activeId: Function
+  }>
 }
 
 /**
@@ -47,6 +50,7 @@ export default class Interpreter extends EventEmitter {
       serializableCallback: (data) => { log(JSON.stringify(data), Level.WARN); },
       binaryCallback: () => { log('Received binary data, thrashing them.', Level.WARN); },
       debug: false,
+      debugChannel: {},
       ...options,
     };
     this.concurrency = new Concurrency(this.options.maxConcurrency);
@@ -351,13 +355,19 @@ export default class Interpreter extends EventEmitter {
       if (this.options.debug) {
         log(`Current state is: \n${JSON.stringify(pageState, null, 2)}`, Level.WARN);
       }
-      const action = workflow.find(
+      const actionId = workflow.findIndex(
         (step) => this.applicable(step.where, pageState, usedActions),
       );
+
+      const action = workflow[actionId];
 
       log(`Matched ${JSON.stringify(action?.where)}`, Level.LOG);
 
       if (action) { // action is matched
+        if (this.options.debugChannel?.activeId) {
+          this.options.debugChannel.activeId(actionId);
+        }
+
         repeatCount = action === lastAction ? repeatCount + 1 : 0;
         if (this.options.maxRepeats && repeatCount >= this.options.maxRepeats) {
           return;

@@ -19,9 +19,11 @@ export default function Pair({pair, updater}: {pair: PairType, updater: Function
         })
     }
 
+    const deletePair = () => updater({});
+
     return (
         <div className='pair'>
-            <h1>{pair.id}</h1>
+            <h1>{pair.id}</h1><div className="button warning" onClick={deletePair}>x</div>
             <h2>If...</h2>
             <Where where={pair.where} updater={updateWhere}/>
             <h2>Then...</h2>

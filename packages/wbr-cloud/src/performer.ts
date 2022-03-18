@@ -2,7 +2,6 @@
 import { chromium, BrowserContext, Page } from 'playwright';
 import { Namespace, Socket } from 'socket.io';
 import Interpret, { WorkflowFile } from '@wbr-project/wbr-interpret';
-import Apify from 'apify';
 
 export default class Performer {
   private workflow: WorkflowFile;
@@ -54,12 +53,12 @@ export default class Performer {
     console.log('Running the interpret...');
     this.state = 'OCCUPIED';
 
-    const dataset = await Apify.openDataset(`waw-${Date.now()}`);
-    const kvs = await Apify.openKeyValueStore(`waw-${Date.now()}`);
-
     const interpreter = new Interpret(this.workflow, {
-      serializableCallback: (row) => dataset.pushData(row),
-      binaryCallback: (data, mimeType) => kvs.setValue(`${Date.now()}`, data, { contentType: mimeType }),
+      maxConcurrency: 1,
+      maxRepeats: 5,
+      debugChannel: {
+        activeId: (id: any) => this.sendToClients('activeId', id),
+      },
     });
 
     const browser = await chromium.launch(process.env.DOCKER
@@ -69,12 +68,16 @@ export default class Performer {
     const ctx = await browser.newContext({ locale: 'en-GB' });
     const page = await ctx.newPage();
 
-    const stopScreencast = await this.registerScreencast(ctx, page);
+    const stopScreencasts = [await this.registerScreencast(ctx, page)];
+
+    ctx.on('page', async (p) => {
+      stopScreencasts.push(await this.registerScreencast(ctx, p));
+    });
 
     await interpreter.run(page, parameters);
 
     this.state = 'FINISHED';
-    await stopScreencast();
+    await Promise.all(stopScreencasts);
     await browser.close();
   }
 }

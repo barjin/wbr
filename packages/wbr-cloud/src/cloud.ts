@@ -33,7 +33,11 @@ const server = http.createServer(app);
 /**
  * Object of the Socket.io server.
  */
-const io = new socket.Server(server);
+const io = new socket.Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+  },
+});
 
 /**
  * `POST` method for the `/workflow` endpoint
@@ -78,8 +82,6 @@ app.get('/workflow', async (req, res) => {
     return;
   }
 
-  const preprocess = new Preprocessor();
-
   const out = fs.readdirSync(uploadsDir)
     .map((filename, idx) => ({
       idx,
@@ -88,7 +90,7 @@ app.get('/workflow', async (req, res) => {
         const file = JSON.parse(fs.readFileSync(path.join(uploadsDir, filename)).toString());
         return ({
           cname: file.meta.name,
-          params: preprocess.getParams(file),
+          params: Preprocessor.getParams(file),
         });
       })(),
     }));
@@ -103,18 +105,18 @@ app.get('/workflow', async (req, res) => {
 app.post('/performer', async (req, res) => {
 // The interpreter runs the workflow as soon as the client connects to it.
   try {
-    const workflows = fs.readdirSync(uploadsDir);
-    const { id, params } = req.body;
+    const { workflow, params } = req.body;
 
-    if (id === undefined || !workflows[id]) {
-      throw new Error('Nonexistent workflow.');
+    console.log(req.body);
+
+    if (Preprocessor.validateWorkflow(workflow)) {
+      console.error(Preprocessor.validateWorkflow(workflow));
+      throw new Error('Invalid workflow.');
     }
-    // If the specified workflow exists, we set up the performer and assign an URL to it.
+    // If the workflow is valid, we set up the performer and assign an URL to it.
     const url = crypto.randomBytes(8).toString('hex');
 
-    const performer = new Performer(JSON.parse(fs.readFileSync(
-      path.join(uploadsDir, workflows[id]),
-    ).toString()), <any>io.of(url));
+    const performer = new Performer(workflow, <any>io.of(url));
 
     console.debug(`Set up a performer on ${url}`);
 
@@ -161,7 +163,7 @@ app.use(express.static(path.join(__dirname, '../public')));
  *
  * If `APIFY_CONTAINER_PORT` environment variable is present, it is used instead.
  */
-const port = process.env.APIFY_CONTAINER_PORT || 3000;
+const port = process.env.APIFY_CONTAINER_PORT || 8080;
 
 /**
  * Starts the HTTP server on the given port.
