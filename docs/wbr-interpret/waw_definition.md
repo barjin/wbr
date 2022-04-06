@@ -56,7 +56,7 @@ Here follows a top-level view of the Workflow file:
 ```
 
 ## Meta Header 
-As of now (27.12.2021), the `meta` header of the file contains three fields: 
+As of now (6.3.2022), the `meta` header of the file contains two fields: 
 - "name" - `string` - optional, name of the workflow (for easier management)
 - "desc" - `string` - optional, text description of the workflow.
 Even though all the metadata is optional, developers are strongly advised to use them for clarity and easier management of the workflows. 
