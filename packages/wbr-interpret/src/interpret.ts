@@ -298,7 +298,7 @@ export default class Interpreter extends EventEmitter {
       if (step.action in wawActions) {
         // "Arrayifying" here should not be needed (TS + syntax checker - only arrays; but why not)
         const params = !step.args || Array.isArray(step.args) ? step.args : [step.args];
-        await wawActions[step.action](...(params ?? []));
+        await wawActions[step.action as CustomFunctions](...(params ?? []));
       } else {
       // Implements the dot notation for the "method name" in the workflow
         const levels = step.action.split('.');
