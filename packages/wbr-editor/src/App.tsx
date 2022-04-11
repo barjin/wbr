@@ -1,7 +1,7 @@
 import './App.css';
 import Workflow from './Workflow';
 
-import Screen from './conditions/tiny/Player';
+import Screen from './components/tiny/Player';
 
 const sauto : any = {
 	"meta":{
@@ -242,6 +242,33 @@ const nehnutelnosti = {
           ]
       }
   ]
+}
+
+const test = {
+    "meta": {
+    },
+    "workflow": [
+        {
+            "id": "1",
+            "where": {},
+            "what": [],
+        },
+        {
+            "id": "2",
+            "where": {},
+            "what": []
+        },
+        {
+            "id": "3",
+            "where": {},
+            "what": [],
+        },
+        {
+            "id": "4",
+            "where": {},
+            "what": []
+        },
+    ],
 }
 
 function App() {
