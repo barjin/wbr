@@ -4,7 +4,7 @@ import What from "./What";
 import { useDrag } from 'react-dnd';
 import { DropTypes } from "./tiny";
 import { useContext } from 'react';
-import { HoverContext } from './functions/globalState';
+import { CollapseContext, HoverContext } from './functions/globalState';
 
 type PairType = WorkflowFile['workflow'][number] & {_reactID: string};
 
@@ -25,7 +25,8 @@ export default function Pair({pair, updater}: {pair: PairType, updater: Function
 
     const deletePair = () => updater({});
 
-    const {isHovering, setHovering} = useContext(HoverContext);
+    const { isHovering, setHovering } = useContext(HoverContext);
+    const { isCollapsed } = useContext(CollapseContext);
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: DropTypes.Pair,
@@ -49,7 +50,7 @@ export default function Pair({pair, updater}: {pair: PairType, updater: Function
             <div className='pairHeader'>
                 <h1>{pair.id}</h1><div className="deleteButton" onClick={deletePair}>x</div>
             </div>
-            <div className='pairBody' style={{display: isHovering ? 'none' : ''}}>
+            <div className='pairBody' style={{display: isCollapsed || isHovering ? 'none' : ''}}>
                 <h2>If...</h2>
                 <Where where={pair.where} updater={updateWhere}/>
                 <h2>Then...</h2>

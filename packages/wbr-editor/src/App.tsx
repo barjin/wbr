@@ -1,124 +1,7 @@
 import './App.css';
-import Workflow from './Workflow';
+import { WorkflowManager } from './components/WorkflowManager';
 
 import Screen from './components/tiny/Player';
-
-const sauto : any = {
-	"meta":{
-	   "name": "SAuto scraper",
-	   "desc": "Scraper for the sauto.cz online car dealership. It shows pagination as well as the scraping capabilities."
-	},
-	"workflow":[
-	   {
-		  "id": "closePopups",
-		  "where":{
-			"selectors":[
-				"[class*=popup] button[class*=close]"
-			]
-		  },
-		  "what":[
-			 {
-				"action":"click",
-				"args": ["[class*=popup] button[class*=close]"]
-			 },
-			 {
-				 "action": "waitForLoadState"
-			 }
-		  ]
-	   },
-	   {
-		"id": "paginateAndScrape",
-		"where":{
-			"selectors": [":text-matches(\"Další stránka\")"]
-		},
-		"what":[
-			{
-				"action": "waitForLoadState"
-			},
-			{
-				"action": "scrape"
-			},
-			{
-				"action":"click",
-				"args": [":text-matches(\"Další stránka\")"]
-			},
-			{
-				"action": "waitForLoadState"
-			},
-			{
-				"action":"waitForTimeout",
-				"args": [5000]
-			}
-		  ]
-	   },
-	   {
-		  "id": "base",
-		  "where":{
-		  },
-		  "what":[
-			 {
-				"action":"goto",
-				"args": ["https://www.sauto.cz/"]
-			 },
-			 {
-				"action":"waitForLoadState"
-			 },
-			 {
-				"action":"waitForTimeout",
-				"args": [3000]
-			 },
-			 {
-				"action":"click",
-				"args": ["a :text-matches(\"Zobrazit\",\"i\")"]
-			 },
-			 {
-				"action":"waitForLoadState"
-			 },
-			 {
-				"action":"waitForTimeout",
-				"args": [7000]
-			 }
-		  ]
-	   }
-	]
- };
-
-const workflow : any = 
-{
-  meta:{
-    name: "Test workflow",
-    desc: "Test workflow description."
-  },
-  workflow: [
-   {
-     id:"first",
-     where:{
-       $and: [
-         {
-           url: 'https://jindrich.bar/'
-         },
-       ]
-     },
-     what: [
-       {
-         "action":"goto",
-         "args": ["https://example.org/"]
-       }
-     ]
-   },
-   {
-     id:"second",
-     where:{
-     },
-     what: [
-       {
-         "action": "goto",
-         "args": ["https://jindrich.bar/"]
-       }
-     ]
-   }
- ]
-};
 
 const nehnutelnosti = {
   "meta": {
@@ -274,7 +157,7 @@ const test = {
 function App() {
   return (
     <div className="App">
-        <Workflow workflow={nehnutelnosti as any}/>
+        <WorkflowManager workflow={nehnutelnosti as any}/>
         <Screen />
     </div>
   );

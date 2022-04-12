@@ -12,6 +12,7 @@
   --warning-text-color:white;
   
   --background-color: rgb(240,240,240);
+  --background-color-accent: rgb(228, 228, 228);
 }
 .App {
   width: 50%;
@@ -57,6 +58,26 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+.whatStep {
+  padding: 5px 10px;
+  background-color: var(--background-color-accent);
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+.whatHeader{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.whatName{
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 10px;
 }
 
 .deleteButton{
@@ -118,11 +139,16 @@
 }
 
 .button {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
   text-align: center;
   font-size: small;
+  font-weight: 900;
+}
+
+.button-control {
+  width: 25%;
 }
 
 #screen {

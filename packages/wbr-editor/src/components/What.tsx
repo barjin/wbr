@@ -14,8 +14,16 @@ function WhatStep({step, updater}: {step: StepType, updater: Function}): JSX.Ele
     const deleteStep = () => updater({});
 
     return <div>
-        <div style={{display: 'flex', flexDirection: 'row'}}><p>{step.action}</p><div className='spacer'/><DeleteButton callback={deleteStep}/></div>
-        <p>{step.args ? <RenderValue val={step.args} updater={updateArgs}/> : <></>}</p>
+        <div className='whatStep'>
+            <div className='whatHeader'>
+                <p className='whatName'>{step.action}</p>
+                <div className='spacer'/>
+                <DeleteButton callback={deleteStep}/>
+            </div>
+            <div className='whatBody'>
+                {step.args ? <RenderValue val={step.args} updater={updateArgs}/> : <></>}
+            </div>
+        </div>
     </div>
 }
 
