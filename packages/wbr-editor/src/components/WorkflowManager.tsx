@@ -133,7 +133,7 @@ export function WorkflowManager({workflow}: {workflow: WorkflowFile}) : JSX.Elem
         downloadLink?.setAttribute('download', `workflow.json`);
     }
     return (
-        <div>
+        <div style={{width: '100%', paddingRight: '10px'}}>
             <div>
             <Button 
                 onClick={historyManager.current.undo} 

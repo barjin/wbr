@@ -1,7 +1,8 @@
 import './App.css';
 import { WorkflowManager } from './components/WorkflowManager';
-
+import { useState } from 'react';
 import Screen from './components/tiny/Player';
+import Modal from './components/tiny/Modal';
 
 const nehnutelnosti = {
   "meta": {
@@ -127,38 +128,23 @@ const nehnutelnosti = {
   ]
 }
 
-const test = {
-    "meta": {
-    },
-    "workflow": [
-        {
-            "id": "1",
-            "where": {},
-            "what": [],
-        },
-        {
-            "id": "2",
-            "where": {},
-            "what": []
-        },
-        {
-            "id": "3",
-            "where": {},
-            "what": [],
-        },
-        {
-            "id": "4",
-            "where": {},
-            "what": []
-        },
-    ],
-}
-
 function App() {
+
+  const [workflow, setWorkflow] = useState(nehnutelnosti);
+  const [modalVisible, setModal] = useState(true);
+
+  console.log(workflow);
+
   return (
-    <div className="App">
-        <WorkflowManager workflow={nehnutelnosti as any}/>
-        <Screen />
+    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+    {
+        modalVisible ? 
+        <Modal {...{setWorkflow, setModal} as any}/> :
+        <div className="App" style={{filter: modalVisible ? 'blur(20px)' : ''}}>
+            <WorkflowManager {...{workflow} as any}/>
+            <Screen />
+        </div>
+    }
     </div>
   );
 }
