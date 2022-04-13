@@ -1,7 +1,7 @@
 import Button from "./Button";
 import {IoMdCreate} from 'react-icons/io';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Preprocessor } from "@wbr-project/wbr-interpret";
 
 const emptyWorkflow = {
@@ -11,25 +11,40 @@ const emptyWorkflow = {
 export default function Modal({setWorkflow, setModal}: any){
     const fileUploadref = useRef(null);
 
-    const handleFileUpload = async (e: any) => {
-        const textFile : string = await new Promise (
-            (resolve, reject) => {
-                const [file] = e.target.files;
-                let reader = new FileReader();
-                
-                reader.addEventListener('load', (e) => {
-                    resolve((e!.target!.result as string));
-                });
-                reader.addEventListener('error', reject);
-                reader.addEventListener('abort', reject);
+    const [errorMessage, setErrorMessage] = useState<null | { filename: string, message: string }>(null);
 
-                reader.readAsText(file);
+    const handleFileUpload = async (e: any) => {
+        try {
+            const textFile : string = await new Promise (
+                (resolve, reject) => {
+                    const [file] = e.target.files;
+                    let reader = new FileReader();
+                    
+                    reader.addEventListener('load', (e) => {
+                        resolve((e!.target!.result as string));
+                    });
+                    reader.addEventListener('error', reject);
+                    reader.addEventListener('abort', reject);
+    
+                    reader.readAsText(file);
+                }
+            );
+            
+            const workflow = JSON.parse(textFile);
+            const error = Preprocessor.validateWorkflow(workflow);
+            
+            if(!error){
+                setWorkflow(workflow);
+                setModal(false);
             }
-        );
+            else {
+                setErrorMessage({filename: e.target.files[0].name, message: error.message});
+            }
+        }
+        catch {
+            setErrorMessage({filename: e.target.files[0].name, message: "This file is not a valid workflow file."});
+        }
         
-        const workflow = JSON.parse(textFile);
-        const error = Preprocessor.validateWorkflow(workflow);
-        console.log(error);
     }
 
 
@@ -72,6 +87,14 @@ export default function Modal({setWorkflow, setModal}: any){
                     }}
                 />
                 </div>
+                {
+                    errorMessage ?
+                    <div>
+                        <h3>{errorMessage.filename}</h3>
+                        <p>{errorMessage.message}</p>
+                    </div> :
+                    null
+                }
             </div>
         </div>
     );

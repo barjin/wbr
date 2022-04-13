@@ -128,7 +128,7 @@ export function WorkflowManager({workflow}: {workflow: WorkflowFile}) : JSX.Elem
         const downloadLink = document.getElementById('downloadLink');
         downloadLink?.setAttribute(
             'href', 
-            `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify({...workflow, workflow: untagPairIds(newWorkflow)}, null, 2))}`
+            `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(untagPairIds(newWorkflow), null, 2))}`
         );
         downloadLink?.setAttribute('download', `workflow.json`);
     }
