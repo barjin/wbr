@@ -10,7 +10,8 @@
 [![Typescript](https://img.shields.io/npm/types/@wbr-project/wbr-interpret?logo=typescript&)](https://www.npmjs.com/package/@wbr-project/wbr-interpret)
 [![Code style](https://img.shields.io/static/v1?label=Code%20style&message=Airbnb&color=salmon&logo=airbnb&)](https://github.com/airbnb/javascript)
 [![ESLint](https://img.shields.io/github/workflow/status/barjin/wbr/ESLint?label=ESLint&logo=eslint&)](https://github.com/barjin/wbr/actions/workflows/eslint-linter.yml)
-[![Jest tests](https://img.shields.io/github/workflow/status/barjin/wbr/Jest%20Tests?label=Tests&logo=jest&)](https://github.com/barjin/wbr/actions/workflows/jest-tests.yml)
+[![E2E tests](https://img.shields.io/github/workflow/status/barjin/wbr/Build%20and%20run%20E2E%20tests?label=E2E%20Tests&logo=jest&)](https://github.com/barjin/wbr/actions/workflows/e2e-tests.yml)
+[![Unit tests](https://img.shields.io/github/workflow/status/barjin/wbr/Build%20and%20run%20unit%20tests?label=Tests&logo=jest&)](https://github.com/barjin/wbr/actions/workflows/jest-tests.yml)
 [![MIT License](https://img.shields.io/github/license/barjin/wbr?)](https://choosealicense.com/licenses/mit/)
 ___
 
