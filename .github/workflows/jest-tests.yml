@@ -1,4 +1,4 @@
-name: Jest Tests
+name: Build and run Jest Tests
 
 on:
   push:
@@ -16,6 +16,6 @@ jobs:
           node-version: 16
       - run: >
           npm install --production=false $GITHUB_WORKSPACE/. &&
-          cd $GITHUB_WORKSPACE/packages/wbr-interpret &&
-          npx tsc && npx jest
+          npm run --prefix $GITHUB_WORKSPACE/packages/wbr-interpret build
+          npm run test
 

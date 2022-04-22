@@ -46,6 +46,7 @@
   },
   "scripts": {
     "test": "jest",
-    "lint": "eslint ./packages/wbr-interpret ./packages/wbr-editor"
+    "lint": "eslint ./packages/wbr-interpret ./packages/wbr-editor",
+    "clean": "find -type d -path \"*/packages/*\" -iname \"build\" | grep -v \"node_modules\" | xargs rm -r || echo \"No build files found!\""
   }
 }

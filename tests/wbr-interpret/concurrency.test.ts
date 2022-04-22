@@ -1,4 +1,4 @@
-import Concurrency from '../build/concurrency';
+import Concurrency from '@wbr-project/wbr-interpret/src/utils/concurrency';
 
 function generateWaiter(time: number, out: number[]) {
     return async () => {

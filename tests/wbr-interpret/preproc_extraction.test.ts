@@ -1,5 +1,6 @@
-import { Preprocessor } from "@wbr-project/wbr-interpret";
-import { Where } from "../build/workflow";
+import { Preprocessor, WorkflowFile } from "@wbr-project/wbr-interpret";
+
+type Where = WorkflowFile['workflow'][number]['where'];
 
 const randString = () => Math.random().toString(36).substring(Math.floor(Math.random() * 7) + 2);
 

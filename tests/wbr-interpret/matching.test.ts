@@ -2,9 +2,9 @@
  * Series of unit tests testing the interpreter's pattern matching and logic.
  */
 
-import Interpret from "@wbr-project/wbr-interpret";
-import { Preprocessor } from "@wbr-project/wbr-interpret";
-import { Where } from "@wbr-project/wbr-interpret/src/workflow";
+import Interpret, { Preprocessor, WorkflowFile } from "@wbr-project/wbr-interpret";
+
+type Where = WorkflowFile['workflow'][number]['where'];
 
 const context = {
 	url: 'https://apify.com',
