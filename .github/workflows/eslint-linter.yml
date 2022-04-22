@@ -6,6 +6,7 @@ on:
     paths:
       - 'packages/wbr-interpret/**/*'
       - 'packages/wbr-editor/**/*'
+  workflow_dispatch:
 
 jobs:
   eslint-interpreter:

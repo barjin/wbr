@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'packages/wbr-interpret/**/*'
+  workflow_dispatch:
 
 jobs:
   interpret-run-tests:

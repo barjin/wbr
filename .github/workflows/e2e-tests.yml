@@ -6,6 +6,8 @@ on:
     paths:
       - 'packages/wbr-interpret/**/*'
       - 'packages/wbr-editor/**/*'
+  workflow_dispatch:
+    
 
 jobs:
   interpret-run-tests:
