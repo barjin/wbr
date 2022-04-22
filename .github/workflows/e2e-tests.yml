@@ -1,10 +1,11 @@
-name: Build and run Jest Tests
+name: Build and run E2E tests
 
 on:
   push:
     branches: [ main ]
     paths:
       - 'packages/wbr-interpret/**/*'
+      - 'packages/wbr-editor/**/*'
 
 jobs:
   interpret-run-tests:
@@ -16,6 +17,7 @@ jobs:
           node-version: 16
       - run: >
           npm install --production=false $GITHUB_WORKSPACE/. &&
-          npm run --prefix $GITHUB_WORKSPACE/packages/wbr-interpret build
-          npm run test
+          npx playwright install-deps &&
+          npm run --prefix $GITHUB_WORKSPACE/packages/wbr-interpret build &&
+          npm run test:e2e
 
