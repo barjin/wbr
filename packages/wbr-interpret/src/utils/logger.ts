@@ -2,7 +2,7 @@
 * Logger class for more detailed and comprehensible logs (with colors and timestamps)
 */
 
-export enum Level{
+export enum Level {
   DATE = 36,
   LOG = 0,
   WARN = 93,
