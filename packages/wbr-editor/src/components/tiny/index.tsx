@@ -1,14 +1,12 @@
-import EditableValue from "./EditableValue";
-import EditableObject from "./EditableObject";
-import EditableArray from "./EditableArray";
-import RenderValue from "./RenderValue";
-
-export interface IInputOptions {
-    dynamic: boolean
-}
+import EditableValue from './Editors/EditableValue';
+import EditableObject from './Editors/EditableObject';
+import EditableArray from './Editors/EditableArray';
+import RenderValue from './Editors/RenderValue';
 
 export enum DropTypes {
-    Pair = "Pair",
+  Pair = 'Pair',
 }
 
-export {EditableValue, EditableObject, EditableArray, RenderValue};
+export {
+  EditableValue, EditableObject, EditableArray, RenderValue,
+};

@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'packages/wbr-interpret/**/*'
+      - 'packages/wbr-editor/**/*'
 
 jobs:
   eslint-interpreter:
@@ -16,6 +17,5 @@ jobs:
           node-version: 16
       - run: >
           npm install --production=false $GITHUB_WORKSPACE/. &&
-          cd $GITHUB_WORKSPACE/packages/wbr-interpret/ &&
-          npx eslint ./src/
+          npm run lint
 

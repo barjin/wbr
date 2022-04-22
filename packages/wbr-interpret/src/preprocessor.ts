@@ -1,8 +1,8 @@
 import Joi from 'joi';
 import {
   Workflow, WorkflowFile, ParamType, SelectorArray, Where,
-} from './workflow';
-import { operators } from './logic';
+} from './types/workflow';
+import { operators } from './types/logic';
 
 /**
 * Class for static processing the workflow files/objects.

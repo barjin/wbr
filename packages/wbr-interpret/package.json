@@ -6,7 +6,8 @@
   "typings": "build/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",

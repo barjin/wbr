@@ -1,11 +1,13 @@
-import React from "react";
+import React from 'react';
 
 export const HoverContext = React.createContext({
-    isHovering: false,
-    setHovering: (x: boolean) : void => {},
+  isHovering: false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setHovering: (x: boolean) : void => {},
 });
 
 export const CollapseContext = React.createContext({
-    isCollapsed: false,
-    setCollapsed: (x: boolean) : void => {},
+  isCollapsed: false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setCollapsed: (x: boolean) : void => {},
 });

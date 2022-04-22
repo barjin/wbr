@@ -45,6 +45,7 @@
     "typescript": "^4.5.5"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint ./packages/wbr-interpret ./packages/wbr-editor"
   }
 }

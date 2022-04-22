@@ -6,13 +6,13 @@ import { EventEmitter } from 'events';
 import {
   Where, What, PageState, Workflow, WorkflowFile,
   ParamType, SelectorArray, CustomFunctions,
-} from './workflow';
+} from './types/workflow';
 
-import { operators, meta } from './logic';
-import { arrayToObject } from './utils';
-import Concurrency from './concurrency';
+import { operators, meta } from './types/logic';
+import { arrayToObject } from './utils/utils';
+import Concurrency from './utils/concurrency';
 import Preprocessor from './preprocessor';
-import log, { Level } from './logger';
+import log, { Level } from './utils/logger';
 
 /**
  * Defines optional intepreter options (passed in constructor)
@@ -403,7 +403,7 @@ export default class Interpreter extends EventEmitter {
 
     // @ts-ignore
     if (await page.evaluate(() => !<any>window.scrape)) {
-      page.context().addInitScript({ path: path.join(__dirname, 'scraper.js') });
+      page.context().addInitScript({ path: path.join(__dirname, 'browserSide', 'scraper.js') });
     }
 
     this.concurrency.addJob(() => this.runLoop(page, this.initializedWorkflow!));

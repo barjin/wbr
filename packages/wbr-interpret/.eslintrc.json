@@ -1,8 +1,0 @@
-{
-	"extends": [
-	  "@wbr"
-	],
-	"parserOptions":{
-		"project": "./tsconfig.json"
-	}
-}

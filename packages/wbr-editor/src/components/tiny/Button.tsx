@@ -1,5 +1,7 @@
-export default function Button({onClick, icon, text, disabled, className, id}: any) {
-    return (
+export default function Button({
+  onClick, icon, text, disabled, className, id,
+}: any) {
+  return (
         <button
             id={id}
             className={`button-control ${className}`}
@@ -13,5 +15,5 @@ export default function Button({onClick, icon, text, disabled, className, id}: a
                 {text}
             </div>
         </button>
-    );
+  );
 }

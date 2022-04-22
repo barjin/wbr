@@ -3,17 +3,17 @@ import UpdaterFactory from './functions/UpdaterFactory';
 import { RenderValue } from './tiny';
 import { DeleteButton, Select } from './tiny/Controls';
 
-function WhatStep({step, updater}: {step: StepType, updater: Function}): JSX.Element {
-    const updateArgs = (args: StepType['args']) => {
-        updater({
-            ...step,
-            args
-        })
-    }
+function WhatStep({ step, updater }: { step: StepType, updater: Function }): JSX.Element {
+  const updateArgs = (args: StepType['args']) => {
+    updater({
+      ...step,
+      args,
+    });
+  };
 
-    const deleteStep = () => updater({});
+  const deleteStep = () => updater({});
 
-    return <div>
+  return <div>
         <div className='whatStep'>
             <div className='whatHeader'>
                 <p className='whatName'>{step.action}</p>
@@ -24,38 +24,42 @@ function WhatStep({step, updater}: {step: StepType, updater: Function}): JSX.Ele
                 {step.args ? <RenderValue val={step.args} updater={updateArgs}/> : <></>}
             </div>
         </div>
-    </div>
+    </div>;
 }
 
 const ActionDefaults = {
-    'click' : ['selector'],
-    'goto' : ['url'],
-    'scrape' : undefined,
-    'scrapeSchema' : [{
-        'first column name': 'selector',
-        'second column name': 'selector',
-    }],
-    'waitForLoadState' : ['load'],
-    'fill' : ['selector', 'text'],
-    'keyboard.press' : ['Enter']
+  click: ['selector'],
+  goto: ['url'],
+  scrape: undefined,
+  scrapeSchema: [{
+    'first column name': 'selector',
+    'second column name': 'selector',
+  }],
+  waitForLoadState: ['load'],
+  fill: ['selector', 'text'],
+  'keyboard.press': ['Enter'],
 };
 
-export default function What({what, updater}: {what: StepType[], updater: (x: StepType[]) => void}) : JSX.Element {
-    const instantiateAction = (name: keyof typeof ActionDefaults) : void => {
-        updater(
-            [...what, {
-                action: name,
-                args: ActionDefaults[name],
-            } as any]
-        )
-    }
+export default function What(
+  { what, updater }: { what: StepType[], updater: (x: StepType[]) => void },
+) : JSX.Element {
+  const instantiateAction = (name: keyof typeof ActionDefaults) : void => {
+    updater(
+      [...what, {
+        action: name,
+        args: ActionDefaults[name],
+      } as any],
+    );
+  };
 
-    const updateStep = UpdaterFactory.ArrayIdxUpdater(what, updater, {deleteEmpty: true});
+  const updateStep = UpdaterFactory.ArrayIdxUpdater(what, updater, { deleteEmpty: true });
 
-    return (
+  return (
     <div>
-        {what.map((x,i) => <WhatStep step={x} updater={updateStep(i)}/>)}
+        {what.map((x, i) => <WhatStep step={x} updater={updateStep(i)}/>)}
         <Select options={Object.keys(ActionDefaults)} select={instantiateAction}/>
     </div>
-    );
+  );
 }
+
+// export default memo(What, (prev, next) => objectEquality(prev.what, next.what));
