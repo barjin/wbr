@@ -47,7 +47,7 @@ export default class Preprocessor {
   }
 
   /**
-* Extracts parameters from the workflow's metadata.
+* Extracts parameter names from the workflow.
 * @param {WorkflowFile} workflow The given workflow
 * @returns {String[]} List of parameters' names.
 */
@@ -113,6 +113,14 @@ export default class Preprocessor {
 * @returns {Workflow} Copy of the given workflow, modified (the initial workflow is left untouched).
 */
   static initWorkflow(workflow: Workflow, params?: ParamType) : Workflow {
+    const paramNames = this.getParams({ workflow });
+
+    if (Object.keys(params ?? {}).sort().join(',') !== paramNames.sort().join(',')) {
+      throw new Error(`Provided parameters do not match the workflow parameters
+      provided: ${Object.keys(params ?? {}).sort().join(',')},
+      expected: ${paramNames.sort().join(',')}
+      `);
+    }
     /**
      * A recursive method for initializing special `{key: value}` syntax objects in the workflow.
      * @param object Workflow to initialize (or a part of it).

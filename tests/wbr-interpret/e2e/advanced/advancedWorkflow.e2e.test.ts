@@ -7,10 +7,22 @@ import { simpleWorkflow } from "./workflow";
 
 const app = express();
 
-let retries = 2;
+let retries = 0;
 
 app.get('/profile', (req, res) => {
-    res.send(fs.readFileSync(`${__dirname}/html/secretPage.html`, 'utf8'));
+    res.send(`
+    <html>
+        <head>
+            <title>
+                Testing application Login page
+            </title>
+        </head>
+        <body>
+            <p class="username"><b>${req.query.email}</b></p>
+            <p class="password"><i>${req.query.password}</i></p>
+        </body>
+    </html>
+`);
 });
 
 app.get('/test', (req, res) => {
@@ -25,7 +37,7 @@ app.get('/test', (req, res) => {
         res.sendStatus(500).end();
         return;
     }
-    res.redirect('/profile');
+    res.redirect(`/profile?email=${req.query.email}&password=${req.query.password}`);
 });
 
 app.get('/loginPage', (req, res) => {
@@ -40,9 +52,11 @@ const server = app.listen(PORT_NUMBER, () => {
   console.log(`Example app listening on port ${PORT_NUMBER}`)
 });
 
-const checkResult = (result: string) => {
-    if (Object.values(result[0])[0] !== 'MFF CUNI') {
-        throw new Error(`Wrong scraping result. (${result})`);
+const checkResult = (result: any) => {
+    [result] = result;
+    if (!(result['user'] === 'email@email.com' && result['password'] === 'password')) {
+        console.error(`Wrong scraping result. (${JSON.stringify(result, null, 2)})`);
+        process.exit(2);
     }
 }
 
@@ -54,7 +68,7 @@ const checkResult = (result: string) => {
             const browser = await chromium.launch();
             const page = await browser.newPage();
         
-            await interpret.run(page);
+            await interpret.run(page, {'username': 'email@email.com', 'password': 'password'});
             await page.close();
 
             await browser.close();
