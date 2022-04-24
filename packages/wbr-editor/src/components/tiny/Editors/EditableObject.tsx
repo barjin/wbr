@@ -35,15 +35,15 @@ export default function EditableObject(
         <table>
         {Object.entries(object).map(([k, x]) => <tr key={k}>
             <td>
-            <EditableValue updater={updateKey(k)} val={k}/>:&nbsp;
+            <EditableValue updater={updateKey(k)} val={k} {...{ options }}/>:&nbsp;
             </td>
             <td>
-            <EditableValue updater={updateOnKey(k)} val={x}/>
+            <EditableValue updater={updateOnKey(k)} val={x} {...{ options }}/>
             </td>
         </tr>)}
         {options?.dynamic ? <tr>
             <td>
-                <EditableValue val={''} key={Math.random()} updater={addKey()} placeholder='New key...'/>:&nbsp;
+                <EditableValue val={''} key={Math.random()} updater={addKey()} placeholder='New key...' {...{ options }}/>:&nbsp;
             </td>
         </tr> : null}
         </table>

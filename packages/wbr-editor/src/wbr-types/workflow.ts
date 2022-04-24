@@ -31,7 +31,7 @@ type MethodNames<T> = {
 export type CustomFunctions = 'scrape' | 'scrapeSchema' | 'scroll' | 'screenshot' | 'script' | 'enqueueLinks' | 'flag';
 
 export type What = {
-  action: MethodNames<Page> & CustomFunctions,
+  action: MethodNames<Page> | CustomFunctions,
   args?: any[]
 };
 

@@ -44,7 +44,7 @@ export default function Where<T extends WhereType>(
                     ? <div className='value'>
                         <RenderValue
                           val={v}
-                          updater={updateOnKey(k) as any} options={{ dynamic: true }}
+                          updater={updateOnKey(k) as any} options={{ dynamic: true, type: k }}
                         />
                     </div>
                     : <Where where={v as WhereType} updater={updateOnKey(k) as any} />)

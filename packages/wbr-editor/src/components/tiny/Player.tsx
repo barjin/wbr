@@ -1,24 +1,10 @@
 import { WorkflowFile } from '@wbr-project/wbr-interpret';
 import io from 'socket.io-client';
+import Console, { ConsoleControls } from './Console';
+import Screen, { ScreenControls } from './Screen';
 
 const hostname = 'http://127.0.0.1';
 const port = 8080;
-
-function drawToCanvas(image: string) {
-  const canvas = document.getElementById('screen') as any;
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
-
-    const img = new Image();
-
-    img.src = `data:image/jpg;base64,${image}`;
-    img.onload = () => {
-      URL.revokeObjectURL(img.src);
-      ctx?.clearRect(0, 0, canvas.width, canvas.height);
-      ctx?.drawImage(img, 0, 0);
-    };
-  }
-}
 
 export async function runWorkflow(
   workflow: WorkflowFile,
@@ -39,23 +25,13 @@ export async function runWorkflow(
 
   function connectRunner(namespace: string) {
     const socket = io(`${hostname}:${port}/${namespace}`);
-    socket.on('screen', (a) => drawToCanvas(a.data));
-    //    socket.on('context',(context) => {
-    //    const tree = JsonView.createTree(context);
-    //    const context_area = document.getElementById('context');
-    //    context_area.innerHTML = "";
-    //        JsonView.render(tree, context_area);
-    //    JsonView.expandChildren(tree);
-    //    });
-    //    socket.on('action',(action) => {
-    //    const tree = JsonView.createTree(action);
-    //    const action_area =  document.getElementById('action');
-    //    action_area.innerHTML = "";
-    //        JsonView.render(tree, action_area);
-    //    JsonView.expandChildren(tree);
-    //    });
+    socket.on('screen', (a) => ScreenControls.draw(a.data));
     socket.on('error', (error) => {
-      alert(error.message);
+      ConsoleControls.write(error);
+    });
+    socket.on('finished', () => {
+      ConsoleControls.write('The workflow execution has finished');
+      currentIdx(-1);
     });
 
     socket.on(
@@ -66,7 +42,7 @@ export async function runWorkflow(
     socket.on(
       'serializableCallback',
       (x) => {
-        document.getElementById('console')!.innerHTML += JSON.stringify(x, null, 2);
+        ConsoleControls.write(JSON.stringify(x, null, 2));
       },
     );
   }
@@ -79,13 +55,11 @@ export async function runWorkflow(
   };
 }
 
-export default function Screen() {
+export default function Player() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <canvas id='screen' width="1280" height="720" style={{ backgroundColor: 'lightgrey' }}/>
-        <pre id='console' style={{
-          overflowY: 'scroll', height: '350px', width: '1280px', backgroundColor: 'black', color: 'white', font: '1.3rem Inconsolata, monospace', padding: '10px', boxSizing: 'border-box',
-        }}>Output</pre>
-      </div>
+      <Screen/>
+      <Console />
+    </div>
   );
 }

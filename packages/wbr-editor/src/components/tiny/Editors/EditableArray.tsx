@@ -34,7 +34,7 @@ export default function EditableArray(
         {array.map((x, i) => (
             <tr key={Math.random()}>
                 <td>
-                    <RenderValue updater={updateOnIdx(i)} val={x}/>
+                    <RenderValue updater={updateOnIdx(i)} val={x} {...{ options }}/>
                 </td>
             </tr>
         ))}

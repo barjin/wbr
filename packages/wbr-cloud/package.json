@@ -1,5 +1,5 @@
 {
-  "name": "@wbr-project/wbr-cloud",
+  "name": "wbr-cloud",
   "version": "0.1.0",
   "description": "Cloud environment for Smart Workflows Interpret, part of the WBR project",
   "main": "cloud.js",
@@ -29,7 +29,7 @@
   "homepage": "https://github.com/barjin/wbr#readme",
   "dependencies": {
     "@types/express-fileupload": "^1.1.7",
-    "@wbr-project/wbr-interpret": "*",
+    "@wbr-project/wbr-interpret": "file:../wbr-interpret",
     "apify": "^2.1.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",

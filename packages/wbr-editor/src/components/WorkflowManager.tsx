@@ -5,6 +5,7 @@ import {
 import { WorkflowFile } from '../wbr-types/workflow';
 import Workflow from './WorkflowEditor';
 import Screen, { runWorkflow } from './tiny/Player';
+import { ConsoleControls } from './tiny/Console';
 import Button from './tiny/Button';
 import EditableHeading from './tiny/EditableHeading';
 
@@ -123,13 +124,21 @@ export default function WorkflowManager(
   const historyManager = useRef(new HistoryManager(workflowState, setWorkflowInternal));
 
   const playWorkflow = async () => {
+    ConsoleControls.clear();
+    ConsoleControls.write(`Console cleared, running ${workflow.meta?.name}\n\n`);
     setRunning(true);
-    stopper.current = await runWorkflow(untagPairIds(workflowState), setCurrent);
+    stopper.current = await runWorkflow(untagPairIds(workflowState), (idx: number) => {
+      if (idx === -1) setRunning(false);
+      setCurrent(idx);
+    });
   };
 
   const stopWorkflow = () => {
+    if (!isRunning) return;
     stopper.current?.();
     setRunning(false);
+    ConsoleControls.write('Workflow execution stopped.\n\n');
+    stopper.current = () => {};
   };
 
   /**
@@ -138,6 +147,7 @@ export default function WorkflowManager(
      * @param newWorkflow New WorkflowFile to be set.
      */
   const setWorkflow = (newWorkflow: typeof workflowState) : void => {
+    stopWorkflow();
     const taggedWorkflow = tagPairIds(newWorkflow);
     historyManager.current.newState(taggedWorkflow);
 

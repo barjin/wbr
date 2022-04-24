@@ -70,7 +70,12 @@ function WhatStep({
                 <DeleteButton callback={deleteStep}/>
             </div>
             <div className='whatBody'>
-                {step.args ? <RenderValue val={step.args} updater={updateArgs}/> : <></>}
+                {step.args
+                  ? <RenderValue
+                    val={step.args}
+                    updater={updateArgs}
+                    options={{ type: step.action as string }}/>
+                  : <></>}
             </div>
         </div>
     </div>;
@@ -87,6 +92,10 @@ const ActionDefaults = {
   waitForLoadState: ['load'],
   fill: ['selector', 'text'],
   'keyboard.press': ['Enter'],
+  script: [`// your code goes here
+// you can use await here, 
+// the current page is available as \`page\` in the current context.
+  `],
 };
 
 export default function What(

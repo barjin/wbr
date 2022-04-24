@@ -90,10 +90,11 @@ export default class Performer {
     try {
       await this.interpreter.run(page, parameters);
     } catch (e:any) {
-      console.error('Error during interpretation:', e);
+      this.sendToClients('error', `Error during interpretation: ${e}`);
     }
 
     this.state = 'FINISHED';
+    this.sendToClients('finished');
     await Promise.all(stopScreencasts);
     await this.browser.close();
   }

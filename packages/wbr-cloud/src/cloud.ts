@@ -35,7 +35,7 @@ const server = http.createServer(app);
  */
 const io = new socket.Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: '*',
   },
 });
 
@@ -184,11 +184,4 @@ const port = process.env.APIFY_CONTAINER_PORT || 8080;
  */
 server.listen(port, () => {
   console.log(`listening on localhost:${port}`);
-  // TODO: implement better algorithm for the idle timer (`x` minutes after the last finish?)
-  setInterval(() => {
-    if (performers.every((x) => x.state !== 'OCCUPIED')) {
-      console.debug('No performers running, turning off...');
-      process.exit(0);
-    }
-  }, 5 * 60 * 1000);
 });
