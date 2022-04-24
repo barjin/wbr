@@ -1,13 +1,11 @@
 import { useDrop } from 'react-dnd';
-import { useContext } from 'react';
 import { DropTypes } from './tiny';
-import { HoverContext } from './functions/globalState';
 
-export default function DropZone({ swap } : { swap: Function }) {
-  const { isHovering } = useContext(HoverContext);
-
+export default function DropZone(
+  { swap, type, active } : { swap: Function, type: DropTypes, active: boolean },
+) {
   const [{ isOver }, drop] = useDrop(() => ({
-    accept: DropTypes.Pair,
+    accept: type,
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
@@ -20,7 +18,7 @@ export default function DropZone({ swap } : { swap: Function }) {
     <div className={`dropZone ${isOver ? 'expand' : ''}`}>
         <div
             ref={drop}
-            className={`${isHovering ? 'dropZoneActive' : ''}`}
+            className={`${active ? 'dropZoneActive' : ''}`}
         >
         </div>
     </div>

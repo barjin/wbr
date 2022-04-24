@@ -1,5 +1,5 @@
 export default function Button({
-  onClick, icon, text, disabled, className, id,
+  onClick, icon, text, disabled, className, id, style,
 }: any) {
   return (
         <button
@@ -7,6 +7,7 @@ export default function Button({
             className={`button-control ${className}`}
             onClick={onClick}
             disabled={disabled}
+            style={style}
         >
             <div className="buttonIcon">
                 {icon}

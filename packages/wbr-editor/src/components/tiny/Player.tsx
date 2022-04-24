@@ -20,37 +20,11 @@ function drawToCanvas(image: string) {
   }
 }
 
-function connectRunner(namespace: string) {
-  const socket = io(`${hostname}:${port}/${namespace}`);
-  socket.on('screen', (a) => drawToCanvas(a.data));
-  //    socket.on('context',(context) => {
-  //    const tree = JsonView.createTree(context);
-  //    const context_area = document.getElementById('context');
-  //    context_area.innerHTML = "";
-  //        JsonView.render(tree, context_area);
-  //    JsonView.expandChildren(tree);
-  //    });
-  //    socket.on('action',(action) => {
-  //    const tree = JsonView.createTree(action);
-  //    const action_area =  document.getElementById('action');
-  //    action_area.innerHTML = "";
-  //        JsonView.render(tree, action_area);
-  //    JsonView.expandChildren(tree);
-  //    });
-  socket.on('error', (error) => {
-    alert(error.message);
-  });
-  socket.on(
-    'activeId',
-    (id) => {
-      document.querySelectorAll('.pair').forEach((x) => x.setAttribute('active', 'false'));
-      document.querySelector(`.pair:nth-of-type(${id + 1})`)?.setAttribute('active', 'true');
-    },
-  );
-}
-
-export function runWorkflow(workflow: WorkflowFile) : void {
-  fetch(
+export async function runWorkflow(
+  workflow: WorkflowFile,
+  currentIdx: Function,
+) : Promise<Function> {
+  const { url } = await fetch(
     `${hostname}:${port}/performer`,
     {
       method: 'POST',
@@ -61,14 +35,57 @@ export function runWorkflow(workflow: WorkflowFile) : void {
         workflow,
       }),
     },
-  ).then((j) => j.json())
-    .then(({ url }) => {
-      connectRunner(url);
+  ).then((j) => j.json());
+
+  function connectRunner(namespace: string) {
+    const socket = io(`${hostname}:${port}/${namespace}`);
+    socket.on('screen', (a) => drawToCanvas(a.data));
+    //    socket.on('context',(context) => {
+    //    const tree = JsonView.createTree(context);
+    //    const context_area = document.getElementById('context');
+    //    context_area.innerHTML = "";
+    //        JsonView.render(tree, context_area);
+    //    JsonView.expandChildren(tree);
+    //    });
+    //    socket.on('action',(action) => {
+    //    const tree = JsonView.createTree(action);
+    //    const action_area =  document.getElementById('action');
+    //    action_area.innerHTML = "";
+    //        JsonView.render(tree, action_area);
+    //    JsonView.expandChildren(tree);
+    //    });
+    socket.on('error', (error) => {
+      alert(error.message);
     });
+
+    socket.on(
+      'activeId',
+      (x) => currentIdx(+x),
+    );
+
+    socket.on(
+      'serializableCallback',
+      (x) => {
+        document.getElementById('console')!.innerHTML += JSON.stringify(x, null, 2);
+      },
+    );
+  }
+
+  await connectRunner(url);
+
+  return async () => {
+    await fetch(`${hostname}:${port}/performer/${url}/stop`);
+    currentIdx(-1);
+  };
 }
 
 export default function Screen() {
   return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
         <canvas id='screen' width="1280" height="720" style={{ backgroundColor: 'lightgrey' }}/>
+        <pre id='console' style={{
+          overflowY: 'scroll', height: '350px', width: '1280px', backgroundColor: 'black', color: 'white', font: '1.3rem Inconsolata, monospace', padding: '10px', boxSizing: 'border-box',
+        }}>Output</pre>
+      </div>
   );
 }

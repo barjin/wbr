@@ -21,6 +21,37 @@
   position: relative;
 }
 
+#footer{
+  position: fixed;
+bottom: 0px;
+left: 0px;
+width: 100%;
+background-color: #115;
+color: white;
+padding: 5px;
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+box-sizing: border-box;
+font-weight: 400
+}
+
+.up {
+  position: relative;
+  top: 5px;
+}
+
+.down {
+  position: relative;
+  bottom: 5px;
+}
+
+#footer a {
+  color: white;
+  text-decoration: none;
+  font-weight: 900;
+}
+
 .pair{
   padding: 5px 20px;
   margin-bottom: 10px;

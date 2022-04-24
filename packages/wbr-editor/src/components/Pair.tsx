@@ -5,11 +5,12 @@ import { WorkflowFile } from '../wbr-types/workflow';
 import What from './What';
 import { DropTypes } from './tiny';
 import { CollapseContext, HoverContext } from './functions/globalState';
+import EditableHeading from './tiny/EditableHeading';
 
 type PairType = WorkflowFile['workflow'][number] & { _reactID: string };
 export default function Pair(
-  { pair, updater }:
-  { pair: PairType, updater: Function },
+  { pair, updater, active }:
+  { pair: PairType, updater: Function, active: boolean },
 ) : JSX.Element {
   const updateWhere = (where: typeof pair.where) => {
     updater({
@@ -32,7 +33,10 @@ export default function Pair(
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: DropTypes.Pair,
-    item: { _reactID: pair._reactID },
+    item: () => {
+      setHovering(true);
+      return { _reactID: pair._reactID };
+    },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -44,13 +48,14 @@ export default function Pair(
   return (
         <div className='pair'
             ref={drag}
-            onDrag={() => { setHovering(true); }}
             style={{
               backgroundColor: isDragging ? 'rgba(0,128,128,0.1)' : '',
+              border: active ? '3px solid blue' : '',
             }}
         >
             <div className='pairHeader'>
-                <h1>{pair.id}</h1><div className="deleteButton" onClick={deletePair}>x</div>
+                <EditableHeading text={pair.id ?? 'Pair ID'} updater={(newId: string) => { updater({ ...pair, id: newId }); }}/>
+                <div className="deleteButton" onClick={deletePair}>x</div>
             </div>
             <div className='pairBody' style={{ display: isCollapsed || isHovering ? 'none' : '' }}>
                 <h2>If...</h2>

@@ -5,6 +5,7 @@ import RenderValue from './Editors/RenderValue';
 
 export enum DropTypes {
   Pair = 'Pair',
+  Action = 'Action',
 }
 
 export {

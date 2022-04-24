@@ -3,9 +3,10 @@ import {
   AiOutlineUndo, AiOutlineRedo, AiOutlineDownload, AiOutlinePlayCircle,
 } from 'react-icons/ai';
 import { WorkflowFile } from '../wbr-types/workflow';
-import Workflow from '../WorkflowEditor';
-import { runWorkflow } from './tiny/Player';
+import Workflow from './WorkflowEditor';
+import Screen, { runWorkflow } from './tiny/Player';
 import Button from './tiny/Button';
+import EditableHeading from './tiny/EditableHeading';
 
 /**
  * A generic class for managing discrete state history.
@@ -114,10 +115,21 @@ export default function WorkflowManager(
   });
 
   const [workflowState, setWorkflowInternal] = useState(tagPairIds(workflow));
+  const [isRunning, setRunning] = useState(false);
+  const [currentIdx, setCurrent] = useState(-1);
+
+  const stopper = useRef<Function>(() => {});
+
   const historyManager = useRef(new HistoryManager(workflowState, setWorkflowInternal));
 
-  const playWorkflow = () => {
-    runWorkflow(workflowState);
+  const playWorkflow = async () => {
+    setRunning(true);
+    stopper.current = await runWorkflow(untagPairIds(workflowState), setCurrent);
+  };
+
+  const stopWorkflow = () => {
+    stopper.current?.();
+    setRunning(false);
   };
 
   /**
@@ -138,6 +150,9 @@ export default function WorkflowManager(
     downloadLink?.setAttribute('download', 'workflow.json');
   };
   return (
+    <div className="App" style={{ display: 'flex', flexDirection: 'column' }}>
+    <EditableHeading text={workflowState.meta?.name ?? 'Workflow'} updater={(value: string) => { setWorkflow({ ...workflowState, meta: { ...workflowState.meta, name: value } }); }}/>
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
     <div style={{ width: '100%', paddingRight: '10px' }}>
         <div>
         <Button
@@ -159,18 +174,22 @@ export default function WorkflowManager(
         />
         </a>
         <Button
-            onClick={playWorkflow}
-            icon={<AiOutlinePlayCircle/>}
-            text={'Play'}
+            onClick={!isRunning ? playWorkflow : stopWorkflow}
+            icon={!isRunning ? <AiOutlinePlayCircle/> : <AiOutlineDownload/>}
+            text={!isRunning ? 'Play' : 'Stop'}
         />
         </div>
         <Workflow {
             ...{
               workflow: workflowState.workflow,
               setWorkflow: (pairs: WorkflowFile['workflow']) => setWorkflow({ ...workflowState, workflow: pairs as any }),
+              currentIdx,
             }
         }
         />
+        </div>
+        <Screen />
+    </div>
     </div>
   );
 }

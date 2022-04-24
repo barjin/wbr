@@ -1,7 +1,6 @@
 import './App.css';
 import { useState } from 'react';
 import WorkflowManager from './components/WorkflowManager';
-import Screen from './components/tiny/Player';
 import Modal from './components/tiny/Modal';
 
 const nehnutelnosti = {
@@ -138,10 +137,14 @@ function App() {
         modalVisible
           ? <Modal {...{ setWorkflow, setModal } as any}/>
           : <div className="App" style={{ filter: modalVisible ? 'blur(20px)' : '' }}>
-            <WorkflowManager {...{ workflow } as any}/>
-            <Screen />
-        </div>
+              <WorkflowManager {...{ workflow } as any}/>
+            </div>
     }
+    <div id='footer'>
+      <span>build 0.1.0</span>
+      <span>wbr-editor</span>
+      <span>Made by <a href="mailto:jindrichbar@gmail.com">Jindřich Bär</a>, 2022</span>
+    </div>
     </div>
   );
 }

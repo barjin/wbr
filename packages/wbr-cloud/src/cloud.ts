@@ -156,6 +156,19 @@ app.get('/performer/:id', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/runner.html'));
 });
 
+app.get('/performer/:id/stop', async (req, res) => {
+  try {
+    await performers.find((x) => x.url === `/${req.params.id}`)!.stop();
+    res.sendStatus(204);
+    res.end();
+  } catch (err: any) {
+    res.status(500).json({
+      status: false,
+      message: <Error>err.message,
+    });
+  }
+});
+
 app.use(express.static(path.join(__dirname, '../public')));
 
 /**

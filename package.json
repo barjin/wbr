@@ -48,7 +48,7 @@
   },
   "scripts": {
     "test": "jest",
-    "test:e2e": "find -type f -path \"*/e2e/*.test.*\" | xargs ts-node",
+    "test:e2e": "find -type f -path \"*/e2e/*.test.*\" | xargs -L 1 ts-node",
     "lint": "eslint ./packages/wbr-interpret ./packages/wbr-editor",
     "clean": "find -type d -path \"*/packages/*\" -iname \"build\" | grep -v \"node_modules\" | xargs rm -r || echo \"No build files found!\""
   }

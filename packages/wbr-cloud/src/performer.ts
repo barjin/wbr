@@ -1,5 +1,7 @@
 // Cloud interpreter communication layer
-import { chromium, BrowserContext, Page } from 'playwright';
+import {
+  chromium, BrowserContext, Page, Browser,
+} from 'playwright';
 import { Namespace, Socket } from 'socket.io';
 import Interpret, { WorkflowFile } from '@wbr-project/wbr-interpret';
 
@@ -12,9 +14,12 @@ export default class Performer {
 
   public state: ('NEW' | 'OCCUPIED' | 'FINISHED') = 'NEW';
 
+  private browser : Browser | null;
+
   constructor(workflow: WorkflowFile, conn: Namespace) {
     this.workflow = workflow;
     this.url = conn.name;
+    this.browser = null;
 
     conn.on('connection', async (c) => {
       this.clients.push(c);
@@ -59,13 +64,14 @@ export default class Performer {
       debugChannel: {
         activeId: (id: any) => this.sendToClients('activeId', id),
       },
+      serializableCallback: (x) => this.sendToClients('serializableCallback', x),
     });
 
-    const browser = await chromium.launch(process.env.DOCKER
+    this.browser = await chromium.launch(process.env.DOCKER
       ? { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-gpu'] }
       : { });
 
-    const ctx = await browser.newContext({ locale: 'en-GB' });
+    const ctx = await this.browser.newContext({ locale: 'en-GB' });
     const page = await ctx.newPage();
 
     const stopScreencasts = [await this.registerScreencast(ctx, page)];
@@ -74,10 +80,20 @@ export default class Performer {
       stopScreencasts.push(await this.registerScreencast(ctx, p));
     });
 
-    await interpreter.run(page, parameters);
+    try {
+      await interpreter.run(page, parameters);
+    } catch (e:any) {
+      console.error('Error during interpretation:', e);
+    }
 
     this.state = 'FINISHED';
     await Promise.all(stopScreencasts);
-    await browser.close();
+    await this.browser.close();
+  }
+
+  async stop() : Promise<void> {
+    this.state = 'FINISHED';
+    await this.browser?.close();
+    this.clients.map((c) => c.disconnect());
   }
 }

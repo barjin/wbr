@@ -3,12 +3,13 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import update from 'immutability-helper';
 import { AiOutlineNodeCollapse, AiOutlineNodeExpand } from 'react-icons/ai';
-import UpdaterFactory from './components/functions/UpdaterFactory';
-import Pair from './components/Pair';
-import { WhereWhatPair, WorkflowFile } from './wbr-types/workflow';
-import DropZone from './components/dropZone';
-import { HoverContext, CollapseContext } from './components/functions/globalState';
-import Button from './components/tiny/Button';
+import UpdaterFactory from './functions/UpdaterFactory';
+import Pair from './Pair';
+import { WhereWhatPair, WorkflowFile } from '../wbr-types/workflow';
+import DropZone from './dropZone';
+import { HoverContext, CollapseContext } from './functions/globalState';
+import Button from './tiny/Button';
+import { DropTypes } from './tiny';
 
 const emptyPair = {
   _reactID: Math.random().toString(36).substr(2, 9),
@@ -18,7 +19,7 @@ const emptyPair = {
   what: [],
 };
 
-export default function WorkflowEditor({ workflow, setWorkflow }: { workflow: WorkflowFile['workflow'], setWorkflow: (pairs: WhereWhatPair[]) => void }) : JSX.Element {
+export default function WorkflowEditor({ workflow, setWorkflow, currentIdx }: { workflow: WorkflowFile['workflow'], setWorkflow: (pairs: WhereWhatPair[]) => void, currentIdx: number }) : JSX.Element {
   const [isHovering, setHovering] = useState(false);
   const [isCollapsed, setCollapsed] = useState(false);
 
@@ -36,30 +37,39 @@ export default function WorkflowEditor({ workflow, setWorkflow }: { workflow: Wo
   };
 
   return (
-        <div style={{ display: 'block' }}>
-        <Button
-            icon={!isCollapsed ? <AiOutlineNodeCollapse/> : <AiOutlineNodeExpand/>}
-            text={!isCollapsed ? 'Collapse rules' : 'Expand rules'}
-            onClick={() => { setCollapsed(!isCollapsed); }}
-        />
+        <div style={{ display: 'block', position: 'relative' }}>
+        <div className='stickyTools' style={{
+          position: 'absolute', height: '100%', width: '25%', left: '-25%',
+        }}>
+          <Button
+              icon={!isCollapsed ? <AiOutlineNodeCollapse/> : <AiOutlineNodeExpand/>}
+              text={!isCollapsed ? 'Collapse rules' : 'Expand rules'}
+              onClick={() => { setCollapsed(!isCollapsed); }}
+              style={{ position: 'sticky', width: '80%', top: '10px' }}
+          />
+        </div>
         <CollapseContext.Provider value={{ isCollapsed, setCollapsed: (setCollapsed as any) }}>
             <HoverContext.Provider value={{ isHovering, setHovering: (setHovering as any) }}>
                 <DndProvider backend={HTML5Backend}>
-                    <DropZone key={0} swap={movePair(0)}/>
+                    <DropZone active={isHovering} key={0} type={DropTypes.Pair} swap={movePair(0)}/>
                     {workflow.map((pair, i) => (
                     <>
                         <Pair
                             updater={updatePair(i)}
                             pair={pair as any}
                             key={(pair as any)._reactID}
+                            active={i === currentIdx}
                         />
-                        <DropZone key={i + 1} swap={movePair(i + 1)}/>
+                        <DropZone
+                        active={isHovering}
+                        type={DropTypes.Pair}
+                        key={i + 1} swap={movePair(i + 1)}/>
                     </>
                     ))}
                 </DndProvider>
             </HoverContext.Provider>
         </CollapseContext.Provider>
-        <div className="button primary" onClick={() => pushPair()(emptyPair)}>+</div>
+        <div style={{ marginBottom: '50px' }} className="button primary" onClick={() => pushPair()(emptyPair)}>+</div>
         </div>
   );
 }

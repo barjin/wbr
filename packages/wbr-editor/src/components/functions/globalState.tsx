@@ -11,3 +11,9 @@ export const CollapseContext = React.createContext({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setCollapsed: (x: boolean) : void => {},
 });
+
+export const CurrentActionContext = React.createContext({
+  currentIdx: -1,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setCurrent: (x: number) : void => {},
+});
