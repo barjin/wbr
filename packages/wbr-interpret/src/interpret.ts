@@ -40,6 +40,8 @@ export default class Interpreter extends EventEmitter {
 
   private concurrency : Concurrency;
 
+  private stopper : Function | null = null;
+
   constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
     super();
     this.workflow = workflow.workflow;
@@ -90,7 +92,7 @@ export default class Interpreter extends EventEmitter {
 
         return await Promise.all(proms).then((bools) => bools.every((x) => x));
       } catch (e) {
-        log(<Error>e, Level.ERROR);
+        // log(<Error>e, Level.ERROR);
         return false;
       }
     };
@@ -351,7 +353,14 @@ export default class Interpreter extends EventEmitter {
         return;
       }
 
-      const pageState = await this.getState(p, workflow);
+      let pageState = {};
+      try {
+        pageState = await this.getState(p, workflow);
+      } catch (e: any) {
+        log('The browser has been closed.');
+        return;
+      }
+
       if (this.options.debug) {
         log(`Current state is: \n${JSON.stringify(pageState, null, 2)}`, Level.WARN);
       }
@@ -396,6 +405,9 @@ export default class Interpreter extends EventEmitter {
    *  for the `{$param: nameofparam}` fields.
    */
   public async run(page: Page, params? : ParamType) : Promise<void> {
+    if (this.stopper) {
+      throw new Error('This Interpreter is already running a workflow. To run another workflow, please, spawn another Interpreter.');
+    }
     /**
      * `this.workflow` with the parameters initialized.
      */
@@ -408,8 +420,22 @@ export default class Interpreter extends EventEmitter {
 
     this.concurrency.addJob(() => this.runLoop(page, this.initializedWorkflow!));
 
-    await this.concurrency.waitForCompletion();
+    await Promise.race([
+      this.concurrency.waitForCompletion(),
+      new Promise((resolve) => {
+        this.stopper = resolve;
+      }),
+    ]);
 
     log('Workflow done, bye!', Level.LOG);
+  }
+
+  public async stop() : Promise<void> {
+    if (this.stopper) {
+      await this.stopper();
+      this.stopper = null;
+    } else {
+      throw new Error('Cannot stop, there is no running workflow!');
+    }
   }
 }

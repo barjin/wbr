@@ -14,17 +14,24 @@ export default class Performer {
 
   public state: ('NEW' | 'OCCUPIED' | 'FINISHED') = 'NEW';
 
+  private interpreter : Interpret | null;
+
   private browser : Browser | null;
 
   constructor(workflow: WorkflowFile, conn: Namespace) {
     this.workflow = workflow;
     this.url = conn.name;
+    this.interpreter = null;
     this.browser = null;
 
     conn.on('connection', async (c) => {
       this.clients.push(c);
-      c.on('disconnect', () => {
-        this.clients = this.clients.filter((x) => x !== c);
+      c.on('disconnect', async () => {
+        try {
+          await this.stop();
+        } catch (e: any) {
+          // console.error(e);
+        }
       });
     });
   }
@@ -58,7 +65,7 @@ export default class Performer {
     console.log('Running the interpret...');
     this.state = 'OCCUPIED';
 
-    const interpreter = new Interpret(this.workflow, {
+    this.interpreter = new Interpret(this.workflow, {
       maxConcurrency: 1,
       maxRepeats: 5,
       debugChannel: {
@@ -81,7 +88,7 @@ export default class Performer {
     });
 
     try {
-      await interpreter.run(page, parameters);
+      await this.interpreter.run(page, parameters);
     } catch (e:any) {
       console.error('Error during interpretation:', e);
     }
@@ -93,6 +100,7 @@ export default class Performer {
 
   async stop() : Promise<void> {
     this.state = 'FINISHED';
+    await this.interpreter?.stop();
     await this.browser?.close();
     this.clients.map((c) => c.disconnect());
   }
