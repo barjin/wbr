@@ -32,6 +32,7 @@ export async function runWorkflow(
     socket.on('finished', () => {
       ConsoleControls.write('The workflow execution has finished');
       currentIdx(-1);
+      socket.close();
     });
 
     socket.on(
@@ -45,13 +46,22 @@ export async function runWorkflow(
         ConsoleControls.write(JSON.stringify(x, null, 2));
       },
     );
+    socket.on(
+      'debugMessage',
+      (x) => {
+        ConsoleControls.write(x);
+      },
+    );
+
+    return socket;
   }
 
-  await connectRunner(url);
+  const socket = await connectRunner(url);
 
   return async () => {
     await fetch(`${hostname}:${port}/performer/${url}/stop`);
     currentIdx(-1);
+    socket.close();
   };
 }
 

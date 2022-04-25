@@ -70,8 +70,9 @@ export default class Performer {
       maxRepeats: 5,
       debugChannel: {
         activeId: (id: any) => this.sendToClients('activeId', id),
+        debugMessage: (msg: any) => this.sendToClients('debugMessage', msg),
       },
-      serializableCallback: (x) => this.sendToClients('serializableCallback', x),
+      serializableCallback: (x: any) => this.sendToClients('serializableCallback', x),
     });
 
     this.browser = await chromium.launch(process.env.DOCKER

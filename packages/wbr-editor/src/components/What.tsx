@@ -90,6 +90,7 @@ const ActionDefaults = {
     'second column name': 'selector',
   }],
   waitForLoadState: ['load'],
+  waitForTimeout: [100],
   fill: ['selector', 'text'],
   'keyboard.press': ['Enter'],
   script: [`// your code goes here

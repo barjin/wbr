@@ -24,7 +24,8 @@ interface InterpreterOptions {
   binaryCallback: (output: any, mimeType: string) => (void | Promise<void>);
   debug: boolean;
   debugChannel: Partial<{
-    activeId: Function
+    activeId: Function,
+    debugMessage: Function,
   }>
 }
 
@@ -61,6 +62,17 @@ export default class Interpreter extends EventEmitter {
     if (error) {
       throw (error);
     }
+
+    if (this.options.debugChannel?.debugMessage) {
+      const oldLog = log;
+      // @ts-ignore
+      log = (...args: Parameters<typeof oldLog>) => {
+        if (args[1] !== Level.LOG) {
+          this.options.debugChannel.debugMessage!(typeof args[0] === 'string' ? args[0] : args[0].message);
+        }
+        oldLog(...args);
+      };
+    }
   }
 
   /**
@@ -86,8 +98,16 @@ export default class Interpreter extends EventEmitter {
     const actionable = async (selector: string) : Promise<boolean> => {
       try {
         const proms = [
-          page.isEnabled(selector, { timeout: 2000 }),
-          page.isVisible(selector, { timeout: 2000 }),
+          page.isEnabled(selector, { timeout: 500 }),
+          page.isVisible(selector, { timeout: 500 }),
+          (async () => {
+            const element = await page.locator(selector);
+            return element.evaluate((e) => {
+              const r = e.getBoundingClientRect();
+              // @ts-expect-error - playwright typings are wrong
+              return e === document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            });
+          })(),
         ];
 
         return await Promise.all(proms).then((bools) => bools.every((x) => x));
@@ -243,6 +263,7 @@ export default class Interpreter extends EventEmitter {
         const context = page.context();
 
         for (const link of links) {
+          // eslint-disable-next-line
           this.concurrency.addJob(async () => {
             try {
               const newPage = await context.newPage();
@@ -290,8 +311,8 @@ export default class Interpreter extends EventEmitter {
         const AsyncFunction : FunctionConstructor = Object.getPrototypeOf(
           async () => {},
         ).constructor;
-        const x = new AsyncFunction('page', code);
-        await x(page);
+        const x = new AsyncFunction('page', 'log', code);
+        await x(page, log);
       },
       flag: async () => new Promise((res) => {
         this.emit('flag', page, res);
@@ -387,7 +408,6 @@ export default class Interpreter extends EventEmitter {
           await this.carryOutSteps(p, action.what);
           usedActions.push(action.id ?? 'undefined');
         } catch (e) {
-          log(`${action.id} didn't run successfully, retrying because of soft mode...`, Level.WARN);
           log(<Error>e, Level.ERROR);
         }
       } else {

@@ -32,20 +32,18 @@ export default function EditableObject(
   const updateOnKey = UpdaterFactory.ObjectValueUpdater(object, setObject);
 
   return (
-        <table>
-        {Object.entries(object).map(([k, x]) => <tr key={k}>
-            <td>
-            <EditableValue updater={updateKey(k)} val={k} {...{ options }}/>:&nbsp;
-            </td>
-            <td>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {Object.entries(object).map(([k, x]) => (
+        <div className="objectRow" key={k}>
+            <EditableValue updater={updateKey(k)} val={k} {...{ options }}/>
             <EditableValue updater={updateOnKey(k)} val={x} {...{ options }}/>
-            </td>
-        </tr>)}
+        </div>))
+        }
         {options?.dynamic ? <tr>
             <td>
-                <EditableValue val={''} key={Math.random()} updater={addKey()} placeholder='New key...' {...{ options }}/>:&nbsp;
+                <EditableValue val={''} key={Math.random()} updater={addKey()} placeholder='New key...' {...{ options }}/>
             </td>
         </tr> : null}
-        </table>
+        </div>
   );
 }

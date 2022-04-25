@@ -9,10 +9,13 @@ export default function EditableHeading(
 
   return (
       <>
-    <h1 onDoubleClick={() => {
+    <h1
+    onDoubleClick={() => {
       setEditing(true);
     }}
     style={{
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
       display: editing ? 'none' : '',
     }}
     >

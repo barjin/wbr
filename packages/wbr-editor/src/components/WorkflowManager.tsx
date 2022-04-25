@@ -95,7 +95,7 @@ export default function WorkflowManager(
     workflow: w.workflow.map((pair) => (
       {
         ...pair,
-        _reactID: (pair as any)._reactID ?? Math.random().toString(36).substr(2, 9),
+        _reactID: (pair as any)._reactID ?? window.crypto.randomUUID(),
       }
     )),
   });
@@ -160,10 +160,10 @@ export default function WorkflowManager(
     downloadLink?.setAttribute('download', 'workflow.json');
   };
   return (
-    <div className="App" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div>
     <EditableHeading text={workflowState.meta?.name ?? 'Workflow'} updater={(value: string) => { setWorkflow({ ...workflowState, meta: { ...workflowState.meta, name: value } }); }}/>
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
-    <div style={{ width: '100%', paddingRight: '10px' }}>
+    <div id="mainContainer">
+    <div style={{ paddingRight: '10px' }}>
         <div>
         <Button
             onClick={historyManager.current.undo}

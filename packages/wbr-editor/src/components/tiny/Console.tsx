@@ -14,8 +14,8 @@ export class ConsoleControls {
 export default function Console() {
   return (<pre id='console' style={{
     overflowY: 'scroll',
-    height: '350px',
-    width: '1280px',
+    width: '100%',
+    aspectRatio: '4/1',
     backgroundColor: 'black',
     color: 'white',
     font: '1.3rem Inconsolata, monospace',

@@ -14,11 +14,22 @@
   --background-color: rgb(240,240,240);
   --background-color-accent: rgb(228, 228, 228);
 }
+
 .App {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
   position: relative;
+  width: 80%;
+}
+
+.objectRow {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.objectRow input:first-of-type {
+  font-weight: 800;
 }
 
 #footer{
@@ -83,11 +94,14 @@ font-weight: 400
   background-color: rgba(122, 224, 255, 0.295);
 }
 
+
+
 .pairHeader{
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .whatStep {
@@ -190,8 +204,13 @@ font-weight: 400
 }
 
 #screen {
-  width: 1280px;
-  height: 720px;
+  width: 100%;
+  aspect-ratio: 16/9;
+}
+
+#mainContainer {
+  display: grid;
+  grid-template-columns: 30% 70%;
 }
 
 .button:hover{
@@ -237,4 +256,12 @@ font-weight: 400
   margin-left: 10px;
   padding-left: 10px;
   border-left: 5px solid lightgrey
+}
+
+@media only screen and (min-width: 1500px) {
+  .objectRow {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
 }

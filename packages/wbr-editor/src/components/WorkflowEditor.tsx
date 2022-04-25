@@ -12,7 +12,6 @@ import Button from './tiny/Button';
 import { DropTypes } from './tiny';
 
 const emptyPair = {
-  _reactID: Math.random().toString(36).substr(2, 9),
   where: {
     $and: [],
   },
@@ -51,7 +50,8 @@ export default function WorkflowEditor({ workflow, setWorkflow, currentIdx }: { 
         <CollapseContext.Provider value={{ isCollapsed, setCollapsed: (setCollapsed as any) }}>
             <HoverContext.Provider value={{ isHovering, setHovering: (setHovering as any) }}>
                 <DndProvider backend={HTML5Backend}>
-                    <DropZone active={isHovering} key={0} type={DropTypes.Pair} swap={movePair(0)}/>
+                    <DropZone active={isHovering}
+                    key={Math.random()} type={DropTypes.Pair} swap={movePair(0)}/>
                     {workflow.map((pair, i) => (
                     <>
                         <Pair
@@ -63,7 +63,7 @@ export default function WorkflowEditor({ workflow, setWorkflow, currentIdx }: { 
                         <DropZone
                         active={isHovering}
                         type={DropTypes.Pair}
-                        key={i + 1} swap={movePair(i + 1)}/>
+                        key={Math.random()} swap={movePair(i + 1)}/>
                     </>
                     ))}
                 </DndProvider>

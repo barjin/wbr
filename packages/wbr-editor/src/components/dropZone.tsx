@@ -2,7 +2,9 @@ import { useDrop } from 'react-dnd';
 import { DropTypes } from './tiny';
 
 export default function DropZone(
-  { swap, type, active } : { swap: Function, type: DropTypes, active: boolean },
+  {
+    swap, type, active, key,
+  } : { key: number, swap: Function, type: DropTypes, active: boolean },
 ) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: type,
@@ -12,7 +14,7 @@ export default function DropZone(
     drop: (item) => {
       swap((item as any)._reactID);
     },
-  }), [swap]);
+  }), [swap, key]);
 
   return (
     <div className={`dropZone ${isOver ? 'expand' : ''}`}>
