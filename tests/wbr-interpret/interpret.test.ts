@@ -29,6 +29,12 @@ class MockPage {
     isVisible(selector: string){
         return this._selectors.includes(selector);
     }
+
+    locator(selector: string){
+        return ({
+            evaluate: () => {return this._selectors.includes(selector);}
+        })
+    }
 }
 
 type StateType = Record<string,
