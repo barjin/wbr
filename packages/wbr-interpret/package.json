@@ -1,6 +1,6 @@
 {
   "name": "@wbr-project/wbr-interpret",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Smart Workflows Interpret, part of the WBR project",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
