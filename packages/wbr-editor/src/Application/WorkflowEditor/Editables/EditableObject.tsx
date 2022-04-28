@@ -1,5 +1,5 @@
 import EditableValue from './EditableValue';
-import UpdaterFactory from '../../functions/UpdaterFactory';
+import UpdaterFactory from '../Utils/UpdaterFactory';
 import type { IInputOptions } from './types';
 
 /**

@@ -2,7 +2,7 @@ import { IoMdCreate } from 'react-icons/io';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { useRef, useState } from 'react';
 import { Preprocessor } from '@wbr-project/wbr-interpret';
-import Button from './Button';
+import Button from './Reusables/Button';
 
 const emptyWorkflow = {
   workflow: [],

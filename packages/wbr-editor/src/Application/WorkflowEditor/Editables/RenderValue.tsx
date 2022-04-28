@@ -1,7 +1,7 @@
 import EditableValue from './EditableValue';
 import EditableObject from './EditableObject';
 import type { IInputOptions } from './types';
-import UpdaterFactory from '../../functions/UpdaterFactory';
+import UpdaterFactory from '../Utils/UpdaterFactory';
 
 let EditableArray : Function;
 

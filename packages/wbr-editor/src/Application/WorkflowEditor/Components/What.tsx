@@ -1,10 +1,13 @@
 import { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import update from 'immutability-helper';
-import { What as StepType } from '../wbr-types/workflow';
-import UpdaterFactory from './functions/UpdaterFactory';
-import { DropTypes, RenderValue } from './tiny';
-import { DeleteButton, Select } from './tiny/Controls';
+import { WorkflowFile } from '@wbr-project/wbr-interpret';
+import UpdaterFactory from '../Utils/UpdaterFactory';
+import { DropTypes } from './DropTypes';
+import { RenderValue } from '../Editables';
+import { DeleteButton, Select } from '../../Reusables/Controls';
+
+type StepType = WorkflowFile['workflow'][number]['what'][number];
 
 function WhatStep({
   idx, step, reorder, updater,

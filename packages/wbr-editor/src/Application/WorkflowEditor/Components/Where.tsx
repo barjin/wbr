@@ -1,10 +1,11 @@
 /* eslint-disable no-nested-ternary */
-import { Where as WhereType } from '../wbr-types/workflow';
-import { naryOperators, unaryOperators } from '../wbr-types/logic';
-import { RenderValue } from './tiny';
-import { Select, DeleteButton } from './tiny/Controls';
+import { WorkflowFile, naryOperators, unaryOperators } from '@wbr-project/wbr-interpret';
+import { RenderValue } from '../Editables';
+import { Select, DeleteButton } from '../../Reusables/Controls';
 
-import UpdaterFactory from './functions/UpdaterFactory';
+import UpdaterFactory from '../Utils/UpdaterFactory';
+
+type WhereType = WorkflowFile['workflow'][number]['where'];
 
 type NaryOperator = typeof naryOperators[number];
 type UnaryOperator = typeof unaryOperators[number];

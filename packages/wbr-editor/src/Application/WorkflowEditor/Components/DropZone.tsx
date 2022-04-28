@@ -1,5 +1,5 @@
 import { useDrop } from 'react-dnd';
-import { DropTypes } from './tiny';
+import { DropTypes } from './DropTypes';
 
 export default function DropZone(
   {

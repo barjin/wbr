@@ -10,7 +10,7 @@ export default function EditableValue({
   const setValue = (v: string) => {
     if (['true', 'false'].includes(v.toString())) {
       setValueInternal(v === 'true');
-    } else if (v && !Number.isNaN(v)) {
+    } else if (v !== '' && !Number.isNaN(+v)) {
       setValueInternal(+v);
     } else {
       setValueInternal(v);

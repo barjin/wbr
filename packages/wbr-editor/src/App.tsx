@@ -1,7 +1,7 @@
 import './App.css';
 import { useState } from 'react';
-import WorkflowManager from './components/WorkflowManager';
-import Modal from './components/tiny/Modal';
+import WorkflowManager from './Application/WorkflowEditor/WorkflowManager';
+import Modal from './Application/Modal';
 
 function App() {
   const [workflow, setWorkflow] = useState({});

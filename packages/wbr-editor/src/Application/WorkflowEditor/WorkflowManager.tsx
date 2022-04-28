@@ -2,12 +2,12 @@ import { useState, useRef } from 'react';
 import {
   AiOutlineUndo, AiOutlineRedo, AiOutlineDownload, AiOutlinePlayCircle,
 } from 'react-icons/ai';
-import { WorkflowFile } from '../wbr-types/workflow';
+import { WorkflowFile } from '@wbr-project/wbr-interpret';
 import Workflow from './WorkflowEditor';
-import Screen, { runWorkflow } from './tiny/Player';
-import { ConsoleControls } from './tiny/Console';
-import Button from './tiny/Button';
-import EditableHeading from './tiny/EditableHeading';
+import Screen, { runWorkflow } from '../WorkflowPlayer/Player';
+import { ConsoleControls } from '../WorkflowPlayer/Console';
+import Button from '../Reusables/Button';
+import EditableHeading from './Editables/EditableHeading';
 
 /**
  * A generic class for managing discrete state history.

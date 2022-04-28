@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import update from 'immutability-helper';
+
 import { AiOutlineNodeCollapse, AiOutlineNodeExpand } from 'react-icons/ai';
-import UpdaterFactory from './functions/UpdaterFactory';
-import Pair from './Pair';
-import { WhereWhatPair, WorkflowFile } from '../wbr-types/workflow';
-import DropZone from './dropZone';
-import { HoverContext, CollapseContext } from './functions/globalState';
-import Button from './tiny/Button';
-import { DropTypes } from './tiny';
+import { WorkflowFile } from '@wbr-project/wbr-interpret';
+import UpdaterFactory from './Utils/UpdaterFactory';
+import Pair from './Components/Pair';
+import DropZone from './Components/DropZone';
+import { HoverContext, CollapseContext } from './Utils/GlobalStates';
+import Button from '../Reusables/Button';
+import { DropTypes } from './Components/DropTypes';
+
+type WhereWhatPair = WorkflowFile['workflow'][number];
 
 const emptyPair = {
   where: {

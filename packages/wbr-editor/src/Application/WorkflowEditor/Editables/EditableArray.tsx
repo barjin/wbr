@@ -1,6 +1,6 @@
 import EditableValue from './EditableValue';
 import RenderValue from './RenderValue';
-import UpdaterFactory from '../../functions/UpdaterFactory';
+import UpdaterFactory from '../Utils/UpdaterFactory';
 import type { IInputOptions } from './types';
 
 /**

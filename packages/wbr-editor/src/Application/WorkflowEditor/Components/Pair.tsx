@@ -1,11 +1,11 @@
 import { useDrag } from 'react-dnd';
 import { useContext } from 'react';
+import { WorkflowFile } from '@wbr-project/wbr-interpret';
 import Where from './Where';
-import { WorkflowFile } from '../wbr-types/workflow';
 import What from './What';
-import { DropTypes } from './tiny';
-import { CollapseContext, HoverContext } from './functions/globalState';
-import EditableHeading from './tiny/EditableHeading';
+import { DropTypes } from './DropTypes';
+import { CollapseContext, HoverContext } from '../Utils/GlobalStates';
+import EditableHeading from '../Editables/EditableHeading';
 
 type PairType = WorkflowFile['workflow'][number] & { _reactID: string };
 export default function Pair(
