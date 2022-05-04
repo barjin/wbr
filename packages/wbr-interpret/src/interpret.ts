@@ -103,6 +103,14 @@ export default class Interpreter extends EventEmitter {
         const proms = [
           page.isEnabled(selector, { timeout: 500 }),
           page.isVisible(selector, { timeout: 500 }),
+          (async () => {
+            const element = await page.locator(selector);
+            return element.evaluate((e) => {
+              const r = e.getBoundingClientRect();
+              // @ts-ignore Playwright typings.
+              return e === document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            });
+          })(),
         ];
 
         return await Promise.all(proms).then((bools) => bools.every((x) => x));
