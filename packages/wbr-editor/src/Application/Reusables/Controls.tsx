@@ -8,7 +8,8 @@ import { MouseEventHandler, useState } from 'react';
  * @returns React element
  */
 export function Select(
-  { options, select }: { options: string[], select: (choice: any) => void },
+  { options, select, children }:
+  { options: string[], select: (choice: any) => void, children?: any },
 ) : JSX.Element {
   const [collapsed, setCollapsed] = useState(true);
 
@@ -16,7 +17,9 @@ export function Select(
 
   return (
         <div tabIndex={1} onBlur={() => setCollapsed(true)} style={{ position: 'relative' }}>
-        <div onClick={toggleCollapsed} className='button primary'>+</div>
+            <div onClick={toggleCollapsed} className='button primary'>
+              {children ?? '+'}
+            </div>
         <div style={{
           display: collapsed ? 'none' : 'block',
           position: 'absolute',
@@ -28,7 +31,8 @@ export function Select(
             <div className='option' onClick={() => {
               setCollapsed(true);
               select(x);
-            }}>
+            }}
+            >
                 {x}
             </div>
         ))}

@@ -25,7 +25,7 @@ const ConditionDefaults: Partial<Record<keyof WhereType, any>> = {
 let WhereList : Function;
 
 export default function Where<T extends WhereType>(
-  { where, updater }: { where: T, updater: (arg0: T) => void },
+  { where, updater, base }: { where: T, updater: (arg0: T) => void, base?: boolean },
 ) : JSX.Element {
   const updateOnKey = UpdaterFactory.ObjectValueUpdater(where, updater);
   const removeKey = UpdaterFactory.ObjectRemoveKey(where, updater);
@@ -35,11 +35,14 @@ export default function Where<T extends WhereType>(
         <div style={{ flexDirection: 'column' }}>
         {Object.entries(where).map(([k, v]: [any, any]) => (
             <div className='record'>
-            <div className='key'>
-                <span>{k}</span>
-                <div className='spacer'/>
-                <DeleteButton callback={removeKey(k)}/>
-            </div>
+              {!base
+                ? <div className='key'>
+                         <span>{k}</span>
+                         <div className='spacer'/>
+                         <DeleteButton callback={removeKey(k)}/>
+                     </div>
+                : null
+            }
                 {!naryOperators.includes(k as NaryOperator)
                   ? (!unaryOperators.includes(k as UnaryOperator)
                     ? <div className='value'>

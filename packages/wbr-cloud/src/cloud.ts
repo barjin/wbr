@@ -43,7 +43,7 @@ const io = new socket.Server(server, {
  * `POST` method for the `/workflow` endpoint
  * Uploads a new workflow as a file. Tests if the file is a valid JSON.
  */
-app.post('/workflow', async (req, res) => {
+app.post('/api/workflow', async (req, res) => {
   try {
     if (!req.files || !req.files.workflow) {
       throw new Error('No files uploaded.');
@@ -76,7 +76,7 @@ app.post('/workflow', async (req, res) => {
 * `GET` method for the `/workflow` endpoint
 * Returns a list of all the available workflows.
 */
-app.get('/workflow', async (req, res) => {
+app.get('/api/workflow', async (req, res) => {
   if (!fs.existsSync(uploadsDir)) {
     res.json([]);
     return;
@@ -102,7 +102,7 @@ app.get('/workflow', async (req, res) => {
 *
 * Runs the specified workflow and returns a URL for looking inside.
 */
-app.post('/performer', async (req, res) => {
+app.post('/api/performer', async (req, res) => {
 // The interpreter runs the workflow as soon as the client connects to it.
   try {
     const { workflow, params } = req.body;
@@ -141,7 +141,7 @@ app.post('/performer', async (req, res) => {
  *
  * Returns a list of currently existing performers with their names, urls and states.
  */
-app.get('/performer', async (req, res) => {
+app.get('/api/performer', async (req, res) => {
   try {
     res.json(performers.map((x, idx) => ({ id: idx, url: x.url, state: x.state })));
   } catch (err: any) {
@@ -152,15 +152,20 @@ app.get('/performer', async (req, res) => {
   }
 });
 
-app.get('/performer/:id', (req, res) => {
+app.get('/api/performer/:id', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/runner.html'));
 });
 
-app.get('/performer/:id/stop', async (req, res) => {
+app.post('/api/performer/:id', async (req, res) => {
   try {
-    await performers.find((x) => x.url === `/${req.params.id}`)!.stop();
-    res.sendStatus(204);
-    res.end();
+    const { action } = req.body;
+    if (action === 'stop') {
+      await performers.find((x) => x.url === `/${req.params.id}`)!.stop();
+      res.sendStatus(204);
+      res.end();
+    } else {
+      throw new Error(`Unknown action: ${action}`);
+    }
   } catch (err: any) {
     res.status(500).json({
       status: false,

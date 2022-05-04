@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { BsFillPencilFill, BsPencil } from 'react-icons/bs';
 
 export default function EditableHeading(
   { text, updater }: { text: string, updater: Function },
@@ -9,19 +10,19 @@ export default function EditableHeading(
 
   return (
       <>
-    <h1
-    onDoubleClick={() => {
-      setEditing(true);
-    }}
-    style={{
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      display: editing ? 'none' : '',
-    }}
-    >
-        {text}
-    </h1>
-    <input ref={inputRef}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <h1
+      onDoubleClick={() => setEditing(true)}
+      style={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: editing ? 'none' : 'inline-block',
+        width: 'auto',
+      }}
+      >
+      {text}
+      </h1>
+      <input ref={inputRef}
       style={{
         display: editing ? 'block' : 'none',
         fontSize: '2em',
@@ -40,6 +41,22 @@ export default function EditableHeading(
         }
       }}
       />
+      { !editing
+        ? <BsFillPencilFill
+          style={{ marginLeft: '20px', cursor: 'pointer' }}
+          onClick={() => {
+            setEditing(true);
+          }}
+        />
+        : <BsPencil
+          style={{ marginLeft: '20px', cursor: 'pointer' }}
+          onClick={() => {
+            setEditing(false);
+            updater(value);
+          }}
+        />
+      }
+      </div>
       </>
   );
 }

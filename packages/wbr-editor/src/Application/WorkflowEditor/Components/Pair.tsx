@@ -59,9 +59,9 @@ export default function Pair(
             </div>
             <div className='pairBody' style={{ display: isCollapsed || isHovering ? 'none' : '' }}>
                 <h2>If...</h2>
-                <Where where={pair.where} updater={updateWhere}/>
+                <Where where={pair.where} updater={updateWhere} base={true}/>
                 <h2>Then...</h2>
-                <What what={pair.what} updater={updateWhat}/>
+                <What what={pair.what} updater={updateWhat} />
             </div>
         </div>
   );

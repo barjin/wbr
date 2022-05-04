@@ -3,15 +3,12 @@ import io from 'socket.io-client';
 import Console, { ConsoleControls } from './Console';
 import Screen, { ScreenControls } from './Screen';
 
-const hostname = 'http://127.0.0.1';
-const port = 8080;
-
 export async function runWorkflow(
   workflow: WorkflowFile,
   currentIdx: Function,
 ) : Promise<Function> {
   const { url } = await fetch(
-    `${hostname}:${port}/performer`,
+    '/api/performer',
     {
       method: 'POST',
       headers: {
@@ -24,7 +21,7 @@ export async function runWorkflow(
   ).then((j) => j.json());
 
   function connectRunner(namespace: string) {
-    const socket = io(`${hostname}:${port}/${namespace}`);
+    const socket = io(`/${namespace}`);
     socket.on('screen', (a) => ScreenControls.draw(a.data));
     socket.on('error', (error) => {
       ConsoleControls.write(error);
@@ -59,7 +56,10 @@ export async function runWorkflow(
   const socket = await connectRunner(url);
 
   return async () => {
-    await fetch(`${hostname}:${port}/performer/${url}/stop`);
+    await fetch(`/api/performer/${url}/stop`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'stop' }),
+    }).catch((e) => console.error(e));
     currentIdx(-1);
     socket.close();
   };

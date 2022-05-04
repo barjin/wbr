@@ -3,6 +3,7 @@ import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { useRef, useState } from 'react';
 import { Preprocessor } from '@wbr-project/wbr-interpret';
 import Button from './Reusables/Button';
+import { CD, NehnutelnostiSk, SAutoCz } from '../examples';
 
 const emptyWorkflow = {
   workflow: [],
@@ -47,6 +48,28 @@ export default function Modal({ setWorkflow, setModal }: any) {
     }
   };
 
+  const getExampleWorkflow = (workflowName: string) => {
+    let workflow = {};
+
+    console.log('picking!');
+    console.log(workflowName);
+
+    const nameMap: Record<string, any> = {
+      'SAuto.cz': SAutoCz,
+      'Nehnuteľnosti.sk': NehnutelnostiSk,
+      'České dráhy': CD,
+    };
+
+    if (nameMap[workflowName]) {
+      workflow = nameMap[workflowName];
+    } else {
+      throw new Error('Example workflow not found!');
+    }
+
+    setWorkflow(workflow);
+    setModal(false);
+  };
+
   return (
         <div className="modal">
             <div className="modal-content">
@@ -88,6 +111,17 @@ export default function Modal({ setWorkflow, setModal }: any) {
                       (fileUploadref.current as any).click();
                     }}
                 />
+                <div style={{ height: '10px' }}/>
+                {
+                  ['SAuto.cz', 'Nehnuteľnosti.sk', 'České dráhy'].map(
+                    (name: string) => (
+                      <Button
+                      text={`Load example workflow (${name})`}
+                      onClick={() => getExampleWorkflow(name)}
+                    />
+                    ),
+                  )
+                }
                 </div>
                 {
                     errorMessage

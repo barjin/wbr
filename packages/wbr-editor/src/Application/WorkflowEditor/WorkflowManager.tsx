@@ -125,7 +125,7 @@ export default function WorkflowManager(
 
   const playWorkflow = async () => {
     ConsoleControls.clear();
-    ConsoleControls.write(`Console cleared, running ${workflow.meta?.name}\n\n`);
+    ConsoleControls.write(`Console cleared, running ${workflow.meta?.name}\n=====\n${workflow.meta?.desc}`);
     setRunning(true);
     stopper.current = await runWorkflow(untagPairIds(workflowState), (idx: number) => {
       if (idx === -1) setRunning(false);
