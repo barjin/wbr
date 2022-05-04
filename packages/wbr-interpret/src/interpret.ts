@@ -100,14 +100,6 @@ export default class Interpreter extends EventEmitter {
         const proms = [
           page.isEnabled(selector, { timeout: 500 }),
           page.isVisible(selector, { timeout: 500 }),
-          (async () => {
-            const element = await page.locator(selector);
-            return element.evaluate((e) => {
-              const r = e.getBoundingClientRect();
-              // @ts-expect-error - playwright typings are wrong
-              return e === document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-            });
-          })(),
         ];
 
         return await Promise.all(proms).then((bools) => bools.every((x) => x));
@@ -363,7 +355,9 @@ export default class Interpreter extends EventEmitter {
 
     /* eslint no-constant-condition: ["warn", { "checkLoops": false }] */
     while (true) {
-      if (p.isClosed()) {
+      // Checks whether the page was closed from outside,
+      //  or the workflow execution has been stopped via `interpreter.stop()`
+      if (p.isClosed() || !this.stopper) {
         return;
       }
 
@@ -438,16 +432,15 @@ export default class Interpreter extends EventEmitter {
       page.context().addInitScript({ path: path.join(__dirname, 'browserSide', 'scraper.js') });
     }
 
+    this.stopper = () => {
+      this.stopper = null;
+    };
+
     this.concurrency.addJob(() => this.runLoop(page, this.initializedWorkflow!));
 
-    await Promise.race([
-      this.concurrency.waitForCompletion(),
-      new Promise((resolve) => {
-        this.stopper = resolve;
-      }),
-    ]);
+    await this.concurrency.waitForCompletion();
 
-    log('Workflow done, bye!', Level.LOG);
+    this.stopper = null;
   }
 
   public async stop() : Promise<void> {
