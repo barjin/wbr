@@ -1,15 +1,16 @@
 import { IoMdCreate } from 'react-icons/io';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
-import { useRef, useState } from 'react';
+import { useRef, useState, useContext } from 'react';
 import { Preprocessor } from '@wbr-project/wbr-interpret';
 import Button from './Reusables/Button';
 import { CD, NehnutelnostiSk, SAutoCz } from '../examples';
+import { TutorialContext } from './WorkflowEditor/Utils/GlobalStates';
 
 const emptyWorkflow = {
   workflow: [],
 };
 
-export default function Modal({ setWorkflow, setModal }: any) {
+export default function Modal({ setWorkflow, setModal, startTutorial }: any) {
   const fileUploadref = useRef(null);
 
   const [
@@ -70,6 +71,8 @@ export default function Modal({ setWorkflow, setModal }: any) {
     setModal(false);
   };
 
+  const { nextStep } = useContext(TutorialContext);
+
   return (
         <div className="modal">
             <div className="modal-content">
@@ -95,6 +98,7 @@ export default function Modal({ setWorkflow, setModal }: any) {
                     onClick={() => {
                       setWorkflow(emptyWorkflow);
                       setModal(false);
+                      nextStep();
                     }}
                 />
                 <input
@@ -131,6 +135,11 @@ export default function Modal({ setWorkflow, setModal }: any) {
                     </div>
                       : null
                 }
+                <Button
+                    text='Start tutorial!'
+                    icon={<AiOutlineCloudUpload/>}
+                    onClick={startTutorial}
+                />
             </div>
         </div>
   );

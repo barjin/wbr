@@ -17,3 +17,8 @@ export const CurrentActionContext = React.createContext({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setCurrent: (x: number) : void => {},
 });
+
+export const TutorialContext = React.createContext({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  nextStep: () : void => {},
+});

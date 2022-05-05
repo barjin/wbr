@@ -25,7 +25,7 @@ export function Select(
           position: 'absolute',
           width: '200px',
           backgroundColor: '#ddd',
-          zIndex: 10,
+          zIndex: 100000,
         }}>
         {options.map((x) => (
             <div className='option' onClick={() => {

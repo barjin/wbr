@@ -163,7 +163,7 @@ export default function WorkflowManager(
     <div>
     <EditableHeading text={workflowState.meta?.name ?? 'Workflow'} updater={(value: string) => { setWorkflow({ ...workflowState, meta: { ...workflowState.meta, name: value } }); }}/>
     <div id="mainContainer">
-    <div style={{ paddingRight: '10px' }}>
+    <div style={{ padding: '10px', backgroundColor: 'white' }}>
         <div>
         <Button
             onClick={historyManager.current.undo}

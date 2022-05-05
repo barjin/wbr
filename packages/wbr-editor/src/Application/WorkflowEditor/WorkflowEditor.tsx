@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import update from 'immutability-helper';
@@ -8,7 +8,7 @@ import { WorkflowFile } from '@wbr-project/wbr-interpret';
 import UpdaterFactory from './Utils/UpdaterFactory';
 import Pair from './Components/Pair';
 import DropZone from './Components/DropZone';
-import { HoverContext, CollapseContext } from './Utils/GlobalStates';
+import { HoverContext, CollapseContext, TutorialContext } from './Utils/GlobalStates';
 import Button from '../Reusables/Button';
 import { DropTypes } from './Components/DropTypes';
 
@@ -25,6 +25,8 @@ export default function WorkflowEditor({ workflow, setWorkflow, currentIdx }: { 
   const [isHovering, setHovering] = useState(false);
   const [isCollapsed, setCollapsed] = useState(false);
 
+  const { nextStep } = useContext(TutorialContext);
+
   const updatePair = UpdaterFactory.ArrayIdxUpdater(workflow, setWorkflow, { deleteEmpty: true });
 
   const pushPair = UpdaterFactory.ArrayPusher(workflow, setWorkflow);
@@ -39,7 +41,7 @@ export default function WorkflowEditor({ workflow, setWorkflow, currentIdx }: { 
   };
 
   return (
-        <div style={{ display: 'block', position: 'relative' }}>
+        <div id='workflowEditor' style={{ display: 'block', position: 'relative' }}>
         <div className='stickyTools' style={{
           position: 'absolute', height: '100%', width: '25%', left: '-25%',
         }}>
@@ -72,7 +74,10 @@ export default function WorkflowEditor({ workflow, setWorkflow, currentIdx }: { 
                 </DndProvider>
             </HoverContext.Provider>
         </CollapseContext.Provider>
-        <div style={{ marginBottom: '50px' }} className="button primary" onClick={() => pushPair()(emptyPair)}>+</div>
+        <div style={{ marginBottom: '50px' }} className="button primary" onClick={() => {
+          pushPair()(emptyPair);
+          nextStep();
+        }}>+</div>
         </div>
   );
 }

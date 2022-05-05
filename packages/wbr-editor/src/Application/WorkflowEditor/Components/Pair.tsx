@@ -58,10 +58,16 @@ export default function Pair(
                 <div className="deleteButton" onClick={deletePair}>x</div>
             </div>
             <div className='pairBody' style={{ display: isCollapsed || isHovering ? 'none' : '' }}>
-                <h2>If...</h2>
-                <Where where={pair.where} updater={updateWhere} base={true}/>
+                <div className="where">
+                  <h2>
+                    If...
+                  </h2>
+                  <Where where={pair.where} updater={updateWhere} base={true}/>
+                </div>
+                <div className="what">
                 <h2>Then...</h2>
                 <What what={pair.what} updater={updateWhat} />
+                </div>
             </div>
         </div>
   );
