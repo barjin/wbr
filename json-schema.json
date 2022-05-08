@@ -1,0 +1,56 @@
+{
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://jindrich.bar/schemas/workflow-definition.json",
+    "definitions": {
+        "where": {
+            "type": "object",
+            "properties": {
+                    "$and": { "type":"array", "items": { "$ref": "#/definitions/where" } },
+                    "$or": { "type":"array", "items": { "$ref": "#/definitions/where" } },
+                    "$not": { "$ref": "#/definitions/where" },
+                    "$after": { "type": "string" },
+                    "$before": { "type": "string" }
+            },
+            "additionalProperties": true
+        },
+        "what": {
+            "type": "array",
+            "items": {
+              	"type":"object",
+        		"required": ["action"],
+                "properties": {
+                	"action": {"type": "string"},
+                    "args": {
+                      "type": "array"
+                    }
+                },
+              	"additionalProperties": false
+        	}
+        }
+    },
+    "type": "object",
+    "required": ["workflow"],
+    "properties": {
+    	"meta":{
+        	"type": "object",
+            "properties": {
+            	"name": {"type": "string"},
+                "desc": {"type": "string"}
+            },
+            "additionalProperties": false
+        },
+        "workflow":{
+        	"type": "array",
+            "items": {
+            	"type":"object",
+                "required": ["where","what"],
+                "properties": {
+                  "id": {"type":"string"},
+                  "where": {"$ref": "#/definitions/where"},
+                  "what": {"$ref": "#/definitions/what"}
+                },
+                "additionalProperties": false
+            }
+        }
+    }
+}

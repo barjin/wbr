@@ -1,5 +1,6 @@
 import { IoMdCreate } from 'react-icons/io';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
+import { BiHelpCircle } from 'react-icons/bi';
 import { useRef, useState, useContext } from 'react';
 import { Preprocessor } from '@wbr-project/wbr-interpret';
 import Button from './Reusables/Button';
@@ -52,9 +53,6 @@ export default function Modal({ setWorkflow, setModal, startTutorial }: any) {
   const getExampleWorkflow = (workflowName: string) => {
     let workflow = {};
 
-    console.log('picking!');
-    console.log(workflowName);
-
     const nameMap: Record<string, any> = {
       'SAuto.cz': SAutoCz,
       'Nehnuteľnosti.sk': NehnutelnostiSk,
@@ -81,7 +79,10 @@ export default function Modal({ setWorkflow, setModal, startTutorial }: any) {
                 </div>
                 <hr/>
                 <div style={{
-                  display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}>
                 <div className="modal-body">
                     <p>
@@ -100,6 +101,7 @@ export default function Modal({ setWorkflow, setModal, startTutorial }: any) {
                       setModal(false);
                       nextStep();
                     }}
+                    style={{ marginBottom: '10px' }}
                 />
                 <input
                     ref={fileUploadref}
@@ -137,7 +139,7 @@ export default function Modal({ setWorkflow, setModal, startTutorial }: any) {
                 }
                 <Button
                     text='Start tutorial!'
-                    icon={<AiOutlineCloudUpload/>}
+                    icon={<BiHelpCircle/>}
                     onClick={startTutorial}
                 />
             </div>

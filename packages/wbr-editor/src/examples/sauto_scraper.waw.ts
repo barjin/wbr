@@ -7,8 +7,12 @@ export default {
     {
       id: 'closePopups',
       where: {
-        selectors: [
-          '[class*=popup] button[class*=close]',
+        $and: [
+          {
+            selectors: [
+              '[class*=popup] button[class*=close]',
+            ],
+          },
         ],
       },
       what: [
@@ -24,7 +28,11 @@ export default {
     {
       id: 'paginateAndScrape',
       where: {
-        selectors: [':text-matches("Další stránka")'],
+        $and: [
+          {
+            selectors: [':text-matches("Další stránka")'],
+          },
+        ],
       },
       what: [
         {

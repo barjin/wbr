@@ -83,7 +83,7 @@ class HistoryManager<T> {
  * A wrapper element for high-level worklfow management (renaming, download, undo/redo, etc.).
  */
 export default function WorkflowManager(
-  { workflow }: { workflow: WorkflowFile },
+  { workflow, setModal }: { workflow: WorkflowFile, setModal: (x: boolean) => void },
 ) : JSX.Element {
   /**
      * Tags each pair in the given WorkflowFile with a unique ID (React specific).
@@ -161,6 +161,7 @@ export default function WorkflowManager(
   };
   return (
     <div>
+    <button onClick={() => setModal(true)}>&lt;Back to the menu</button>
     <EditableHeading text={workflowState.meta?.name ?? 'Workflow'} updater={(value: string) => { setWorkflow({ ...workflowState, meta: { ...workflowState.meta, name: value } }); }}/>
     <div id="mainContainer">
     <div style={{ padding: '10px', backgroundColor: 'white' }}>

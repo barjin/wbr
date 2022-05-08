@@ -7,8 +7,12 @@ export default {
     {
       id: 'closePopups',
       where: {
-        selectors: [
-          '#consentBtnall.btnallow',
+        $and: [
+          {
+            selectors: [
+              '#consentBtnall.btnallow',
+            ],
+          },
         ],
       },
       what: [
@@ -24,9 +28,13 @@ export default {
     {
       id: 'scrapeSearchResults',
       where: {
-        url: {
-          $regex: '^https://www.cd.cz/spojeni-a-jizdenka/spojeni-tam/.*',
-        },
+        $and: [
+          {
+            url: {
+              $regex: '^https://www.cd.cz/spojeni-a-jizdenka/spojeni-tam/.*',
+            },
+          },
+        ],
       },
       what: [
         {
@@ -57,9 +65,13 @@ export default {
     {
       id: 'fillTheForm',
       where: {
-        selectors: [
-          "[placeholder='Zadejte stanici odkud']",
-          "[placeholder='Zadejte stanici kam']",
+        $and: [
+          {
+            selectors: [
+              "[placeholder='Zadejte stanici odkud']",
+              "[placeholder='Zadejte stanici kam']",
+            ],
+          },
         ],
       },
       what: [

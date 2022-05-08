@@ -32,11 +32,11 @@ export default class Preprocessor {
       workflow: Joi.array().items(
         Joi.object({
           id: Joi.string(),
-          where: whereSchema,
+          where: whereSchema.required(),
           what: Joi.array().items({
             action: Joi.string().required(),
             args: Joi.array().items(Joi.any()),
-          }),
+          }).required(),
         }),
       ).required(),
     });

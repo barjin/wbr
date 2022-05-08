@@ -8,9 +8,16 @@ export default function EditableHeading(
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(text);
 
+  const saveValue = () => {
+    if (value !== text) {
+      updater(value);
+    }
+    setEditing(false);
+  };
+
   return (
       <>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', width: '90%' }}>
       <h1
       onDoubleClick={() => setEditing(true)}
       style={{
@@ -31,13 +38,14 @@ export default function EditableHeading(
         marginLeft: '0',
         marginRight: '0',
         fontWeight: 'bold',
+        width: '100%',
       }}
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      onBlur={() => { setEditing(false); updater(value); }}
+      onBlur={saveValue}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
-          setEditing(false); updater(value);
+          saveValue();
         }
       }}
       />
@@ -50,10 +58,7 @@ export default function EditableHeading(
         />
         : <BsPencil
           style={{ marginLeft: '20px', cursor: 'pointer' }}
-          onClick={() => {
-            setEditing(false);
-            updater(value);
-          }}
+          onClick={saveValue}
         />
       }
       </div>

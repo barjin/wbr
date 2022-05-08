@@ -18,7 +18,7 @@ For more information about how to run the workflow from your code, please see th
 - [Miscellaneous](#extra-syntax)
 	- [Regular Expressions](#regular-expressions)
 	- [Parametrization](#Parametrization)
-
+- [JSON Schema](#json-schema)
 
 ## General
 
@@ -28,9 +28,9 @@ Syntactically, `.waw` should always be a valid `.json` file. If you are unsure w
 
 *Note: From now on, the .waw file will be considered a valid JSON file and all the terminology (object, array) will be used in this context.*
 
-On the top level, the workflow file contains an object with two properties - `"meta"` - an object with the [workflow's metadata](#meta-header) (accepted parameters etc.) and `"workflow"` - a **single array** of so-called "where-what pairs". These pairs contain three properties with keys `name`, `where`, and `what`. 
+On the top level, the workflow file contains an object with two properties - `"meta"` - an object with the [workflow's metadata](#meta-header) and `"workflow"` - a **single array** of so-called "where-what pairs". These pairs contain three properties with keys `id`, `where`, and `what`. 
 
-> The `name` property is solely for referencing and can be omitted.
+> The `id` property is solely for referencing and can be omitted.
 
 Here follows a top-level view of the Workflow file:
 
@@ -71,7 +71,7 @@ Even though all the metadata is optional, developers are strongly advised to use
 ## Workflow
 The "workflow" part of the file is a single **array** consisting of the where-what pairs - objects describing desired behavior in different situations. 
 
-<!-- For example, let's say we want to click on a button with the label "hello" every time we get on the page "https://example.com/". This behavior is described with the following snippet:
+For example, let's say we want to click on a button with the label "hello" every time we get on the page "https://example.com/". This behavior is described with the following snippet:
 
 ```json
 {
@@ -105,7 +105,7 @@ Now, let's say we want to type "Hello world!" into an input field, whenever we s
 }
 ```
 
-This should be enough to give you some basic understanding of the WAW Smart Workflow format. In the following sections, there are more details about the format and its certain features.  -->
+This should be enough to give you some basic understanding of the WAW Smart Workflow format. In the following sections, there are more details about the format and its certain features. 
 
 ## The Where Clause
 The Where clause describes a **condition** required for the respective What clause to be executed. 
@@ -116,14 +116,14 @@ For this reason, the workflow can be executed on different tabs in parallel (any
 
 ### Where conditions - The Basics
 
-The `where` clause is an object with various keys. 
+The `where` clause is an object with various keys.
 
 > The specific "basic" keys (like `url`, `cookies` etc.) are implementation-dependent and are not a part of the format specification. Keys shown here correspond to the `wbr-interpret` implementation.
 
-<!-- As of now, three keys are recognized:
+As of now, three keys are recognized:
 - URL *(string)*
 - cookies *(object with string keys/values)*
-- selectors *(array of CSS/[Playwright](https://playwright.dev/docs/selectors/) selectors - all of the targetted elements must be present in the page to match this clause)* -->
+- selectors *(array of CSS/[Playwright](https://playwright.dev/docs/selectors/) selectors - all of the targetted elements must be present in the page to match this clause)*
 
 An example of a full (simple, flat) Where clause:
 
@@ -169,6 +169,8 @@ The WAW format is taking inspiration from the [MongoDB query operators](https://
 	}
 ```
 This notation describes a condition where the URL is `https://jindrich.bar/` **and** there is **either** the `uid` cookie set with the specified value, **or** there are the selectors present. Please note that the top-level `$and` condition is redundant, as the conjunction of the conditions is the implicit operation.
+
+As of now, the format contains the following boolean operators: `$and`, `$or` and `$not`.
 
 ### Ordering
 
@@ -250,20 +252,20 @@ In the most basic version, the What clause should contain a sequence of actions,
 > Note: While the interpreter `wbr-interpret` uses Playwright for its backend, the WAW format is suitable for use with any other backend. Just like with the Where clause basic keys, the action's names and parameters are not a part of the format specification.
 
 ### What actions - The Basics
-The `what` clause is an array of "function" objects. These objects consist of the `type` field, describing the function called and `params` - an optional property, scalar or array, providing parameters for the specified function.
+The `what` clause is an array of "function" objects. These objects consist of the `action` field, describing the function called and `args` - an optional  array property, providing parameters for the specified function.
 
-```JSON
+```json
 "what":[
 	{
-		"type":"functionAcceptingString",
-		"params": "theFirstParameter"
+		"action":"functionAcceptingString",
+		"args": ["theFirstParameter"]
 	},
 	{
-		"type":"voidFunction",
+		"action":"voidFunction",
 	},
 	{
-		"type":"moreParameters",
-		"params": [
+		"action":"moreParameters",
+		"args": [
 			1000,
 			"string parameter",
 			{
@@ -286,24 +288,24 @@ As of now, these are:
 	- user can also specify the item from the webpage to be scraped (using a [Playwright-style selector](https://playwright.dev/docs/selectors)).
 - `scrapeSchema` - getting a "row schema definition" with column names and selectors, the interpreter scrapes the data from a webpage into a "curated" table.
 	- Example:
-	```javascript
+	```json
 	{
-		"type": "scrapeSchema",
-		"params": {
+		"action": "scrapeSchema",
+		"args": [{
 			"name": ".c-item-title",
 			"price": ".c-a-basic-info__price",
 			"vin": ".c-vin-info__vin",
 			"desc": ".c-car-properties__text"
-		}
+		}]
 	}
 	```
-- `scroll` - scrolls down the webpage for given number of times (default = 1).
+- `scroll` - scrolls down the webpage for given number of times (default = `1`).
 - `script` - allows the user to run an arbitrary asynchronous function in the interpreter. The function's body is read as a string from the `params` field and evaluated at the server side (as opposed to a browser). The function accepts one parameter named `page`, being the current Playwright Page instance.
 	- Example:
-	```javascript
+	```json
 	{
-		"type": "script",
-		"params": "\
+		"action": "script",
+		"args": ["\
 		const links = await page.evaluate(() => \
 		{\
 			return Array.from(\
@@ -315,7 +317,7 @@ As of now, these are:
 			await new Promise(res => setTimeout(res, 100));\
 			await page.context().newPage().then(page => page.goto(link))\
 		}\
-		"
+		"]
 	},
 	```
 	The example runs a server-side script opening all links on the current page in new tabs with 100 ms delay *(Note: if you only want to open links on a page, see `enqueueLinks` lower).*
@@ -329,11 +331,11 @@ Apart from the mentioned syntax available for direct workflow specification, the
 
 ### Regular Expressions
 
-The format supports usage of RegExes, both in the conditions and the action parameters. The syntax is inspired by the MongoDB regex syntax and looks as follows:
+The format supports usage of regular expressions, both in the conditions and the action parameters. The syntax is inspired by the MongoDB regex syntax and looks as follows:
 
 ```json
 ...
-	"url": {"$regex": "https.*"}
+	"url": {"$regex": "^https"}
 ...
 ```
 
@@ -345,14 +347,21 @@ The WAW format also allows the developer to parametrize the workflow - this can 
 
 ```json
 ...
-	"type": "goto"
-	"params": [
+	"action": "goto"
+	"args": [
 		{"$param": "startURL"}
 	]
 ...
 ```
 
 The interpreter of the format should allow the user to include their own value to replace the entire parameter structure with the user-supplied value. 
+
+## JSON Schema
+
+In case you want to automatically check a workflow definition file for syntax correctness, use the official [JSON Schema](../../json-schema.json).
+
+Note that this JSON schema validates the files only against the base WAW definition.
+To validate the files against the `wbr-interpret` implementation of the WAW format, please use the `validateWorkflow` method of the `Preprocessor` class.
 ___
 
 Want to see a real-world example of a workflow? Visit the [examples folder](../../examples) with numerous example workflows or explore the [`wbr-local` package](../../packages/wbr-local), containing boilerplate code for running your automations.

@@ -7,8 +7,12 @@ export default {
     {
       id: 'closePopups',
       where: {
-        selectors: [
-          '[title="SP Consent Message"]',
+        $and: [
+          {
+            selectors: [
+              '[title="SP Consent Message"]',
+            ],
+          },
         ],
       },
       what: [
@@ -26,8 +30,12 @@ export default {
     {
       id: 'scrapeInfoPage',
       where: {
-        selectors: [
-          '.price--main.paramNo0',
+        $and: [
+          {
+            selectors: [
+              '.price--main.paramNo0',
+            ],
+          },
         ],
       },
       what: [
@@ -65,8 +73,12 @@ export default {
     {
       id: 'openDetailsInNewTabs',
       where: {
-        selectors: [
-          'li + li .component-pagination__arrow-color',
+        $and: [
+          {
+            selectors: [
+              'li + li .component-pagination__arrow-color',
+            ],
+          },
         ],
       },
       what: [
@@ -81,34 +93,6 @@ export default {
         },
         {
           action: 'close',
-        },
-      ],
-    },
-    {
-      id: 'scrape_basic',
-      where: {
-        selectors: [
-          'li + li .component-pagination__arrow-color',
-        ],
-      },
-      what: [
-        {
-          action: 'waitForLoadState',
-        },
-        {
-          action: 'scrape',
-        },
-        {
-          action: 'click',
-          args: [
-            'li + li .component-pagination__arrow-color',
-          ],
-        },
-        {
-          action: 'waitForTimeout',
-          args: [
-            2000,
-          ],
         },
       ],
     },
