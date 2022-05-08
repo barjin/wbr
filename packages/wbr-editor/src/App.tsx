@@ -116,9 +116,9 @@ function App() {
             </div>
     }
     <div id='footer'>
-      <span>build 0.1.0</span>
-      <span>wbr-editor</span>
       <span>Made by <a href="mailto:jindrichbar@gmail.com">Jindřich Bär</a>, 2022</span>
+      <span>wbr-editor</span>
+      <span></span>
     </div>
     </div>
     </TutorialContext.Provider>

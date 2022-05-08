@@ -66,7 +66,7 @@ export default function Pair(
                 </div>
                 <div className="what">
                 <h2>Then...</h2>
-                <What what={pair.what} updater={updateWhat} />
+                <What id={pair._reactID} what={pair.what} updater={updateWhat} />
                 </div>
             </div>
         </div>

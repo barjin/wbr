@@ -5,49 +5,49 @@
         "where": {
             "type": "object",
             "properties": {
-                    "$and": { "type":"array", "items": { "$ref": "#/definitions/where" } },
-                    "$or": { "type":"array", "items": { "$ref": "#/definitions/where" } },
-                    "$not": { "$ref": "#/definitions/where" },
-                    "$after": { "type": "string" },
-                    "$before": { "type": "string" }
+                "$and": { "type":"array", "items": { "$ref": "#/definitions/where" } },
+                "$or": { "type":"array", "items": { "$ref": "#/definitions/where" } },
+                "$not": { "$ref": "#/definitions/where" },
+                "$after": { "type": "string" },
+                "$before": { "type": "string" }
             },
             "additionalProperties": true
         },
         "what": {
             "type": "array",
             "items": {
-              	"type":"object",
-        		"required": ["action"],
+                "type":"object",
+                "required": ["action"],
                 "properties": {
-                	"action": {"type": "string"},
+                    "action": {"type": "string"},
                     "args": {
-                      "type": "array"
+                        "type": "array"
                     }
                 },
-              	"additionalProperties": false
-        	}
+                "additionalProperties": false
+            }
         }
     },
     "type": "object",
     "required": ["workflow"],
     "properties": {
-    	"meta":{
-        	"type": "object",
+        "meta":{
+            "type": "object",
             "properties": {
-            	"name": {"type": "string"},
+                "name": {"type": "string"},
                 "desc": {"type": "string"}
             },
             "additionalProperties": false
         },
         "workflow":{
-        	"type": "array",
+            "type": "array",
             "items": {
-            	"type":"object",
+                "type":"object",
                 "required": ["where","what"],
                 "properties": {
-                  "id": {"type":"string"},
-                  "where": {"$ref": "#/definitions/where"},
-                  "what": {"$ref": "#/definitions/what"}
+                    "id": {"type":"string"},
+                    "where": {"$ref": "#/definitions/where"},
+                    "what": {"$ref": "#/definitions/what"}
                 },
                 "additionalProperties": false
             }

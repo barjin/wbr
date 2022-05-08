@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   AiOutlineUndo, AiOutlineRedo, AiOutlineDownload, AiOutlinePlayCircle,
 } from 'react-icons/ai';
@@ -152,16 +152,20 @@ export default function WorkflowManager(
     historyManager.current.newState(taggedWorkflow);
 
     setWorkflowInternal(taggedWorkflow);
+  };
+
+  useEffect(() => {
     const downloadLink = document.getElementById('downloadLink');
     downloadLink?.setAttribute(
       'href',
-      `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(untagPairIds(newWorkflow), null, 2))}`,
+      `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(untagPairIds(workflowState), null, 2))}`,
     );
     downloadLink?.setAttribute('download', 'workflow.json');
-  };
+  });
+
   return (
     <div>
-    <button onClick={() => setModal(true)}>&lt;Back to the menu</button>
+    <button onClick={() => setModal(true)}>&lt; Back to the menu</button>
     <EditableHeading text={workflowState.meta?.name ?? 'Workflow'} updater={(value: string) => { setWorkflow({ ...workflowState, meta: { ...workflowState.meta, name: value } }); }}/>
     <div id="mainContainer">
     <div style={{ padding: '10px', backgroundColor: 'white' }}>

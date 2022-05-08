@@ -10,9 +10,10 @@ import { DeleteButton, Select } from '../../Reusables/Controls';
 type StepType = WorkflowFile['workflow'][number]['what'][number];
 
 function WhatStep({
-  idx, step, reorder, updater,
+  idx, step, reorder, updater, containerId,
 }:
-{ idx: number, step: StepType, updater: Function, reorder: Function }): JSX.Element {
+{ idx: number, step: StepType, updater: Function,
+  reorder: Function, containerId: string }): JSX.Element {
   const ref = useRef<HTMLElement>(null);
 
   const updateArgs = (args: StepType['args']) => {
@@ -23,7 +24,7 @@ function WhatStep({
   };
 
   const [,drag] = useDrag(() => ({
-    type: DropTypes.Action,
+    type: `${DropTypes.Action}:${containerId}`,
     item: { idx },
     canDrag: true,
   }));
@@ -31,7 +32,7 @@ function WhatStep({
   let direction : string;
 
   const [{ isOver }, drop] = useDrop(() => ({
-    accept: DropTypes.Action,
+    accept: `${DropTypes.Action}:${containerId}`,
     collect: (monitor) => ({ isOver: !!monitor.isOver() }),
     hover: (item, monitor) => {
       ref.current?.classList.remove('up');
@@ -99,11 +100,11 @@ const ActionDefaults = {
   script: [`// your code goes here
 // you can use await here, 
 // the current page is available as \`page\` in the current context.
-  `],
+`],
 };
 
 export default function What(
-  { what, updater }: { what: StepType[], updater: (x: StepType[]) => void },
+  { id, what, updater }: { id: string, what: StepType[], updater: (x: StepType[]) => void },
 ) : JSX.Element {
   const instantiateAction = (name: keyof typeof ActionDefaults) : void => {
     updater(
@@ -128,11 +129,9 @@ export default function What(
   return (
     <div>
         {what.map((x, i) => (
-          <WhatStep idx={i} step={x} reorder={moveStep} updater={updateStep(i)}/>
+          <WhatStep idx={i} step={x} reorder={moveStep} updater={updateStep(i)} containerId={id}/>
         ))}
         <Select options={Object.keys(ActionDefaults)} select={instantiateAction}/>
     </div>
   );
 }
-
-// export default memo(What, (prev, next) => objectEquality(prev.what, next.what));
