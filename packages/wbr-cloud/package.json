@@ -5,10 +5,10 @@
   "main": "cloud.js",
   "scripts": {
     "start": "node ./build/cloud.js",
-    "clean": "rm -rf ./build",
+    "clean": "rimraf ./build",
     "compile": "tsc",
-    "copystatic": "mkdir -p ./build/wbr-cloud/ && cp -r ./public/ ./build/wbr-cloud",
-    "build": "npm run compile && npm run copystatic && cp ./package.json ./build "
+    "copystatic": "mkdir -p ./public && cp -a ../wbr-editor/build/. public",
+    "build": "npm run clean && npm run compile && npm run copystatic"
   },
   "repository": {
     "type": "git",
@@ -30,12 +30,14 @@
   "dependencies": {
     "@types/express-fileupload": "^1.1.7",
     "@wbr-project/wbr-interpret": "file:../wbr-interpret",
-    "apify": "^2.1.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
-    "playwright": "*",
+    "playwright": "^1.20.1",
     "socket.io": "^4.3.2"
+  },
+  "devDependencies": {
+    "wbr-editor": "file:../wbr-editor"
   }
 }

@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 16
       - run: >
-          npm install --production=false $GITHUB_WORKSPACE/. &&
+          npm install -f $GITHUB_WORKSPACE/. &&
           npx playwright install-deps &&
           npm run --prefix $GITHUB_WORKSPACE/packages/wbr-interpret build &&
           npm run test:e2e

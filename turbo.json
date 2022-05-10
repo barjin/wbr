@@ -1,0 +1,18 @@
+{
+    "baseBranch": "origin/master",
+    "pipeline": {
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                "build/**"
+            ],
+            "inputs": [
+                "./packages/wbr-interpret/**",
+                "./packages/wbr-editor/**",
+                "./packages/wbr-cloud/**"
+            ]
+        }
+    }
+}

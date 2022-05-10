@@ -1,10 +1,9 @@
 {
   "name": "wbr",
   "workspaces": [
-    "wbr-interpret",
-    "wbr-cloud",
-    "wbr-common",
-    "wbr-actor"
+    "packages/wbr-interpret",
+    "packages/wbr-editor",
+    "packages/wbr-cloud"
   ],
   "version": "0.1.0",
   "description": "The WBR project, one stop shop for creating, debugging and running web automations with ease.",
@@ -25,10 +24,6 @@
     "url": "https://github.com/barjin/wbr/issues"
   },
   "homepage": "https://github.com/barjin/wbr#readme",
-  "dependencies": {
-    "@wbr-project/wbr-cloud": "file:packages/wbr-cloud",
-    "@wbr-project/wbr-interpret": "file:packages/wbr-interpret"
-  },
   "devDependencies": {
     "@types/jest": "^27.4.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
@@ -41,11 +36,16 @@
     "eslint-plugin-import": "^2.25.3",
     "express": "^4.17.3",
     "jest": "^27.5.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.1.3",
     "ts-node": "^10.7.0",
+    "turbo": "^1.2.8",
     "typescript": "^4.5.5"
   },
   "scripts": {
+    "start": "npm start --prefix ./packages/wbr-cloud/",
+    "configureDependencies": "./installDeps.sh",
+    "build": "turbo run build",
     "test": "jest",
     "test:e2e": "find -type f -path \"*/e2e/*.test.*\" | xargs -L 1 ts-node",
     "lint": "eslint ./packages/wbr-interpret ./packages/wbr-editor",
