@@ -125,7 +125,9 @@ export default function WorkflowManager(
 
   const playWorkflow = async () => {
     ConsoleControls.clear();
-    ConsoleControls.write(`Console cleared, running ${workflow.meta?.name}\n=====\n${workflow.meta?.desc}`);
+    ConsoleControls.write(`Console cleared, running ${workflow.meta?.name}`, 'green');
+    ConsoleControls.write('===============', 'white');
+    if (workflow.meta?.desc) ConsoleControls.write(`${workflow.meta?.desc}`, 'green');
     setRunning(true);
     stopper.current = await runWorkflow(untagPairIds(workflowState), (idx: number) => {
       if (idx === -1) setRunning(false);
@@ -133,12 +135,13 @@ export default function WorkflowManager(
     });
   };
 
-  const stopWorkflow = () => {
+  const stopWorkflow = async () => {
     if (!isRunning) return;
     stopper.current?.();
-    setRunning(false);
-    ConsoleControls.write('Workflow execution stopped.\n\n');
     stopper.current = () => {};
+    await new Promise((x) => { setTimeout(x, 200); });
+    setRunning(false);
+    ConsoleControls.write('Workflow execution stopped.\n\n', 'yellow');
   };
 
   /**

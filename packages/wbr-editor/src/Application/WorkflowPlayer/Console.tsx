@@ -1,7 +1,7 @@
 export class ConsoleControls {
-  static write(message: string) {
+  static write(message: string, color: 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'white' | 'black') {
     const console = document.getElementById('console') as any;
-    console.innerHTML += `${message}\n`;
+    console.innerHTML += `<span ${color ? `style="color: ${color}"` : ''}>${message}</span>\n`;
     console.scrollTop = console.scrollHeight;
   }
 

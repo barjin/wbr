@@ -250,6 +250,7 @@ export default class Interpreter extends EventEmitter {
       enqueueLinks: async (selector : string) => {
         const links : string[] = await page.locator(selector)
           .evaluateAll(
+            // @ts-ignore
             (elements) => elements.map((a) => a.href).filter((x) => x),
           );
         const context = page.context();
@@ -270,6 +271,7 @@ export default class Interpreter extends EventEmitter {
             }
           });
         }
+        await page.close();
       },
       scrape: async (selector?: string) => {
         const scrapeResults : Record<string, string>[] = <any> await page

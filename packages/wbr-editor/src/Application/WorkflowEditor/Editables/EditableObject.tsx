@@ -35,15 +35,14 @@ export default function EditableObject(
         <div style={{ display: 'flex', flexDirection: 'column' }}>
         {Object.entries(object).map(([k, x]) => (
         <div className="objectRow" key={k}>
-            <EditableValue updater={updateKey(k)} val={k} {...{ options }}/>
-            <EditableValue updater={updateOnKey(k)} val={x} {...{ options }}/>
+            <EditableValue updater={updateKey(k)} val={k} {...{ options: { ...options, type: `${options?.type}_key` } }}/>
+            <EditableValue updater={updateOnKey(k)} val={x} {...{ options: { ...options, type: `${options?.type}_value` } }}/>
         </div>))
         }
-        {options?.dynamic ? <tr>
-            <td>
+        {options?.dynamic
+          ? <div className="objectRow">
                 <EditableValue val={''} key={Math.random()} updater={addKey()} placeholder='New key...' {...{ options }}/>
-            </td>
-        </tr> : null}
+            </div> : null}
         </div>
   );
 }

@@ -95,6 +95,7 @@ const ActionDefaults = {
   }],
   waitForLoadState: ['load'],
   waitForTimeout: [100],
+  enqueueLinks: ['selector'],
   fill: ['selector', 'text'],
   'keyboard.press': ['Enter'],
   script: [`// your code goes here

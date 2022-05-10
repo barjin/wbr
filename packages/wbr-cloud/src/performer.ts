@@ -68,6 +68,7 @@ export default class Performer {
     this.interpreter = new Interpret(this.workflow, {
       maxConcurrency: 1,
       maxRepeats: 5,
+      debug: true,
       debugChannel: {
         activeId: (id: any) => this.sendToClients('activeId', id),
         debugMessage: (msg: any) => this.sendToClients('debugMessage', msg),

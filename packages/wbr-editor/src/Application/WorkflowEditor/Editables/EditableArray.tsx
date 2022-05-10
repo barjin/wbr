@@ -26,6 +26,8 @@ export default function EditableArray(
     }
   };
 
+  console.log('rendering Arrat!!!!');
+
   const updateOnIdx = UpdaterFactory.ArrayIdxUpdater(array, setArray);
   const addItem = UpdaterFactory.ArrayPusher(array, setArray);
 
@@ -34,7 +36,7 @@ export default function EditableArray(
         {array.map((x, i) => (
             <tr key={Math.random()}>
                 <td>
-                    <RenderValue updater={updateOnIdx(i)} val={x} {...{ options }}/>
+                    <RenderValue updater={updateOnIdx(i)} val={'ahoj'} {...{ options: { ...options, type: `${options?.type}_${i}` } }}/>
                 </td>
             </tr>
         ))}

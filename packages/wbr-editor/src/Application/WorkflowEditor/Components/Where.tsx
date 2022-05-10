@@ -12,13 +12,13 @@ type UnaryOperator = typeof unaryOperators[number];
 
 // TODO: Implement all the "templates" (remove Partial<>)
 const ConditionDefaults: Partial<Record<keyof WhereType, any>> = {
-  url: 'url',
+  url: 'https://jindrich.bar/',
   selectors: ['selectors'],
   cookies: { cookie_name: 'cookie_value' },
   $and: [],
   $or: [],
-  $after: 'action_id',
-  $before: 'action_id',
+  $after: 'Pair_ID',
+  $before: 'Pair_ID',
   // '$not': {},
 };
 

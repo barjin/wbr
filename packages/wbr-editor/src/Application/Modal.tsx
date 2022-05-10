@@ -4,7 +4,7 @@ import { BiHelpCircle } from 'react-icons/bi';
 import { useRef, useState, useContext } from 'react';
 import { Preprocessor } from '@wbr-project/wbr-interpret';
 import Button from './Reusables/Button';
-import { CD, NehnutelnostiSk, SAutoCz } from '../examples';
+import { CD, MFFCuni, NehnutelnostiSk } from '../examples';
 import { TutorialContext } from './WorkflowEditor/Utils/GlobalStates';
 
 const emptyWorkflow = {
@@ -50,17 +50,17 @@ export default function Modal({ setWorkflow, setModal, startTutorial }: any) {
     }
   };
 
+  const exampleMap: Record<string, any> = {
+    'People at MFF Cuni': MFFCuni,
+    'Nehnuteľnosti.sk': NehnutelnostiSk,
+    'České dráhy': CD,
+  };
+
   const getExampleWorkflow = (workflowName: string) => {
     let workflow = {};
 
-    const nameMap: Record<string, any> = {
-      'SAuto.cz': SAutoCz,
-      'Nehnuteľnosti.sk': NehnutelnostiSk,
-      'České dráhy': CD,
-    };
-
-    if (nameMap[workflowName]) {
-      workflow = nameMap[workflowName];
+    if (exampleMap[workflowName]) {
+      workflow = exampleMap[workflowName];
     } else {
       throw new Error('Example workflow not found!');
     }
@@ -119,7 +119,7 @@ export default function Modal({ setWorkflow, setModal, startTutorial }: any) {
                 />
                 <div style={{ height: '10px' }}/>
                 {
-                  ['SAuto.cz', 'Nehnuteľnosti.sk', 'České dráhy'].map(
+                  Object.keys(exampleMap).map(
                     (name: string) => (
                       <Button
                       text={`Load example workflow (${name})`}

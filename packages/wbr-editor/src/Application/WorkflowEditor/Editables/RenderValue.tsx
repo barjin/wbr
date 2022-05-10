@@ -51,7 +51,7 @@ EditableArray = (
         {array.map((x, i) => (
             <tr key={Math.random()}>
                 <td>
-                    <RenderValue updater={updateOnIdx(i)} val={x} {...{ options }}/>
+                    <RenderValue updater={updateOnIdx(i)} val={x} {...{ options: { ...options, type: `${options?.type}_${i}` } }}/>
                 </td>
             </tr>
         ))}

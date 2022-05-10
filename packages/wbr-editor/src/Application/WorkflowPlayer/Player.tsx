@@ -24,10 +24,10 @@ export async function runWorkflow(
     const socket = io(`/${namespace}`);
     socket.on('screen', (a) => ScreenControls.draw(a.data));
     socket.on('error', (error) => {
-      ConsoleControls.write(error);
+      ConsoleControls.write(error, 'red');
     });
     socket.on('finished', () => {
-      ConsoleControls.write('The workflow execution has finished');
+      ConsoleControls.write('The workflow execution has finished', 'yellow');
       currentIdx(-1);
       socket.close();
     });
@@ -40,13 +40,13 @@ export async function runWorkflow(
     socket.on(
       'serializableCallback',
       (x) => {
-        ConsoleControls.write(JSON.stringify(x, null, 2));
+        ConsoleControls.write(JSON.stringify(x, null, 2), 'cyan');
       },
     );
     socket.on(
       'debugMessage',
       (x) => {
-        ConsoleControls.write(x);
+        ConsoleControls.write(x, 'blue');
       },
     );
 
