@@ -21,5 +21,19 @@ jobs:
           npm install -f $GITHUB_WORKSPACE/. &&
           npx playwright install-deps &&
           npm run --prefix $GITHUB_WORKSPACE/packages/wbr-interpret build &&
-          npm run test:e2e
+          npm run test:e2eInterpret
+
+  editor-run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: >
+          npm run confBuildDeps &&
+          npx playwright install-deps &&
+          npm run build &&
+          npm run test:e2eEditor
+          
 

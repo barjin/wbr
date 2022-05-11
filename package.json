@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/barjin/wbr#readme",
   "devDependencies": {
+    "@types/express": "^4.17.13",
     "@types/jest": "^27.4.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
@@ -45,10 +46,11 @@
   },
   "scripts": {
     "start": "npm start --prefix ./packages/wbr-cloud/",
-    "configureDependencies": "./installDeps.sh",
+    "confBuildDeps": "./installDeps.sh",
     "build": "turbo run build",
-    "test": "jest",
-    "test:e2e": "find -type f -path \"*/e2e/*.test.*\" | xargs -L 1 ts-node",
+    "test": "jest --silent --testPathIgnorePatterns=\"/e2e/\"",
+    "test:e2eInterpret": "find -type f -path \"./tests/wbr-interpret/e2e/*.test.*\" | xargs -L 1 ts-node",
+    "test:e2eEditor": "find -type f -path \"./tests/wbr-editor/e2e/*.test.*\" | xargs -L 1 npx jest --silent --forceExit --",
     "lint": "eslint ./packages/wbr-interpret ./packages/wbr-editor",
     "clean": "find -type d -path \"*/packages/*\" -iname \"build\" | grep -v \"node_modules\" | xargs rm -r || echo \"No build files found!\""
   }

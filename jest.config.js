@@ -9,7 +9,6 @@ module.exports = {
       '^.+\\.ts$': 'ts-jest',
   },
   modulePathIgnorePatterns: [
-      'e2e',
       'dist/package.json',
       '<rootDir>/package.json',
   ]

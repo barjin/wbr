@@ -1,0 +1,59 @@
+{
+	"workflow":[
+	   {
+		  "id": "closePopups",
+		  "where":{
+			"selectors":[
+				"[class*=popup] button[class*=close]"
+			]
+		  },
+		  "what":[
+			 {
+				"action": "click",
+				"args": "[class*=popup] button[class*=close]"
+			 },
+			 {
+				 "action": "waitForLoadState"
+			 }
+		  ]
+	   },
+	   {
+		"id": "paginateAndScrape",
+		"where":{
+		  "selectors":[
+			  "[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"
+		  ]
+
+		},
+		"what":[
+		   {
+			  "action":"click",
+			  "args": ["[title~=Next], [title~=Další], [class*=next] button, [class*=next] a"]
+		   },
+		   {
+			   "action": "waitForLoadState"
+		   },
+		   {
+			   "action": "scrape"
+		   }
+		]
+	   },
+	   {
+		  "where":{
+		  },
+		  "what":[
+			 {
+				"action":"goto",
+				"args": [{ "$param": "url" }]
+			 },
+			 {
+				"action":"waitForLoadState"
+			 },
+			 {
+				"action":"waitForTimeout",
+				"args": [3000]
+			 }
+		  ]
+	   }
+	]
+ }
