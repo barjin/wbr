@@ -18,7 +18,11 @@ export async function runWorkflow(
         workflow,
       }),
     },
-  ).then((j) => j.json());
+  ).then((j) => j.json()).catch(() => {
+    alert(`There seems to be a problem with your server. Please reload the page. 
+
+If the problem persists, please contact the administrator.`);
+  });
 
   function connectRunner(namespace: string) {
     const socket = io(`/${namespace}`);
