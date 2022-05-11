@@ -174,7 +174,7 @@ app.post('/api/performer/:id', async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, './public')));
 
 /**
  * Port to run the web app on.

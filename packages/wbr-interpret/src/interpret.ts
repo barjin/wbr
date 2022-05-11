@@ -43,6 +43,8 @@ export default class Interpreter extends EventEmitter {
 
   private stopper : Function | null = null;
 
+  private log : typeof log;
+
   constructor(workflow: WorkflowFile, options?: Partial<InterpreterOptions>) {
     super();
     this.workflow = workflow.workflow;
@@ -57,6 +59,7 @@ export default class Interpreter extends EventEmitter {
       ...options,
     };
     this.concurrency = new Concurrency(this.options.maxConcurrency);
+    this.log = (...args) => log(...args);
 
     const error = Preprocessor.validateWorkflow(workflow);
     if (error) {
@@ -64,9 +67,9 @@ export default class Interpreter extends EventEmitter {
     }
 
     if (this.options.debugChannel?.debugMessage) {
-      const oldLog = log;
+      const oldLog = this.log;
       // @ts-ignore
-      log = (...args: Parameters<typeof oldLog>) => {
+      this.log = (...args: Parameters<typeof oldLog>) => {
         if (args[1] !== Level.LOG) {
           this.options.debugChannel.debugMessage!(typeof args[0] === 'string' ? args[0] : args[0].message);
         }
@@ -267,7 +270,7 @@ export default class Interpreter extends EventEmitter {
               // `runLoop` uses soft mode, so it recovers from it's own exceptions
               // but newPage(), goto() and waitForLoadState() don't (and will kill
               // the interpreter by throwing).
-              log(<Error>e, Level.ERROR);
+              this.log(<Error>e, Level.ERROR);
             }
           });
         }
@@ -306,7 +309,7 @@ export default class Interpreter extends EventEmitter {
           async () => {},
         ).constructor;
         const x = new AsyncFunction('page', 'log', code);
-        await x(page, log);
+        await x(page, this.log);
       },
       flag: async () => new Promise((res) => {
         this.emit('flag', page, res);
@@ -314,7 +317,7 @@ export default class Interpreter extends EventEmitter {
     };
 
     for (const step of steps) {
-      log(`Launching ${step.action}`, Level.LOG);
+      this.log(`Launching ${step.action}`, Level.LOG);
 
       if (step.action in wawActions) {
         // "Arrayifying" here should not be needed (TS + syntax checker - only arrays; but why not)
@@ -374,12 +377,12 @@ export default class Interpreter extends EventEmitter {
       try {
         pageState = await this.getState(p, workflow);
       } catch (e: any) {
-        log('The browser has been closed.');
+        this.log('The browser has been closed.');
         return;
       }
 
       if (this.options.debug) {
-        log(`Current state is: \n${JSON.stringify(pageState, null, 2)}`, Level.WARN);
+        this.log(`Current state is: \n${JSON.stringify(pageState, null, 2)}`, Level.WARN);
       }
       const actionId = workflow.findIndex(
         (step) => this.applicable(step.where, pageState, usedActions),
@@ -387,7 +390,7 @@ export default class Interpreter extends EventEmitter {
 
       const action = workflow[actionId];
 
-      log(`Matched ${JSON.stringify(action?.where)}`, Level.LOG);
+      this.log(`Matched ${JSON.stringify(action?.where)}`, Level.LOG);
 
       if (action) { // action is matched
         if (this.options.debugChannel?.activeId) {
@@ -404,7 +407,7 @@ export default class Interpreter extends EventEmitter {
           await this.carryOutSteps(p, action.what);
           usedActions.push(action.id ?? 'undefined');
         } catch (e) {
-          log(<Error>e, Level.ERROR);
+          this.log(<Error>e, Level.ERROR);
         }
       } else {
         return;
