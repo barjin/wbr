@@ -168,7 +168,7 @@ export default function WorkflowManager(
 
   return (
     <div>
-    <button onClick={() => setModal(true)}>&lt; Back to the menu</button>
+    <button onClick={() => { setModal(true); stopWorkflow(); }}>&lt; Back to the menu</button>
     <EditableHeading text={workflowState.meta?.name ?? 'Workflow'} updater={(value: string) => { setWorkflow({ ...workflowState, meta: { ...workflowState.meta, name: value } }); }}/>
     <div id="mainContainer">
     <div style={{ padding: '10px', backgroundColor: 'white' }}>

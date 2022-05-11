@@ -44,21 +44,25 @@ export default class Performer {
   };
 
   async registerScreencast(ctx : BrowserContext, page: Page) {
-    const CDP = await ctx.newCDPSession(page);
-    await CDP.send('Page.startScreencast', { format: 'jpeg', quality: 50 });
+    try {
+      const CDP = await ctx.newCDPSession(page);
+      await CDP.send('Page.startScreencast', { format: 'jpeg', quality: 50 });
 
-    CDP.on('Page.screencastFrame', (payload) => {
-      this.sendToClients('screen', payload);
-      setTimeout(async () => {
-        try {
-          await CDP.send('Page.screencastFrameAck', { sessionId: payload.sessionId });
-        } catch (e) {
-          console.log(e);
-        }
-      }, 100);
-    });
-
-    return (() => CDP.send('Page.stopScreencast'));
+      CDP.on('Page.screencastFrame', (payload) => {
+        this.sendToClients('screen', payload);
+        setTimeout(async () => {
+          try {
+            await CDP.send('Page.screencastFrameAck', { sessionId: payload.sessionId });
+          } catch (e) {
+            console.log(e);
+          }
+        }, 100);
+      });
+      
+      return (() => CDP.send('Page.stopScreencast'));
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async run(parameters: Record<string, string>) : Promise<void> {

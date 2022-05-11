@@ -24,12 +24,10 @@
     "react-scripts": "5.0.0",
     "socket.io-client": "^4.4.1",
     "typescript": "^4.5.5",
-    "wbr-editor": "file:packages/wbr-editor",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "prebuild": "mkdir -p ./node_modules && npm install -f .",
     "build": "npm run clean && DISABLE_ESLINT_PLUGIN=true react-app-rewired build",
     "clean": "rimraf build",
     "test": "react-scripts test",
