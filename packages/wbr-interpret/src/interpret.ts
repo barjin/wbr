@@ -4,6 +4,10 @@ import path from 'path';
 
 import { EventEmitter } from 'events';
 import {
+  ExitStatus,
+} from './types/enums';
+
+import {
   Where, What, PageState, Workflow, WorkflowFile,
   ParamType, SelectorArray, CustomFunctions,
 } from './types/workflow';
@@ -33,6 +37,8 @@ interface InterpreterOptions {
  * Class for running the Smart Workflows.
  */
 export default class Interpreter extends EventEmitter {
+  errorMessage : string | null = null;
+
   private workflow: Workflow;
 
   private initializedWorkflow: Workflow | null;
@@ -66,12 +72,14 @@ export default class Interpreter extends EventEmitter {
       throw (error);
     }
 
-    if (this.options.debugChannel?.debugMessage) {
+    const { debugMessage } = this.options.debugChannel;
+
+    if (debugMessage) {
       const oldLog = this.log;
       // @ts-ignore
       this.log = (...args: Parameters<typeof oldLog>) => {
         if (args[1] !== Level.LOG) {
-          this.options.debugChannel.debugMessage!(typeof args[0] === 'string' ? args[0] : args[0].message);
+          debugMessage(typeof args[0] === 'string' ? args[0] : args[0].message);
         }
         oldLog(...args);
       };
@@ -105,10 +113,17 @@ export default class Interpreter extends EventEmitter {
           page.isVisible(selector, { timeout: 500 }),
           (async () => {
             const element = await page.locator(selector);
-            return element.evaluate((e) => {
-              const r = e.getBoundingClientRect();
+            return element.evaluate((e: any) => {
+              const outer = e.getBoundingClientRect();
               // @ts-ignore Playwright typings.
-              return e === document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+              const inner = document
+                .elementFromPoint(outer.left + outer.width / 2, outer.top + outer.height / 2)
+                .getBoundingClientRect();
+              // inner is inside of outer
+              return outer.left <= inner.left
+                && outer.right >= inner.right
+                && outer.top <= inner.top
+                && outer.bottom >= inner.bottom;
             });
           })(),
         ];
@@ -142,6 +157,11 @@ export default class Interpreter extends EventEmitter {
           }), {}),
       selectors: presentSelectors,
     };
+  }
+
+  private handleError(e: Error) : void {
+    this.errorMessage = e.message;
+    this.log(<Error>e, Level.ERROR);
   }
 
   /**
@@ -274,11 +294,8 @@ export default class Interpreter extends EventEmitter {
               await newPage.goto(link);
               await newPage.waitForLoadState('networkidle');
               await this.runLoop(newPage, this.initializedWorkflow!);
-            } catch (e) {
-              // `runLoop` uses soft mode, so it recovers from it's own exceptions
-              // but newPage(), goto() and waitForLoadState() don't (and will kill
-              // the interpreter by throwing).
-              this.log(<Error>e, Level.ERROR);
+            } catch (e: any) {
+              this.handleError(e);
             }
           });
         }
@@ -370,14 +387,14 @@ export default class Interpreter extends EventEmitter {
     while (true) {
       // Checks whether the page was closed from outside,
       //  or the workflow execution has been stopped via `interpreter.stop()`
-      if (p.isClosed() || !this.stopper) {
+      if (p.isClosed() || !this.stopper || this.errorMessage) {
         return;
       }
 
       try {
         await p.waitForLoadState();
-      } catch (e) {
-        await p.close();
+      } catch (e: any) {
+        this.handleError(e);
         return;
       }
 
@@ -385,7 +402,7 @@ export default class Interpreter extends EventEmitter {
       try {
         pageState = await this.getState(p, workflow);
       } catch (e: any) {
-        this.log('The browser has been closed.');
+        this.handleError(e);
         return;
       }
 
@@ -414,8 +431,9 @@ export default class Interpreter extends EventEmitter {
         try {
           await this.carryOutSteps(p, action.what);
           usedActions.push(action.id ?? 'undefined');
-        } catch (e) {
-          this.log(<Error>e, Level.ERROR);
+        } catch (e: any) {
+          this.handleError(e);
+          return;
         }
       } else {
         return;
@@ -431,7 +449,7 @@ export default class Interpreter extends EventEmitter {
    * @param {ParamType} params Workflow specific, set of parameters
    *  for the `{$param: nameofparam}` fields.
    */
-  public async run(page: Page, params? : ParamType) : Promise<void> {
+  public async run(page: Page, params? : ParamType) : Promise<ExitStatus> {
     if (this.stopper) {
       throw new Error('This Interpreter is already running a workflow. To run another workflow, please, spawn another Interpreter.');
     }
@@ -453,7 +471,15 @@ export default class Interpreter extends EventEmitter {
 
     await this.concurrency.waitForCompletion();
 
+    if (this.stopper === null) {
+      return ExitStatus.STOPPED;
+    }
+    if (this.errorMessage) {
+      return ExitStatus.FAILED;
+    }
     this.stopper = null;
+    this.errorMessage = null;
+    return ExitStatus.PASSED;
   }
 
   public async stop() : Promise<void> {
