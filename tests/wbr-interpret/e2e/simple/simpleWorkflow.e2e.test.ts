@@ -55,6 +55,7 @@ const checkResult = (result: string) => {
             const page = await browser.newPage();
         
             await interpret.run(page);
+
             await page.close();
 
             await browser.close();

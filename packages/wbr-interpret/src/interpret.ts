@@ -78,9 +78,7 @@ export default class Interpreter extends EventEmitter {
       const oldLog = this.log;
       // @ts-ignore
       this.log = (...args: Parameters<typeof oldLog>) => {
-        if (args[1] !== Level.LOG) {
-          debugMessage(typeof args[0] === 'string' ? args[0] : args[0].message);
-        }
+        debugMessage(typeof args[0] === 'string' ? args[0] : args[0].message);
         oldLog(...args);
       };
     }
