@@ -19,13 +19,6 @@ ___
 
 Forget everything you know about tedious asynchronous programming in Playwright or Puppeteer and focus on what you really want to achieve instead. Using an intuitive **if-this-then-that** schema, optimized concurrency with zero run conditions, and state-of-art backend technology, creating crawlers and automations has never been easier.
 
-> For work, Miss Glory. **One Robot can replace two and a half workmen.**
-> > K. Čapek, R. U. R. (1920)
-
-Even though *Web Browser Robot* cannot overthrow our society and exterminate mankind, it can definitely replace more than just 2.5 people.
-
-With the web growing faster than ever, containing ever more data, it is sometimes difficult to focus on what is important. Delegating the tedious, repetitive work to WBR makes your web workflows (almost) maintenance-free.
-
 ## Installation
 ```bash
 npm i -S @wbr-project/wbr-interpret
@@ -41,7 +34,7 @@ With WBR, even a complete beginner can start scraping and crawling in no time. S
 
 Are you *way too senior* for this child's play? We've got you covered. WBR allows you to embed your own high-performance code into its syntax, effectively combining the generic easy-to-maintain nature of Smart Workflows and specific niche actions crucial for your use case. From the outside, the programmed user actions are indistinguishable from native WBR's actions. 
 
-## Examples
+## Example
 
 Creating _lightning-fast web automations_ with WBR is easier than you think - nobody likes to [spend 8 hours writing an automation to a 1-hour task](https://xkcd.com/1319/). Consider the following snippet:
 
@@ -52,7 +45,7 @@ Creating _lightning-fast web automations_ with WBR is easier than you think - no
     },
     what: [
         {
-            type: "scrape",
+            action: "scrape",
         }
     ]
 }]
@@ -72,22 +65,22 @@ In that case, take a look at this one:
     },
     what: [
         {
-            type: "fill",
-            params: [
+            action: "fill",
+            args: [
                 "form input"
                 "login@login.com"
             ]
         },
         {
-            type: "fill",
-            params: [
+            action: "fill",
+            args: [
                 "form input[type=password]"
                 "verysecretpassword"
             ]
         },
         {
-            type: "keyboard.press",
-            params: "Enter"
+            action: "keyboard.press",
+            args: "Enter"
         }
     ]
 }]
@@ -99,4 +92,4 @@ See more examples and explanations in the [docs](./docs/).
 
 ## Legal 
 
-Made in collaboration with [Apify](https://apify.com/) and [MFF UK](https://mff.cuni.cz), 2021.
+Made in collaboration with [Apify](https://apify.com/) and [MFF UK](https://mff.cuni.cz), 2021-2022.
