@@ -17,7 +17,6 @@ This actor receives a JSON object with the workflow itself and optionally a list
 		"meta": {
 			"name": "Scrape anything!",
 			"desc": "The name speaks for itself.",
-			"params": ["url", "selector"],
 		},
 		"workflow": [
 			{
@@ -29,8 +28,8 @@ This actor receives a JSON object with the workflow itself and optionally a list
 				},
 				"what":[
 					{
-						"type":"click",
-						"params":[
+						"action":"click",
+						"args":[
 							"button:text-matches(\"(accept|agree|allow)\", \"i\")"
 						]
 					}

@@ -5,13 +5,12 @@ Web Browser Recorder, a one-stop shop for running and managing automated tasks o
 Web Browser Robot is a library allowing you to write fast web automations, saving you time on things that don't matter.
 
 
-
 ## Installation and usage
 
-To install the `wbr-interpret` npm package, navigate to your project's directory and run
+To install the `wbr` npm package, navigate to your project's directory and run
 
 ```bash
-npm i -s @wbr-project/wbr-interpret
+npm i wbr
 ```
 
 This installs the package into the `node_modules` folder of your project. The package also includes [Typescript](https://www.typescriptlang.org/) typings by default to facilitate its usage.
@@ -24,11 +23,11 @@ Now you are all set!
 	- a workflow consists of a list of actions (what to do) paired with their respective conditions (when to do it). This is a very simple yet powerful mechanism for handling even the hardest tasks. It also allows the robot to act on its own, recovering from potential mistakes and being less dependent on the actual environment. To a certain extent, this actually makes WBR an AI powered tool :)
 
 ## Usage
-Using the `wbr-interpret` package is simple. Just get your `.waw.json` file and your Playwright installation (should install with the package) ready.
+Using the `wbr` package is simple. Just get your `.waw.json` file and your Playwright installation (should install with the package) ready.
 
 ```javascript
 import { chromium } from 'playwright';
-import  Interpret  from 'wbr-interpret';
+import  Interpret  from 'wbr';
 
 (async () => {
 	// either defined here or parsed from a file

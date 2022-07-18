@@ -88,7 +88,14 @@ In that case, take a look at this one:
 
 What does this one do? On a page (any page) with a login form, this Smart Workflow fills in the login form and hits `Enter`, effectively logging the user in. This demonstrates many strengths of the Smart Workflow philosophy - they are highly reusable, as generic as possible, and help you automating your use cases while writing less code, only describing what you really want to do.
 
+
+See the complete official format definition at [apify/waw-file-specification](https://github.com/apify/waw-file-specification).
+
 See more examples and explanations in the [docs](./docs/).
+
+<h2 align="center">
+    <img src="./docs/wbr-interpret/static/img/wikipedia_scraper.gif"/>
+</h2>
 
 ## Legal 
 
