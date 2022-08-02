@@ -28,7 +28,7 @@
     "start": "node wbr-actor.js"
   },
   "dependencies": {
-    "@wbr-project/wbr-interpret": "*",
-    "apify": "^2.2.0"
+    "apify": "^2.2.0",
+    "wbr": "^0.10.1"
   }
 }

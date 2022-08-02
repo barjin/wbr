@@ -12,7 +12,7 @@ const workflow = {
             what: [
                 {
                     type: 'goto',
-                    params: 'https://example.org'
+                    args: ['https://example.org']
                 }
             ]
         }
@@ -34,7 +34,7 @@ const workflow = {
             what: [
                 {
                     type: 'goto',
-                    params: 'https://jindrich.bar'
+                    args: ['https://jindrich.bar']
                 }
             ]
         },
@@ -44,7 +44,7 @@ const workflow = {
             what: [
                 {
                     type: 'goto',
-                    params: 'https://example.org'
+                    args: ['https://example.org']
                 }
             ]
         }
@@ -82,7 +82,7 @@ const workflow = {
             what: [
                 {
                     type: 'goto',
-                    params: 'https://wikipedia.org'
+                    args: ['https://wikipedia.org']
                 }
             ]
         }
@@ -103,7 +103,7 @@ const workflow = {
             what: [
                 {
                     type: 'click',
-                    params: ':text("English")'
+                    args: [':text("English")']
                 }
             ]
         },
@@ -112,7 +112,7 @@ const workflow = {
             what: [
                 {
                     type: 'goto',
-                    params: 'https://wikipedia.org'
+                    args: ['https://wikipedia.org']
                 }
             ]
         }
@@ -120,7 +120,7 @@ const workflow = {
 };
 ```
 
-The `click` action (just like all the others, e.g. `goto`, `fill` or `keyboard.press`) corresponds to the [Playwright Page's click method](https://playwright.dev/docs/api/class-page#page-click). The `params` field then specifies the parameters for this method, in this case the [selector of the element](https://playwright.dev/docs/selectors) we want to click on.
+The `click` action (just like all the others, e.g. `goto`, `fill` or `keyboard.press`) corresponds to the [Playwright Page's click method](https://playwright.dev/docs/api/class-page#page-click). The `args` field then specifies the parameters for this method, in this case the [selector of the element](https://playwright.dev/docs/selectors) we want to click on.
 
 Right now, we are only one step from finishing our automation. Clicking the "English" button takes us to the english version of Wikipedia, where we can simply scrape the results using third rule.
 
@@ -134,10 +134,10 @@ const workflow = {
             what: [
                 {
                     type: 'scrapeSchema',
-                    params: {
+                    args: [{
                         "trivia": "#mp-dyk > ul li",
                         "importantWord": "#mp-dyk > ul li b"
-                    }
+                    }]
                 },
                 {
                     type: 'close'
@@ -151,7 +151,7 @@ const workflow = {
             what: [
                 {
                     type: 'click',
-                    params: ':text("English")'
+                    args: [':text("English")']
                 },
                 {
                     type: 'waitForLoadState'
@@ -163,7 +163,7 @@ const workflow = {
             what: [
                 {
                     type: 'goto',
-                    params: 'https://wikipedia.org'
+                    args: ['https://wikipedia.org']
                 }
             ]
         }

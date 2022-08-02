@@ -1,5 +1,5 @@
 'use strict';
-const Interpret = require('@wbr-project/wbr-interpret').default;
+const Interpret = require('wbr').default;
 const Apify = require('apify');
 const {chromium} = require('playwright');
 
