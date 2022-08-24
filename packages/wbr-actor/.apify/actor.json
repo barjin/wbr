@@ -1,0 +1,96 @@
+{
+    "actorSpecification": 1,
+    "name": "waw-interpreter",
+    "title": "WAW format interpreter",
+    "description": "",
+    "version": "0.0.1",
+    "storages": {
+        "dataset": {
+            "actorSpecification": 1,
+            "title": "Scraped dataset",
+            "description": "",
+            "views": {
+                "output": {
+                    "title": "Output",
+                    "description": "It can take about one minute until the first results are available.",
+                    "transformation": {
+                        "fields": [
+                            "record_0000",
+                            "record_0001",
+                            "record_0002",
+                            "record_0003",
+                            "record_0004",
+                            "record_0005",
+                            "record_0006",
+                            "record_0007",
+                            "record_0008",
+                            "record_0009",
+                            "record_0010"
+                        ]
+                    },
+                    "display": {
+                        "component": "table",
+                        "columns": [
+                            {
+                                "label": "Place name",
+                                "format": "text",
+                                "field": "$record0000",
+                                "textField": "$title"
+                            },
+                            {
+                                "label": "Total score",
+                                "format": "text",
+                                "field": "$record0001"
+                            },
+                            {
+                                "label": "Reviews count",
+                                "format": "text",
+                                "field": "$record0002"
+                            },
+                            {
+                                "label": "Street",
+                                "format": "text",
+                                "field": "$record0003"
+                            },
+                            {
+                                "label": "City",
+                                "format": "text",
+                                "field": "$record0004"
+                            },
+                            {
+                                "label": "State",
+                                "format": "text",
+                                "field": "$record0005"
+                            },
+                            {
+                                "label": "Country code",
+                                "format": "text",
+                                "field": "$record0006"
+                            },
+                            {
+                                "label": "Website",
+                                "format": "text",
+                                "field": "$record0007"
+                            },
+                            {
+                                "label": "Phone",
+                                "format": "text",
+                                "field": "$record0008"
+                            },
+                            {
+                                "label": "Category",
+                                "format": "text",
+                                "field": "$record0009"
+                            },
+                            {
+                                "label": "Category",
+                                "format": "text",
+                                "field": "$record0010"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
