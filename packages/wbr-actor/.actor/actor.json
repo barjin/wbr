@@ -34,57 +34,57 @@
                             {
                                 "label": "Place name",
                                 "format": "text",
-                                "field": "$record0000"
+                                "field": "$record_0000"
                             },
                             {
                                 "label": "Total score",
                                 "format": "text",
-                                "field": "$record0001"
+                                "field": "$record_0001"
                             },
                             {
                                 "label": "Reviews count",
                                 "format": "text",
-                                "field": "$record0002"
+                                "field": "$record_0002"
                             },
                             {
                                 "label": "Street",
                                 "format": "text",
-                                "field": "$record0003"
+                                "field": "$record_0003"
                             },
                             {
                                 "label": "City",
                                 "format": "text",
-                                "field": "$record0004"
+                                "field": "$record_0004"
                             },
                             {
                                 "label": "State",
                                 "format": "text",
-                                "field": "$record0005"
+                                "field": "$record_0005"
                             },
                             {
                                 "label": "Country code",
                                 "format": "text",
-                                "field": "$record0006"
+                                "field": "$record_0006"
                             },
                             {
                                 "label": "Website",
                                 "format": "text",
-                                "field": "$record0007"
+                                "field": "$record_0007"
                             },
                             {
                                 "label": "Phone",
                                 "format": "text",
-                                "field": "$record0008"
+                                "field": "$record_0008"
                             },
                             {
                                 "label": "Category",
                                 "format": "text",
-                                "field": "$record0009"
+                                "field": "$record_0009"
                             },
                             {
                                 "label": "Category",
                                 "format": "text",
-                                "field": "$record0010"
+                                "field": "$record_0010"
                             }
                         ]
                     }
